@@ -79,13 +79,13 @@ jobs:
           cd apps/desktop/src-tauri/bin
           # pkg outputs generic names, we must rename them to Tauri's exact target triples
           if [[ "${{ matrix.target }}" == "x86_64-pc-windows-msvc" ]]; then
-            mv mcp-cli-win-x64.exe eldoc-mcp-x86_64-pc-windows-msvc.exe
+            mv mcp-cli-win*.exe eldoc-mcp-x86_64-pc-windows-msvc.exe
           elif [[ "${{ matrix.target }}" == "x86_64-unknown-linux-gnu" ]]; then
-            mv mcp-cli-linux-x64 eldoc-mcp-x86_64-unknown-linux-gnu
+            mv mcp-cli-linux* eldoc-mcp-x86_64-unknown-linux-gnu
           elif [[ "${{ matrix.target }}" == "x86_64-apple-darwin" ]]; then
-            mv mcp-cli-macos-x64 eldoc-mcp-x86_64-apple-darwin
+            mv mcp-cli-macos-x64* eldoc-mcp-x86_64-apple-darwin
           elif [[ "${{ matrix.target }}" == "aarch64-apple-darwin" ]]; then
-            mv mcp-cli-macos-arm64 eldoc-mcp-aarch64-apple-darwin
+            mv mcp-cli-macos-arm64* eldoc-mcp-aarch64-apple-darwin
           fi
           # Clean up unused sidecars
           find . -type f ! -name "eldoc-mcp-${{ matrix.target }}*" -delete
@@ -96,6 +96,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: apps/desktop
+          tauriScript: pnpm tauri
           tagName: ${{ github.ref_name }}
           releaseName: "ElDoc ERD Canvas ${{ github.ref_name }}"
           releaseBody: "See the assets to download this version and install."
