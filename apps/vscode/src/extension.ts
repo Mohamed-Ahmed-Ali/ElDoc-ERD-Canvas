@@ -187,16 +187,14 @@ function rewriteAssetUrls(panel: vscode.WebviewPanel, html: string, webviewRoot:
     panel.webview.asWebviewUri(vscode.Uri.joinPath(webviewRoot, rel)).toString();
   let rewritten = html
     .replace(
-      /(href|src)=("\.\/(assets\/[^"]+)"|'\.\/(assets\/[^']+)')/g,
-      (_m, attr, q1, p1, q2, p2) => {
-        const quote = q1 || q2;
-        const path = p1 || p2;
+      /(href|src)=(['"])\.\/(assets\/[^'"]+)\2/g,
+      (_m, attr, quote, path) => {
         return `${attr}=${quote}${toUri(path)}${quote}`;
       },
     )
     // vite also emits `<link rel="stylesheet" href="/assets/...">` with a leading
     // slash in some configs — handle that too.
-    .replace(/(href|src)="\/((?:assets|favicon)[^"]*)"/g, (_m, attr, p) => `${attr}="${toUri(p)}"`)
+    .replace(/(href|src)=(['"])\/((?:assets|favicon)[^'"]+)\2/g, (_m, attr, quote, p) => `${attr}=${quote}${toUri(p)}${quote}`)
     // VS Code webviews don't support crossorigin on local resources, which Vite adds by default
     .replace(/ crossorigin/g, "");
 
