@@ -21,7 +21,7 @@ Write-Host "`n==============================================" -ForegroundColor M
 Write-Host " Building VS Code Extension (Production)..." -ForegroundColor Magenta
 Write-Host "==============================================" -ForegroundColor Magenta
 Set-Location -Path "apps\vscode"
-pnpm run package
+pnpm dlx @vscode/vsce package --no-dependencies
 if ($LASTEXITCODE -ne 0) {
     Write-Host "VS Code extension build failed." -ForegroundColor Red
     Set-Location -Path "..\.."
@@ -43,6 +43,6 @@ Set-Location -Path "..\.."
 
 Write-Host "`n==============================================" -ForegroundColor Green
 Write-Host " All production builds completed successfully!" -ForegroundColor Green
-Write-Host " - VS Code output is in apps\vscode\dist" -ForegroundColor DarkGray
+Write-Host " - VS Code output is in apps\vscode\*.vsix" -ForegroundColor DarkGray
 Write-Host " - Desktop output is in apps\desktop\src-tauri\target\release" -ForegroundColor DarkGray
 Write-Host "==============================================" -ForegroundColor Green
