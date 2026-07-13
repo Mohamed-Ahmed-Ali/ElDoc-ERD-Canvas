@@ -15,13 +15,13 @@ class SidebarProvider implements vscode.WebviewViewProvider {
         body { padding: 20px; font-family: var(--vscode-font-family); color: var(--vscode-foreground); display: flex; flex-direction: column; align-items: center; text-align: center; }
         button { background-color: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; width: 100%; margin-top: 20px; font-weight: bold; }
         button:hover { background-color: var(--vscode-button-hoverBackground); }
-        .logo { width: 64px; margin-bottom: 10px; opacity: 0.8; }
+        .logo { width: 80px; height: 80px; margin-bottom: 12px; border-radius: 12px; object-fit: contain; }
         h2 { font-size: 18px; margin: 0 0 10px 0; }
         p { font-size: 13px; opacity: 0.8; margin: 0; }
       </style>
     </head>
     <body>
-      <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      <img class="logo" src="${webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'eldoc-erd-canvas-icon.svg'))}" alt="ElDoc Logo">
       <h2>ElDoc ERD Canvas</h2>
       <p>Design your database models visually and generate SQL.</p>
       <button onclick="openCanvas()">Launch Canvas 🚀</button>
