@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
@@ -36,7 +36,7 @@ jobs:
         run: pnpm install
 
       - name: Build Web App
-        run: pnpm --filter @mc/web build
+        run: pnpm --filter @mc/web... build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
