@@ -17,10 +17,29 @@
   "activationEvents": ["onCommand:eldoc.openCanvas"],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "eldoc-sidebar",
+          "title": "ElDoc ERD Canvas",
+          "icon": "database.svg"
+        }
+      ]
+    },
+    "views": {
+      "eldoc-sidebar": [
+        {
+          "type": "webview",
+          "id": "eldoc.sidebarView",
+          "name": "ElDoc ERD Canvas"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "eldoc.openCanvas",
-        "title": "ElDoc: Open Canvas"
+        "title": "ElDoc: Open Canvas",
+        "icon": "$(layout-sidebar-right)"
       }
     ]
   },

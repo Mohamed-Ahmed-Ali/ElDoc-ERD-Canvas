@@ -2,8 +2,53 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 
+class SidebarProvider implements vscode.WebviewViewProvider {
+  constructor(private readonly _extensionUri: vscode.Uri) {}
+
+  resolveWebviewView(webviewView: vscode.WebviewView) {
+    webviewView.webview.options = { enableScripts: true };
+    webviewView.webview.html = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        body { padding: 20px; font-family: var(--vscode-font-family); color: var(--vscode-foreground); display: flex; flex-direction: column; align-items: center; text-align: center; }
+        button { background-color: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; width: 100%; margin-top: 20px; font-weight: bold; }
+        button:hover { background-color: var(--vscode-button-hoverBackground); }
+        .logo { width: 64px; margin-bottom: 10px; opacity: 0.8; }
+        h2 { font-size: 18px; margin: 0 0 10px 0; }
+        p { font-size: 13px; opacity: 0.8; margin: 0; }
+      </style>
+    </head>
+    <body>
+      <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      <h2>ElDoc ERD Canvas</h2>
+      <p>Design your database models visually and generate SQL.</p>
+      <button onclick="openCanvas()">Launch Canvas 🚀</button>
+      <script>
+        const vscode = acquireVsCodeApi();
+        function openCanvas() {
+          vscode.postMessage({ command: 'openCanvas' });
+        }
+      </script>
+    </body>
+    </html>`;
+
+    webviewView.webview.onDidReceiveMessage(data => {
+      if (data.command === 'openCanvas') {
+        vscode.commands.executeCommand('eldoc.openCanvas');
+      }
+    });
+  }
+}
+
 export function activate(context: vscode.ExtensionContext) {
   console.log("ElDoc ERD Canvas extension is now active!");
+
+  const sidebarProvider = new SidebarProvider(context.extensionUri);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider("eldoc.sidebarView", sidebarProvider)
+  );
 
   let disposable = vscode.commands.registerCommand("eldoc.openCanvas", () => {
     const panel = vscode.window.createWebviewPanel(
