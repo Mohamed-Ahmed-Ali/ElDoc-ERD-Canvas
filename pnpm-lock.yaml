@@ -44,11 +44,10 @@ importers:
         version: 5.9.3
 
   apps/vscode:
-    dependencies:
+    devDependencies:
       '@mc/mcp-core':
         specifier: workspace:*
         version: link:../../packages/mcp-core
-    devDependencies:
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.43

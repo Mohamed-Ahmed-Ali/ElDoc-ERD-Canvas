@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-vscode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      - run: pnpm install
+      - name: Build VS Code Extension
+        run: pnpm dlx @vscode/vsce package --no-dependencies
+        working-directory: apps/vscode
+      - name: Upload VS Code Extension
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: apps/vscode/*.vsix
+
+  build-tauri:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          
+      - name: install dependencies (ubuntu only)
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          
+      - run: pnpm install
+      
+      - name: Build Sidecars
+        run: pnpm --filter @mc/mcp-cli... build && pnpm --filter @mc/mcp-cli pkg
+        
+      - name: Prepare Sidecar for Tauri
+        shell: bash
+        run: |
+          cd apps/desktop/src-tauri/bin
+          # pkg outputs generic names, we must rename them to Tauri's exact target triples
+          if [[ "${{ matrix.target }}" == "x86_64-pc-windows-msvc" ]]; then
+            mv mcp-cli-win-x64.exe eldoc-mcp-x86_64-pc-windows-msvc.exe
+          elif [[ "${{ matrix.target }}" == "x86_64-unknown-linux-gnu" ]]; then
+            mv mcp-cli-linux-x64 eldoc-mcp-x86_64-unknown-linux-gnu
+          elif [[ "${{ matrix.target }}" == "x86_64-apple-darwin" ]]; then
+            mv mcp-cli-macos-x64 eldoc-mcp-x86_64-apple-darwin
+          elif [[ "${{ matrix.target }}" == "aarch64-apple-darwin" ]]; then
+            mv mcp-cli-macos-arm64 eldoc-mcp-aarch64-apple-darwin
+          fi
+          # Clean up unused sidecars
+          find . -type f ! -name "eldoc-mcp-${{ matrix.target }}*" -delete
+          
+      - name: Build Tauri App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "ElDoc ERD Canvas ${{ github.ref_name }}"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.target == 'aarch64-apple-darwin' && '--target aarch64-apple-darwin' || '' }}
