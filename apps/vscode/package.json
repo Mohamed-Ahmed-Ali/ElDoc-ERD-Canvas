@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "displayName": "ElDoc ERD Canvas",
   "description": "Design data models and use AI agents to generate SQL instantly.",
-  "publisher": "eldoc",
+  "publisher": "Mohamed-Ali",
   "author": "Mohamed Ali",
   "repository": {
     "type": "git",
