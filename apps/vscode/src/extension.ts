@@ -185,7 +185,7 @@ cp -r packages/web/dist/* apps/vscode/dist/webview/</pre>
 function rewriteAssetUrls(panel: vscode.WebviewPanel, html: string, webviewRoot: vscode.Uri) {
   const toUri = (rel: string) =>
     panel.webview.asWebviewUri(vscode.Uri.joinPath(webviewRoot, rel)).toString();
-  const rewritten = html
+  let rewritten = html
     .replace(
       /(href|src)=("\.\/(assets\/[^"]+)"|'\.\/(assets\/[^']+)')/g,
       (_m, attr, q1, p1, q2, p2) => {
@@ -196,7 +196,31 @@ function rewriteAssetUrls(panel: vscode.WebviewPanel, html: string, webviewRoot:
     )
     // vite also emits `<link rel="stylesheet" href="/assets/...">` with a leading
     // slash in some configs — handle that too.
-    .replace(/(href|src)="\/((?:assets|favicon)[^"]*)"/g, (_m, attr, p) => `${attr}="${toUri(p)}"`);
+    .replace(/(href|src)="\/((?:assets|favicon)[^"]*)"/g, (_m, attr, p) => `${attr}="${toUri(p)}"`)
+    // VS Code webviews don't support crossorigin on local resources, which Vite adds by default
+    .replace(/ crossorigin/g, "");
+
+  // Inject the VS Code API bridge so production React app can communicate with extension host
+  const bridgeScript = `
+    <script>
+      const vscode = acquireVsCodeApi();
+      window.addEventListener('message', event => {
+        if (event.data?.type === 'SAVE_OKF') {
+          vscode.postMessage({ command: 'saveOkf', data: event.data.payload });
+        }
+        if (event.data?.type === 'LOAD_OKF') {
+          vscode.postMessage({ command: 'loadOkf' });
+        }
+      });
+      window.addEventListener('message', event => {
+        const message = event.data;
+        if (message && message.command === 'loadOkfResponse') {
+          window.postMessage({ type: 'LOAD_OKF_RESPONSE', payload: message.data }, '*');
+        }
+      });
+    </script>
+  `;
+  rewritten = rewritten.replace('</body>', `${bridgeScript}</body>`);
   return rewritten;
 }
 
