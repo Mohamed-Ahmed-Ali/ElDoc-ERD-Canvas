@@ -10,8 +10,8 @@
     "targets": ["node18-win-x64", "node18-macos-x64", "node18-macos-arm64", "node18-linux-x64"]
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs --clean --no-external",
-    "pkg": "pkg . --out-path ../desktop/src-tauri/bin",
+    "build": "tsup",
+    "pkg": "pkg . --no-bytecode --public --public-packages \"*\" --out-path ../desktop/src-tauri/bin",
     "start": "node dist/index.js"
   },
   "dependencies": {
