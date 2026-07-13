@@ -1,0 +1,20 @@
+{
+  "name": "@mc/mcp-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean"
+  },
+  "dependencies": {
+    "@mc/okf": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3",
+    "tsup": "^8.2.4"
+  }
+}

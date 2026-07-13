@@ -1,0 +1,26 @@
+{
+  "name": "@mc/mcp-cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "eldoc-mcp": "./dist/index.cjs"
+  },
+  "pkg": {
+    "targets": ["node18-win-x64", "node18-macos-x64", "node18-macos-arm64", "node18-linux-x64"]
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs --clean",
+    "pkg": "pkg . --out-path ../desktop/src-tauri/bin",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@mc/mcp-core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.0.1"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.3"
+  }
+}

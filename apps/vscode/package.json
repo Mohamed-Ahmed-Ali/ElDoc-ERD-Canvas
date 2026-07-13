@@ -1,0 +1,45 @@
+{
+  "name": "eldoc-erd-canvas",
+  "version": "0.0.1",
+  "displayName": "ElDoc ERD Canvas",
+  "description": "Design data models and use AI agents to generate SQL instantly.",
+  "publisher": "eldoc",
+  "author": "Mohamed Ali",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/eldoc-erd-canvas.git"
+  },
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onCommand:eldoc.openCanvas"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "eldoc.openCanvas",
+        "title": "ElDoc: Open Canvas"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "compile": "tsup src/extension.ts --format cjs --external vscode",
+    "watch": "tsup src/extension.ts --format cjs --external vscode --watch",
+    "package": "pnpm run build:webview && pnpm run compile",
+    "build:webview": "pnpm --filter @mc/web build && rimraf dist/webview && cpr ../../packages/web/dist dist/webview",
+    "dev:webview": "cross-env ELDOC_WEBVIEW_DEV_URL=http://localhost:5173 pnpm run compile && pnpm run watch"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "cpr": "3.0.1",
+    "cross-env": "7.0.3",
+    "rimraf": "5.0.5",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "@mc/mcp-core": "workspace:*"
+  }
+}

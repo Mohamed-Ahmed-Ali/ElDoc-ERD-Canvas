@@ -1,0 +1,313 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.theme-light {
+  --canvas-bg: transparent;
+  --canvas-dot: #e2e6ec;
+  --canvas-node: #e2e6ec;
+  --canvas-mask: rgba(240, 242, 245, 0.6);
+
+  --node-bg: #ffffff;
+  --node-border: #e2e8f0;
+  --node-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
+
+  --node-header-text: #1e293b; /* slate-800 */
+  --node-header-border: #f3f5f8;
+  --node-header-info-bg: #f8fafc; /* slate-50 */
+  --node-header-info-text: #94a3b8; /* slate-400 */
+
+  --node-field-border: #f3f5f8;
+  --node-field-hover-bg: #f8fafc; /* slate-50 */
+  --node-field-text: #1e293b; /* slate-800 */
+  --node-field-type-text: #94a3b8; /* slate-400 */
+
+  --group-bg: rgba(226, 232, 240, 0.5); /* slate-200 / 50% */
+  --group-border: #cbd5e1; /* slate-300 */
+  --group-header-text: #334155; /* slate-700 */
+  --group-header-bg: rgba(255, 255, 255, 0.6); /* white/60 */
+
+  --edge-stroke: #94a3b8; /* slate-400 */
+
+  /* Global Layout */
+  --bg-page: #f7f8fa;
+  --bg-panel: #ffffff;
+  --border-panel: #d8dee8;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --btn-hover-bg: #f1f3f7;
+  --btn-active-bg: #e6f1fb;
+  --btn-active-text: #1e88e5;
+  --input-bg: #ffffff;
+  --input-border: #d8dee8;
+}
+
+.theme-dark {
+  --canvas-bg: #0f172a; /* slate-900 */
+  --canvas-dot: #334155; /* slate-700 */
+  --canvas-node: #334155;
+  --canvas-mask: rgba(15, 23, 42, 0.8);
+
+  --node-bg: #1e293b; /* slate-800 */
+  --node-border: #334155; /* slate-700 */
+  --node-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+
+  --node-header-text: #f8fafc; /* slate-50 */
+  --node-header-border: #334155; /* slate-700 */
+  --node-header-info-bg: #0f172a; /* slate-900 */
+  --node-header-info-text: #94a3b8; /* slate-400 */
+
+  --node-field-border: #334155; /* slate-700 */
+  --node-field-hover-bg: #334155; /* slate-700 */
+  --node-field-text: #f1f5f9; /* slate-100 */
+  --node-field-type-text: #94a3b8; /* slate-400 */
+
+  --group-bg: rgba(30, 41, 59, 0.5); /* slate-800 / 50% */
+  --group-border: #475569; /* slate-600 */
+  --group-header-text: #f1f5f9; /* slate-100 */
+  --group-header-bg: rgba(15, 23, 42, 0.6); /* slate-900/60 */
+
+  --edge-stroke: #64748b; /* slate-500 */
+
+  /* Global Layout */
+  --bg-page: #0f172a;
+  --bg-panel: #1e293b;
+  --border-panel: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --btn-hover-bg: #334155;
+  --btn-active-bg: #0f172a;
+  --btn-active-text: #38bdf8;
+  --input-bg: #0f172a;
+  --input-border: #334155;
+}
+
+.theme-turbo {
+  --canvas-bg: #1e1e24;
+  --canvas-dot: #333333;
+  --canvas-node: #333333;
+  --canvas-mask: rgba(30, 30, 36, 0.6);
+
+  --node-bg: #1a192b;
+  --node-border: transparent;
+  --node-shadow: none;
+
+  --node-header-text: #ffffff;
+  --node-header-border: #333333;
+  --node-header-info-bg: transparent;
+  --node-header-info-text: #8b92a5;
+
+  --node-field-border: #333333;
+  --node-field-hover-bg: rgba(255, 255, 255, 0.05);
+  --node-field-text: #e2e8f0;
+  --node-field-type-text: #8b92a5;
+
+  --group-bg: rgba(26, 25, 43, 0.4);
+  --group-border: #ae53ba;
+  --group-header-text: #ffffff;
+  --group-header-bg: rgba(26, 25, 43, 0.8);
+
+  --edge-stroke: url(#edge-gradient);
+
+  /* Global Layout */
+  --bg-page: #15151a;
+  --bg-panel: #1a192b;
+  --border-panel: #333333;
+  --text-main: #ffffff;
+  --text-muted: #8b92a5;
+  --btn-hover-bg: rgba(255, 255, 255, 0.08);
+  --btn-active-bg: #2a8af6;
+  --btn-active-text: #ffffff;
+  --input-bg: #15151a;
+  --input-border: #333333;
+}
+
+.theme-turbo .mart-node {
+  border-color: transparent !important;
+  background: linear-gradient(var(--node-bg), var(--node-bg)) padding-box,
+    linear-gradient(90deg, #ae53ba, #2a8af6) border-box !important;
+  box-shadow: -5px 0 15px rgba(174, 83, 186, 0.3), 5px 0 15px rgba(42, 138, 246, 0.3) !important;
+}
+
+.theme-turbo .mart-handle {
+  background: #1a192b !important;
+  border-color: transparent !important;
+  background-image: linear-gradient(#1a192b, #1a192b), linear-gradient(90deg, #ae53ba, #2a8af6) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  opacity: 1 !important; /* Turbo handles are typically visible */
+}
+
+.theme-react-flow {
+  --canvas-bg: #ffffff;
+  --canvas-dot: #81818a;
+  --canvas-node: #eee;
+  --canvas-mask: rgba(255, 255, 255, 0.7);
+
+  --node-bg: #ffffff;
+  --node-border: #1a192b;
+  --node-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  --node-header-text: #222;
+  --node-header-border: #eee;
+  --node-header-info-bg: #f8f8f8;
+  --node-header-info-text: #555;
+
+  --node-field-border: #eee;
+  --node-field-hover-bg: #f4f4f4;
+  --node-field-text: #222;
+  --node-field-type-text: #777;
+
+  --group-bg: rgba(240, 240, 240, 0.5);
+  --group-border: #1a192b;
+  --group-header-text: #222;
+  --group-header-bg: rgba(255, 255, 255, 0.9);
+
+  --edge-stroke: #b1b1b7;
+
+  /* Global Layout */
+  --bg-page: #ffffff;
+  --bg-panel: #ffffff;
+  --border-panel: #eee;
+  --text-main: #222;
+  --text-muted: #777;
+  --btn-hover-bg: #f4f4f4;
+  --btn-active-bg: #eee;
+  --btn-active-text: #1a192b;
+  --input-bg: #ffffff;
+  --input-border: #eee;
+}
+
+@keyframes flow-animation {
+  from {
+    stroke-dashoffset: 10;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.react-flow__edge.animated-reverse path.react-flow__edge-path {
+  animation-direction: reverse;
+}
+
+/* ==========================================================================
+   Global App Theming Override Rules (overrides Tailwind light utilities in dark themes)
+   ========================================================================== */
+
+/* Outer wrapper base background and color */
+.theme-light,
+.theme-react-flow,
+.theme-dark,
+.theme-turbo {
+  background-color: var(--bg-page) !important;
+  color: var(--text-main) !important;
+}
+
+/* Background overrides for panels, dialogs and utility areas */
+.theme-dark .bg-white,
+.theme-turbo .bg-white {
+  background-color: var(--bg-panel) !important;
+}
+.theme-dark .bg-\[\#f7f8fa\],
+.theme-turbo .bg-\[\#f7f8fa\] {
+  background-color: var(--bg-page) !important;
+}
+.theme-dark .bg-\[\#f1f3f7\],
+.theme-turbo .bg-\[\#f1f3f7\],
+.theme-dark .bg-\[\#f8fafc\],
+.theme-turbo .bg-\[\#f8fafc\] {
+  background-color: var(--bg-page) !important;
+}
+
+/* Borders overrides */
+.theme-dark .border-\[\#d8dee8\],
+.theme-turbo .border-\[\#d8dee8\],
+.theme-dark .border-\[\#e6e9f0\],
+.theme-turbo .border-\[\#e6e9f0\],
+.theme-dark .border-\[\#e2e6ec\],
+.theme-turbo .border-\[\#e2e6ec\],
+.theme-dark .border-\[\#e2e8f0\],
+.theme-turbo .border-\[\#e2e8f0\],
+.theme-dark .border-slate-100,
+.theme-turbo .border-slate-100,
+.theme-dark .border-slate-200,
+.theme-turbo .border-slate-200 {
+  border-color: var(--border-panel) !important;
+}
+
+/* Text color overrides */
+.theme-dark .text-slate-900,
+.theme-turbo .text-slate-900,
+.theme-dark .text-slate-800,
+.theme-turbo .text-slate-800,
+.theme-dark .text-slate-700,
+.theme-turbo .text-slate-700 {
+  color: var(--text-main) !important;
+}
+.theme-dark .text-slate-500,
+.theme-turbo .text-slate-500,
+.theme-dark .text-slate-400,
+.theme-turbo .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+/* Button & interactive hovers */
+.theme-dark .hover\:bg-\[\#f1f3f7\]:hover,
+.theme-turbo .hover\:bg-\[\#f1f3f7\]:hover,
+.theme-dark .hover\:bg-\[\#f8fafc\]:hover,
+.theme-turbo .hover\:bg-\[\#f8fafc\]:hover,
+.theme-dark .hover\:bg-slate-50:hover,
+.theme-turbo .hover\:bg-slate-50:hover {
+  background-color: var(--btn-hover-bg) !important;
+}
+.theme-dark .hover\:text-slate-900:hover,
+.theme-turbo .hover\:text-slate-900:hover,
+.theme-dark .hover\:text-slate-700:hover,
+.theme-turbo .hover\:text-slate-700:hover {
+  color: var(--text-main) !important;
+}
+
+/* Active & selected states */
+.theme-dark .bg-\[\#e6f1fb\],
+.theme-turbo .bg-\[\#e6f1fb\] {
+  background-color: var(--btn-active-bg) !important;
+  color: var(--btn-active-text) !important;
+}
+.theme-dark .text-\[\#1e88e5\],
+.theme-turbo .text-\[\#1e88e5\] {
+  color: var(--btn-active-text) !important;
+}
+
+/* Inputs, textareas and selects */
+.theme-dark input,
+.theme-dark textarea,
+.theme-dark select,
+.theme-turbo input,
+.theme-turbo textarea,
+.theme-turbo select {
+  background-color: var(--input-bg) !important;
+  color: var(--text-main) !important;
+  border-color: var(--input-border) !important;
+}
+.theme-dark input::placeholder,
+.theme-dark textarea::placeholder,
+.theme-turbo input::placeholder,
+.theme-turbo textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Dialog overlays & blur backdrops */
+.theme-dark .bg-black\/30,
+.theme-turbo .bg-black\/30,
+.theme-dark .bg-slate-900\/20,
+.theme-turbo .bg-slate-900\/20 {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Command palette shortcuts */
+.theme-dark .bg-slate-100,
+.theme-turbo .bg-slate-100 {
+  background-color: var(--btn-hover-bg) !important;
+  color: var(--text-muted) !important;
+}

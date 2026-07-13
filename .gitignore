@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.superpowers/
+.claude/
+.env
+.env.local
+*.log
+.DS_Store
+
+# Added manually
+scratch/
+*.vsix
+.pnpm-store/
+
+*.gif
+apps/desktop/src-tauri/bin/
+
