@@ -1,6 +1,6 @@
 # ElDoc ERD Canvas
 
-<img width="1920" height="1200" alt="ElDoc ERD Canvas Interface" src="" />
+<img width="1920" height="1200" alt="ElDoc ERD Canvas Interface" src="https://github.com/Mohamed-Ahmed-Ali/ElDoc-ERD-Canvas/blob/main/ElDoc-ERD-Canvas.gif" />
 
 **ElDoc ERD Canvas** is a blazing-fast, strictly local, and completely free static web application for designing data models, entity-relationship diagrams (ERDs), and instantly generating SQL definitions using AI.
 
