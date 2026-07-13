@@ -20,6 +20,8 @@ jobs:
         with:
           version: 8
       - run: pnpm install
+      - name: Build workspace dependencies
+        run: pnpm --filter eldoc-erd-canvas^... build
       - name: Build VS Code Extension
         run: pnpm dlx @vscode/vsce package --no-dependencies
         working-directory: apps/vscode
@@ -67,6 +69,9 @@ jobs:
       
       - name: Build Sidecars
         run: pnpm --filter @mc/mcp-cli... build && pnpm --filter @mc/mcp-cli pkg
+        
+      - name: Build workspace dependencies
+        run: pnpm --filter @mc/web... build
         
       - name: Prepare Sidecar for Tauri
         shell: bash
