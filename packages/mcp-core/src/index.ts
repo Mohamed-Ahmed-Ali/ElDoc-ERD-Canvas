@@ -5,6 +5,19 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 
 export function createEldocServer() {
+  const validateGraph = (graph: any) => {
+    if (!graph || typeof graph !== "object") {
+      throw new Error("Invalid model graph format: expected a JSON object.");
+    }
+    if (!Array.isArray(graph.nodes)) {
+      throw new Error("Invalid model graph format: 'nodes' must be an array of table definitions.");
+    }
+    if (!Array.isArray(graph.edges)) {
+      throw new Error("Invalid model graph format: 'edges' must be an array of relationships.");
+    }
+    return graph;
+  };
+
   const server = new Server(
     {
       name: "eldoc-modeler",
@@ -204,7 +217,7 @@ export function createEldocServer() {
       const dialect = String(request.params.arguments?.dialect || "postgres");
 
       try {
-        const graph = JSON.parse(graphJson);
+        const graph = validateGraph(JSON.parse(graphJson));
         const sql = exportToSql(graph, dialect);
         return {
           content: [{ type: "text", text: sql }],
@@ -218,7 +231,7 @@ export function createEldocServer() {
     } else if (request.params.name === "get_business_context") {
       const graphJson = String(request.params.arguments?.graphJson);
       try {
-        const graph = JSON.parse(graphJson);
+        const graph = validateGraph(JSON.parse(graphJson));
         const glossary = (graph.glossary || [])
           .map((g: any) => `* ${g.term}: ${g.definition}`)
           .join("\n");
@@ -245,7 +258,7 @@ export function createEldocServer() {
     } else if (request.params.name === "list_tables") {
       const graphJson = String(request.params.arguments?.graphJson);
       try {
-        const graph = JSON.parse(graphJson);
+        const graph = validateGraph(JSON.parse(graphJson));
         const tables = graph.nodes
           .map(
             (n: any) =>
@@ -265,7 +278,7 @@ export function createEldocServer() {
       const graphJson = String(request.params.arguments?.graphJson);
       const tableName = String(request.params.arguments?.tableName);
       try {
-        const graph = JSON.parse(graphJson);
+        const graph = validateGraph(JSON.parse(graphJson));
         const table = graph.nodes.find(
           (n: any) => n.title.toLowerCase() === tableName.toLowerCase() || n.key === tableName,
         );
@@ -302,7 +315,7 @@ export function createEldocServer() {
     } else if (request.params.name === "suggest_joins") {
       const graphJson = String(request.params.arguments?.graphJson);
       try {
-        const graph = JSON.parse(graphJson);
+        const graph = validateGraph(JSON.parse(graphJson));
         const suggestions: string[] = [];
 
         // find pk columns
@@ -360,7 +373,7 @@ export function createEldocServer() {
 
       try {
         const raw = fs.readFileSync(filePath, "utf8");
-        const graph = JSON.parse(raw);
+        const graph = validateGraph(JSON.parse(raw));
 
         const counter = Math.max(
           0,
@@ -425,7 +438,7 @@ export function createEldocServer() {
 
       try {
         const raw = fs.readFileSync(filePath, "utf8");
-        const graph = JSON.parse(raw);
+        const graph = validateGraph(JSON.parse(raw));
         const table = graph.nodes.find(
           (n: any) => n.title.toLowerCase() === tableName.toLowerCase() || n.key === tableName,
         );
@@ -481,7 +494,7 @@ export function createEldocServer() {
 
       try {
         const raw = fs.readFileSync(filePath, "utf8");
-        const graph = JSON.parse(raw);
+        const graph = validateGraph(JSON.parse(raw));
 
         const src = graph.nodes.find(
           (n: any) => n.title.toLowerCase() === sourceTable.toLowerCase() || n.key === sourceTable,
