@@ -306,7 +306,6 @@ function CanvasInner() {
         const isDimmed = activeKeys !== null && !activeKeys.has(n.key);
 
         rfNode.hidden = physicallyHidden;
-        rfNode.zIndex = 2000;
         if (!rfNode.style) rfNode.style = {};
         rfNode.style.opacity = isDimmed ? 0.2 : 1;
         rfNode.style.transition = "opacity 0.2s ease";

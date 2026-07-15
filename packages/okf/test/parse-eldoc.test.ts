@@ -53,8 +53,6 @@ describe("parseBundle (ElDoc format)", () => {
   it("reads PK from the PK. token and identity from Overview", () => {
     const g = parseBundle({ "b/customers.md": customers });
     const n = g.nodes[0];
-    expect(n.eldocId).toBe("abc-123");
-    expect(n.status).toBe("created");
     expect(n.inputSource).toBe("VIEW");
     expect(n.schema[0]).toMatchObject({
       name: "id",

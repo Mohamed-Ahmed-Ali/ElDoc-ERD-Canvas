@@ -77,6 +77,9 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
   };
   if (n.color !== undefined) frontmatterObj.color = n.color;
   if (n.isHidden !== undefined) frontmatterObj.isHidden = n.isHidden;
+  if (n.description) frontmatterObj.description = n.description;
+  if (n.tableName) frontmatterObj.tableName = n.tableName;
+  if (n.tags && n.tags.length > 0) frontmatterObj.tags = n.tags;
 
   const fm = renderFrontmatter(frontmatterObj);
   const overviewParts = [
@@ -195,7 +198,8 @@ export function graphToDbml(graph: ModelGraph): string {
     if (n.color) {
       tableSettings = ` [headercolor: ${n.color}]`;
     }
-    dbml += `Table ${escapeId(n.title)}${tableSettings} {\n`;
+    const dbmlName = n.tableName || n.title;
+    dbml += `Table ${escapeId(dbmlName)}${tableSettings} {\n`;
 
     for (const f of n.schema) {
       dbml += `  ${escapeId(f.name)} ${f.type || "varchar"}`;
@@ -255,8 +259,11 @@ export function graphToDbml(graph: ModelGraph): string {
     else if (e.cardinality === "N:1") op = "<";
     else if (e.cardinality === "N:N") op = "<>";
 
+    const fromName = fromNode.tableName || fromNode.title;
+    const toName = toNode.tableName || toNode.title;
+
     for (const key of e.keys) {
-      dbml += `Ref: ${escapeId(fromNode.title)}.${escapeId(key.left)} ${op} ${escapeId(toNode.title)}.${escapeId(key.right)}\n`;
+      dbml += `Ref: ${escapeId(fromName)}.${escapeId(key.left)} ${op} ${escapeId(toName)}.${escapeId(key.right)}\n`;
     }
   }
 

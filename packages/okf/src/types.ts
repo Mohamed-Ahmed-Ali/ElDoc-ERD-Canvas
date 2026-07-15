@@ -67,6 +67,7 @@ export interface ModelNode {
   // n:N — two FKs into the bridged dimensions, no measures). `group` is visual.
   type?: "mart" | "group" | "bridge";
   title: string;
+  tableName?: string;
   inputSource: InputSource;
   description?: string;
   definition?: string | null; // optional source definition (SQL / table ref / view)

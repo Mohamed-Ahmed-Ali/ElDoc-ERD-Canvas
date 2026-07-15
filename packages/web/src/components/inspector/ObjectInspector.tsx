@@ -177,6 +177,21 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
         />
       </div>
 
+      {/* Physical Table Name */}
+      <div>
+        <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+          Physical Table Name
+          <InfoTip text="Overrides the auto-generated name. Leave blank to auto-generate from Title." />
+        </label>
+        <input
+          type="text"
+          value={node.tableName ?? ""}
+          onChange={(e) => onUpdate({ tableName: e.target.value || undefined })}
+          placeholder="Auto-generated from title"
+          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
+        />
+      </div>
+
       {/* Description — kept right under the title so the mart reads clearly. */}
       <div>
         <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">

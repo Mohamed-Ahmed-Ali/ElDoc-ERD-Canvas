@@ -59,6 +59,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     nodes.push({
       key,
       title,
+      ...(data.tableName !== undefined ? { tableName: String(data.tableName) } : {}),
       inputSource,
       description: data.description ? String(data.description) : "",
       definition: parseDefinition(body),

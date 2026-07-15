@@ -86,7 +86,7 @@ export function exportToSql(graph: ModelGraph, dialect = "postgres"): string {
     if (nodeNotes.length > 0) {
       lines.push(`-- ${nodeNotes.join("\n-- ")}`);
     }
-    let safeTitle = slugify(n.title, n.key).replace(/-/g, "_");
+    let safeTitle = n.tableName || slugify(n.title, n.key).replace(/-/g, "_");
     if (n.namespace) {
       safeTitle = `${n.namespace}.${safeTitle}`;
     }
@@ -183,7 +183,7 @@ export function exportToSql(graph: ModelGraph, dialect = "postgres"): string {
   const safeName = (key: string) => {
     const node = graph.nodes.find((n) => n.key === key);
     if (!node) return key;
-    let name = slugify(node.title, node.key).replace(/-/g, "_");
+    let name = node.tableName || slugify(node.title, node.key).replace(/-/g, "_");
     if (node.namespace) {
       name = `${node.namespace}.${name}`;
     }
