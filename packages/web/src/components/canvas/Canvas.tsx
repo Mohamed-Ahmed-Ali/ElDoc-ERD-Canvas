@@ -95,6 +95,7 @@ function toRFNode(n: ModelNode, viewMode: ViewMode, keyFields?: string[]): Node 
     width: n.type === "group" ? n.width : undefined,
     height: n.type === "group" ? n.height : undefined,
     style: n.type === "group" ? { width: n.width, height: n.height } : undefined,
+    zIndex: n.type === "group" ? -1 : 2000,
     data: {
       ...n,
       _viewMode: viewMode,

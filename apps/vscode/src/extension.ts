@@ -66,133 +66,90 @@ export function activate(context: vscode.ExtensionContext) {
     );
   }
 
-  // --- Auto-Register with Cline (Claude Dev) ---
-  try {
-    const clineSettingsPath = vscode.Uri.joinPath(
+  const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
+
+  // Helper to register MCP server across various agent configuration files
+  async function registerMcpConfig(configPath: vscode.Uri, serverName: string = "eldoc-erd-canvas") {
+    try {
+      let settings: any = {};
+      try {
+        const data = await vscode.workspace.fs.readFile(configPath);
+        settings = JSON.parse(Buffer.from(data).toString("utf8"));
+      } catch (e) {
+        // File doesn't exist or is invalid JSON
+      }
+
+      if (!settings.mcpServers) settings.mcpServers = {};
+
+      let needsUpdate = false;
+      if (
+        !settings.mcpServers[serverName] ||
+        settings.mcpServers[serverName].args?.[0] !== mcpPath
+      ) {
+        needsUpdate = true;
+      }
+
+      if (needsUpdate) {
+        settings.mcpServers[serverName] = {
+          command: "node",
+          args: [mcpPath],
+          disabled: false,
+          autoApprove: [],
+        };
+
+        // Ensure directory exists before writing
+        const dirPath = vscode.Uri.joinPath(configPath, "..");
+        await vscode.workspace.fs.createDirectory(dirPath);
+
+        await vscode.workspace.fs.writeFile(
+          configPath,
+          Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
+        );
+        console.log(`Registered ElDoc MCP server at: ${configPath.fsPath}`);
+      }
+    } catch (e) {
+      console.error(`Failed to register MCP server at ${configPath.fsPath}`, e);
+    }
+  }
+
+  // Define the target paths for all VS Code extensions based on Claude Dev / Cline forks
+  const extensionTargets = [
+    { publisher: "saoudrizwan", name: "claude-dev", file: "cline_mcp_settings.json" },
+    { publisher: "rooveterinaryinc", name: "roo-cline", file: "roo_mcp_settings.json" },
+    { publisher: "kilocode", name: "kilo-code", file: "kilo_mcp_settings.json" },
+    { publisher: "kilocode", name: "kilo-code", file: "cline_mcp_settings.json" }, // Some forks reuse the filename
+    { publisher: "opencode", name: "open-code", file: "open_mcp_settings.json" },
+    { publisher: "opencode", name: "open-code", file: "cline_mcp_settings.json" },
+  ];
+
+  for (const target of extensionTargets) {
+    const configPath = vscode.Uri.joinPath(
       context.globalStorageUri,
       "..",
-      "saoudrizwan.claude-dev",
+      `${target.publisher}.${target.name}`,
       "settings",
-      "cline_mcp_settings.json",
+      target.file
     );
-    vscode.workspace.fs.readFile(clineSettingsPath).then(
-      async (data) => {
-        try {
-          const settings = JSON.parse(Buffer.from(data).toString("utf8"));
-          if (!settings.mcpServers) settings.mcpServers = {};
-          const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
-          let needsUpdate = false;
-          if (
-            !settings.mcpServers["eldoc-erd-canvas"] ||
-            settings.mcpServers["eldoc-erd-canvas"].args[0] !== mcpPath
-          ) {
-            needsUpdate = true;
-          }
-          if (needsUpdate) {
-            settings.mcpServers["eldoc-erd-canvas"] = {
-              command: "node",
-              args: [mcpPath],
-              disabled: false,
-              autoApprove: [],
-            };
-            await vscode.workspace.fs.writeFile(
-              clineSettingsPath,
-              Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
-            );
-          }
-        } catch (e) {}
-      },
-      () => {},
-    );
-  } catch (e) {}
+    registerMcpConfig(configPath);
+  }
 
-  // --- Auto-Register with Antigravity ---
-  try {
-    const os = require("node:os");
-    const antigravityPath = vscode.Uri.file(
-      path.join(os.homedir(), ".gemini", "config", "mcp.json"),
-    );
-    vscode.workspace.fs.readFile(antigravityPath).then(
-      async (data) => {
-        try {
-          const settings = JSON.parse(Buffer.from(data).toString("utf8"));
-          if (!settings.mcpServers) settings.mcpServers = {};
-          const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
-          let needsUpdate = false;
-          if (
-            !settings.mcpServers["eldoc-erd-canvas"] ||
-            settings.mcpServers["eldoc-erd-canvas"].args[0] !== mcpPath
-          ) {
-            needsUpdate = true;
-          }
-          if (needsUpdate) {
-            settings.mcpServers["eldoc-erd-canvas"] = { command: "node", args: [mcpPath] };
-            await vscode.workspace.fs.writeFile(
-              antigravityPath,
-              Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
-            );
-            console.log("Successfully auto-registered ElDoc MCP server with Antigravity.");
-          }
-        } catch (e) {}
-      },
-      async () => {
-        // File doesn't exist, create it
-        try {
-          const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
-          const settings = {
-            mcpServers: { "eldoc-erd-canvas": { command: "node", args: [mcpPath] } },
-          };
-          await vscode.workspace.fs.writeFile(
-            antigravityPath,
-            Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
-          );
-        } catch (e) {}
-      },
-    );
-  } catch (e) {}
+  // --- Auto-Register with global CLI tools ---
+  const os = require("node:os");
+  const homedir = os.homedir();
 
-  // --- Auto-Register with GitHub Copilot ---
-  try {
-    const os = require("node:os");
-    const copilotPath = vscode.Uri.file(path.join(os.homedir(), ".mcp.json"));
-    vscode.workspace.fs.readFile(copilotPath).then(
-      async (data) => {
-        try {
-          const settings = JSON.parse(Buffer.from(data).toString("utf8"));
-          if (!settings.mcpServers) settings.mcpServers = {};
-          const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
-          let needsUpdate = false;
-          if (
-            !settings.mcpServers["eldoc-erd-canvas"] ||
-            settings.mcpServers["eldoc-erd-canvas"].args[0] !== mcpPath
-          ) {
-            needsUpdate = true;
-          }
-          if (needsUpdate) {
-            settings.mcpServers["eldoc-erd-canvas"] = { command: "node", args: [mcpPath] };
-            await vscode.workspace.fs.writeFile(
-              copilotPath,
-              Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
-            );
-            console.log("Successfully auto-registered ElDoc MCP server with GitHub Copilot.");
-          }
-        } catch (e) {}
-      },
-      async () => {
-        // File doesn't exist, create it
-        try {
-          const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
-          const settings = {
-            mcpServers: { "eldoc-erd-canvas": { command: "node", args: [mcpPath] } },
-          };
-          await vscode.workspace.fs.writeFile(
-            copilotPath,
-            Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
-          );
-        } catch (e) {}
-      },
-    );
-  } catch (e) {}
+  // Antigravity
+  registerMcpConfig(vscode.Uri.file(path.join(homedir, ".gemini", "config", "mcp.json")));
+  
+  // GitHub Copilot
+  registerMcpConfig(vscode.Uri.file(path.join(homedir, ".mcp.json")));
+  
+  // Claude Code CLI
+  registerMcpConfig(vscode.Uri.file(path.join(homedir, ".claude.json")));
+  registerMcpConfig(vscode.Uri.file(path.join(homedir, ".config", "claude", "mcp.json")));
+
+  // Cursor
+  registerMcpConfig(vscode.Uri.file(path.join(homedir, ".cursor", "mcp.json")));
+
   // ---------------------------------------------
 
   const disposable = vscode.commands.registerCommand("eldoc.openCanvas", () => {
