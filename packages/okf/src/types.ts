@@ -49,6 +49,12 @@ export interface SchemaField {
   // column lineage semantics
   lineageType?: LineageType;
   lineageLogic?: string;
+
+  // data engineering semantics
+  scdType?: "type1" | "type2" | "type3";
+  dataClassification?: "public" | "internal" | "confidential" | "restricted";
+  maskingPolicy?: string;
+  dataQualityRules?: string;
 }
 export interface JoinKey {
   left: string;
@@ -78,6 +84,11 @@ export interface ModelNode {
   error?: string | null;
   // the grain of a fact (e.g. "one row per order line"). Empty on dimensions.
   grain?: string;
+  // data engineering semantics
+  materialization?: "table" | "view" | "ephemeral" | "materialized_view";
+  partitioning?: string;
+  updateFrequency?: "real-time" | "hourly" | "daily" | "weekly" | "monthly" | "manual";
+  dataTier?: "bronze" | "silver" | "gold" | "raw" | "staged" | "curated";
   tags?: string[];
   isHidden?: boolean;
 }

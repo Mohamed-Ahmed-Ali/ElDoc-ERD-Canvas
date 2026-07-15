@@ -70,6 +70,11 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
       ...(data.color !== undefined ? { color: String(data.color) } : {}),
       ...(data.isHidden !== undefined ? { isHidden: Boolean(data.isHidden) } : {}),
       ...(parsedTags.length > 0 ? { tags: parsedTags } : {}),
+      ...(ov.grain ? { grain: ov.grain } : {}),
+      ...(ov.materialization ? { materialization: ov.materialization as any } : {}),
+      ...(ov.partitioning ? { partitioning: ov.partitioning } : {}),
+      ...(ov.updateFrequency ? { updateFrequency: ov.updateFrequency as any } : {}),
+      ...(ov.dataTier ? { dataTier: ov.dataTier as any } : {}),
     });
   }
 
@@ -219,8 +224,26 @@ function sourceFromType(type: unknown): InputSource | undefined {
   return undefined;
 }
 
-function parseOverview(body: string): { id?: string; status?: string; definitionType?: string } {
-  const out: { id?: string; status?: string; definitionType?: string } = {};
+function parseOverview(body: string): { 
+  id?: string; 
+  status?: string; 
+  definitionType?: string;
+  grain?: string;
+  materialization?: string;
+  partitioning?: string;
+  updateFrequency?: string;
+  dataTier?: string;
+} {
+  const out: { 
+    id?: string; 
+    status?: string; 
+    definitionType?: string;
+    grain?: string;
+    materialization?: string;
+    partitioning?: string;
+    updateFrequency?: string;
+    dataTier?: string;
+  } = {};
   const grab = (label: string) => {
     const m = body.match(new RegExp(`^- \\*\\*${label}:\\*\\*\\s*\`?([^\`\\n]+?)\`?\\s*$`, "im"));
     return m ? m[1].trim() : undefined;
@@ -228,6 +251,11 @@ function parseOverview(body: string): { id?: string; status?: string; definition
   out.id = grab("ID");
   out.status = grab("Status");
   out.definitionType = grab("Definition type");
+  out.grain = grab("Grain");
+  out.materialization = grab("Materialization");
+  out.partitioning = grab("Partitioning");
+  out.updateFrequency = grab("Update Frequency");
+  out.dataTier = grab("Data Tier");
   return out;
 }
 
@@ -294,6 +322,30 @@ function parseSchema(body: string): import("./types").SchemaField[] {
       if (logicMatch) {
         field.lineageLogic = logicMatch[1];
         desc = desc.replace(logicMatch[0], "").trim();
+      }
+
+      const scdMatch = desc.match(/\*\*SCD Type:\*\*\s*([a-zA-Z0-9_]+)\./i);
+      if (scdMatch) {
+        field.scdType = scdMatch[1] as any;
+        desc = desc.replace(scdMatch[0], "").trim();
+      }
+
+      const classMatch = desc.match(/\*\*Classification:\*\*\s*([a-zA-Z0-9_]+)\./i);
+      if (classMatch) {
+        field.dataClassification = classMatch[1] as any;
+        desc = desc.replace(classMatch[0], "").trim();
+      }
+
+      const maskMatch = desc.match(/\*\*Masking:\*\*\s*([^\.]+)\./i);
+      if (maskMatch) {
+        field.maskingPolicy = maskMatch[1];
+        desc = desc.replace(maskMatch[0], "").trim();
+      }
+
+      const qualityMatch = desc.match(/\*\*Quality Rules:\*\*\s*`([^`]+)`\./i);
+      if (qualityMatch) {
+        field.dataQualityRules = qualityMatch[1];
+        desc = desc.replace(qualityMatch[0], "").trim();
       }
 
       if (desc) field.description = desc;

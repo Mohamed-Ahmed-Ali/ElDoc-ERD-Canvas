@@ -79,15 +79,22 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
   if (n.isHidden !== undefined) frontmatterObj.isHidden = n.isHidden;
 
   const fm = renderFrontmatter(frontmatterObj);
-  const overview = [
+  const overviewParts = [
     "## Overview",
     "",
     `- **ID:** \`${n.eldocId ?? "—"}\``,
     `- **Status:** ${n.status === "created" ? "PUBLISHED" : "DRAFT"}`,
     `- **Definition type:** ${n.inputSource}`,
     `- **Storage:** ${g.storageId ?? "—"}`,
-    "",
-  ].join("\n");
+  ];
+  if (n.grain) overviewParts.push(`- **Grain:** ${n.grain}`);
+  if (n.materialization) overviewParts.push(`- **Materialization:** ${n.materialization}`);
+  if (n.partitioning) overviewParts.push(`- **Partitioning:** ${n.partitioning}`);
+  if (n.updateFrequency) overviewParts.push(`- **Update Frequency:** ${n.updateFrequency}`);
+  if (n.dataTier) overviewParts.push(`- **Data Tier:** ${n.dataTier}`);
+  overviewParts.push("", "");
+
+  const overview = overviewParts.join("\n");
 
   const fk = fkColumns(n, g, slugByKey);
   const schema = n.schema.length
@@ -112,6 +119,10 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
           if (f.isMeasure) parts.push(`**Measure** (${f.measureType || "additive"}).`);
           if (f.lineageType) parts.push(`**Lineage:** ${f.lineageType}.`);
           if (f.lineageLogic) parts.push(`**Logic:** \`${f.lineageLogic}\`.`);
+          if (f.scdType) parts.push(`**SCD Type:** ${f.scdType}.`);
+          if (f.dataClassification) parts.push(`**Classification:** ${f.dataClassification}.`);
+          if (f.maskingPolicy) parts.push(`**Masking:** ${f.maskingPolicy}.`);
+          if (f.dataQualityRules) parts.push(`**Quality Rules:** \`${f.dataQualityRules}\`.`);
           if (f.alias) parts.push(`**Alias:** ${f.alias}.`);
           if (f.description) parts.push(f.description);
           const ref = fk.get(f.name);
@@ -200,6 +211,10 @@ export function graphToDbml(graph: ModelGraph): string {
       if (f.isMeasure) noteParts.push(`Measure: ${f.measureType || "additive"}`);
       if (f.lineageType) noteParts.push(`Lineage: ${f.lineageType}`);
       if (f.lineageLogic) noteParts.push(`Logic: ${f.lineageLogic}`);
+      if (f.scdType) noteParts.push(`SCD Type: ${f.scdType}`);
+      if (f.dataClassification) noteParts.push(`Classification: ${f.dataClassification}`);
+      if (f.maskingPolicy) noteParts.push(`Masking: ${f.maskingPolicy}`);
+      if (f.dataQualityRules) noteParts.push(`Quality Rules: ${f.dataQualityRules}`);
       if (f.keyType && f.keyType !== "attribute") {
         if (f.keyType === "surrogateHash" && f.hashConfig) {
           noteParts.push(

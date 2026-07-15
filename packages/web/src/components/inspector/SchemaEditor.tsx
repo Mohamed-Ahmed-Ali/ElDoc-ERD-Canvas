@@ -431,6 +431,54 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
                       </div>
                     </div>
                   )}
+                  {/* Data Engineering Settings */}
+                  <div className="flex flex-col gap-1 flex-1 min-w-[280px]">
+                    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                      Data Engineering Settings
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <select
+                        value={field.scdType ?? ""}
+                        onChange={(e) => updateField(i, { scdType: (e.target.value as any) || undefined })}
+                        className={inputCls}
+                        title="Slowly Changing Dimension (SCD) Tracking"
+                      >
+                        <option value="">SCD Tracking (None)</option>
+                        <option value="type1">SCD Type 1 (Overwrite)</option>
+                        <option value="type2">SCD Type 2 (History)</option>
+                        <option value="type3">SCD Type 3 (Previous Val)</option>
+                      </select>
+                      <select
+                        value={field.dataClassification ?? ""}
+                        onChange={(e) => updateField(i, { dataClassification: (e.target.value as any) || undefined })}
+                        className={inputCls}
+                        title="Data Classification"
+                      >
+                        <option value="">Classification (Unspecified)</option>
+                        <option value="public">Public</option>
+                        <option value="internal">Internal</option>
+                        <option value="confidential">Confidential</option>
+                        <option value="restricted">Restricted</option>
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="Masking Policy (e.g. SHA256)"
+                        value={field.maskingPolicy ?? ""}
+                        onChange={(e) => updateField(i, { maskingPolicy: e.target.value || undefined })}
+                        className={inputCls}
+                        title="Data Masking Policy"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Quality Rules (e.g. >= 0)"
+                        value={field.dataQualityRules ?? ""}
+                        onChange={(e) => updateField(i, { dataQualityRules: e.target.value || undefined })}
+                        className={inputCls}
+                        title="Data Quality Rules (Expectations)"
+                      />
+                    </div>
+                  </div>
+
                   {/* Additional Constraints */}
                   <div className="flex flex-col gap-1 flex-1 min-w-[280px]">
                     <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">

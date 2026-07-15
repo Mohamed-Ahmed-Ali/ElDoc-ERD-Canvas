@@ -76,6 +76,7 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
   // input source / definition / output schema live under a collapsed "Advanced"
   // section so the title and description are visible first.
   const [advOpen, setAdvOpen] = useState(false);
+  const [tableSettingsOpen, setTableSettingsOpen] = useState(false);
   const defHint = DEFINITION_HINT[node.inputSource];
 
   const statusClass = isCreated ? "bg-[#ecfdf5] text-[#047857]" : "bg-[#f1f5f9] text-[#475569]";
@@ -225,20 +226,109 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
         </div>
       </div>
 
-      {/* Grain — visible on mart and bridge, hidden on group */}
+      {/* Table Settings — Grain, Materialization, Partitioning, etc. */}
       {(node.type === "mart" || node.type === "bridge" || !node.type) && (
-        <div>
-          <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
-            Grain
-            <InfoTip text='One row per … (e.g. "one row per order line"). Documenting grain prevents silent double-counting downstream.' />
-          </label>
-          <input
-            type="text"
-            value={node.grain ?? ""}
-            onChange={(e) => onUpdate({ grain: e.target.value || undefined })}
-            placeholder="one row per …"
-            className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
-          />
+        <div className="border border-[#d8dee8] rounded-lg overflow-hidden">
+          <button
+            onClick={() => setTableSettingsOpen((o) => !o)}
+            className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-[#f8fafc]"
+          >
+            {tableSettingsOpen ? (
+              <ChevronDown size={14} className="text-slate-400" />
+            ) : (
+              <ChevronRight size={14} className="text-slate-400" />
+            )}
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] flex-1">
+              Table Settings
+            </span>
+            <span className="text-[11px] text-slate-400">grain · storage</span>
+          </button>
+          {tableSettingsOpen && (
+            <div className="px-3 pb-3 pt-3 border-t border-[#eef1f5] flex flex-col gap-[15px]">
+              <div>
+                <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+                  Grain
+                  <InfoTip text='One row per … (e.g. "one row per order line"). Documenting grain prevents silent double-counting downstream.' />
+                </label>
+                <input
+                  type="text"
+                  value={node.grain ?? ""}
+                  onChange={(e) => onUpdate({ grain: e.target.value || undefined })}
+                  placeholder="one row per …"
+                  className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+                  Materialization Strategy
+                </label>
+                <select
+                  value={node.materialization ?? ""}
+                  onChange={(e) => onUpdate({ materialization: (e.target.value as any) || undefined })}
+                  className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
+                >
+                  <option value="">Default</option>
+                  <option value="table">Table</option>
+                  <option value="view">View</option>
+                  <option value="ephemeral">Ephemeral</option>
+                  <option value="materialized_view">Materialized View</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+                  Partitioning & Clustering
+                  <InfoTip text="e.g. 'PARTITION BY DATE(created_at) CLUSTER BY user_id'" />
+                </label>
+                <input
+                  type="text"
+                  value={node.partitioning ?? ""}
+                  onChange={(e) => onUpdate({ partitioning: e.target.value || undefined })}
+                  placeholder="Partition logic"
+                  className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+                  Update Frequency / SLA
+                </label>
+                <select
+                  value={node.updateFrequency ?? ""}
+                  onChange={(e) => onUpdate({ updateFrequency: (e.target.value as any) || undefined })}
+                  className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
+                >
+                  <option value="">Unspecified</option>
+                  <option value="real-time">Real-time</option>
+                  <option value="hourly">Hourly</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="manual">Manual</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+                  Medallion Architecture (Data Tier)
+                </label>
+                <select
+                  value={node.dataTier ?? ""}
+                  onChange={(e) => onUpdate({ dataTier: (e.target.value as any) || undefined })}
+                  className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
+                >
+                  <option value="">Unspecified</option>
+                  <option value="bronze">Bronze (Raw)</option>
+                  <option value="silver">Silver (Cleansed)</option>
+                  <option value="gold">Gold (Aggregated)</option>
+                  <option value="raw">Raw</option>
+                  <option value="staged">Staged</option>
+                  <option value="curated">Curated</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

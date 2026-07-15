@@ -16,6 +16,11 @@ export function graphToCsv(g: ModelGraph): string {
     [
       "Table Name",
       "Table Description",
+      "Grain",
+      "Materialization",
+      "Partitioning",
+      "Update Frequency",
+      "Data Tier",
       "Column Name",
       "Data Type",
       "Role",
@@ -33,6 +38,10 @@ export function graphToCsv(g: ModelGraph): string {
       "Check Expression",
       "Lineage Type",
       "Lineage Logic",
+      "SCD Type",
+      "Classification",
+      "Masking Policy",
+      "Data Quality Rules",
     ].join(","),
   ];
   for (const node of g.nodes) {
@@ -51,6 +60,11 @@ export function graphToCsv(g: ModelGraph): string {
         [
           JSON.stringify(node.title),
           JSON.stringify(node.description || ""),
+          JSON.stringify(node.grain || ""),
+          JSON.stringify(node.materialization || ""),
+          JSON.stringify(node.partitioning || ""),
+          JSON.stringify(node.updateFrequency || ""),
+          JSON.stringify(node.dataTier || ""),
           JSON.stringify(field.name),
           JSON.stringify(field.type),
           JSON.stringify(field.role || "none"),
@@ -68,6 +82,10 @@ export function graphToCsv(g: ModelGraph): string {
           JSON.stringify(field.checkExpression || ""),
           JSON.stringify(field.lineageType || "none"),
           JSON.stringify(field.lineageLogic || ""),
+          JSON.stringify(field.scdType || ""),
+          JSON.stringify(field.dataClassification || ""),
+          JSON.stringify(field.maskingPolicy || ""),
+          JSON.stringify(field.dataQualityRules || ""),
         ].join(","),
       );
     }
