@@ -450,7 +450,7 @@ function MartNodeInner(props: NodeProps) {
           className="text-[10.5px] font-[650] uppercase tracking-[0.3px] px-[7px] py-[2px] rounded-full text-white"
           style={{ background: color }}
         >
-          {node.inputSource}
+          {node.materialization || "TABLE"}
         </span>
         {!isErd && (
           <span className="text-[11px] text-[var(--node-header-info-text)]">{fieldText}</span>
