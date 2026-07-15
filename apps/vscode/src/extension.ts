@@ -60,6 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
               name: "ElDoc ERD Canvas",
               command: "node",
               args: [context.asAbsolutePath("dist/mcp-server.js")],
+              env: {},
             },
           ];
         },
