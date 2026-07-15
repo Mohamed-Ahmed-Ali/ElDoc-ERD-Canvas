@@ -1,5 +1,5 @@
-import type { ModelGraph, ModelNode, ModelEdge, SchemaField, Cardinality } from "./types";
 import { slugify } from "./slug";
+import type { Cardinality, ModelEdge, ModelGraph, ModelNode, SchemaField } from "./types";
 
 function mapType(type: string, dialect: string): string {
   const t = type.toUpperCase().trim();
@@ -35,7 +35,6 @@ function mapType(type: string, dialect: string): string {
       if (t === "INTEGER") return "INT";
       if (t === "JSONB" || t === "JSON") return "STRING";
       return t;
-    case "postgres":
     default:
       if (t === "STRING") return "TEXT";
       return t;
@@ -71,7 +70,7 @@ function mapDefaultValue(def: string, type: string, dialect: string): string | n
   return def;
 }
 
-export function exportToSql(graph: ModelGraph, dialect: string = "postgres"): string {
+export function exportToSql(graph: ModelGraph, dialect = "postgres"): string {
   const lines: string[] = [];
 
   // create tables
@@ -151,7 +150,7 @@ export function exportToSql(graph: ModelGraph, dialect: string = "postgres"): st
     }
 
     lines.push(cols.join(",\n"));
-    lines.push(`);\n`);
+    lines.push(");\n");
 
     // explicit Foreign Keys from Schema (independent of canvas edges)
     for (const f of n.schema) {
@@ -159,9 +158,13 @@ export function exportToSql(graph: ModelGraph, dialect: string = "postgres"): st
         const target = f.foreignKeyRef.targetTable;
         const targetCol = f.foreignKeyRef.targetColumn || f.name;
         if (dialect.toLowerCase() === "sparksql") {
-          lines.push(`-- ALTER TABLE ${safeTitle} ADD FOREIGN KEY (${f.name}) REFERENCES ${target} (${targetCol});\n`);
+          lines.push(
+            `-- ALTER TABLE ${safeTitle} ADD FOREIGN KEY (${f.name}) REFERENCES ${target} (${targetCol});\n`,
+          );
         } else {
-          lines.push(`ALTER TABLE ${safeTitle} ADD FOREIGN KEY (${f.name}) REFERENCES ${target} (${targetCol});\n`);
+          lines.push(
+            `ALTER TABLE ${safeTitle} ADD FOREIGN KEY (${f.name}) REFERENCES ${target} (${targetCol});\n`,
+          );
         }
       }
     }
@@ -169,7 +172,7 @@ export function exportToSql(graph: ModelGraph, dialect: string = "postgres"): st
 
   // add foreign keys
   if (graph.edges.length > 0) {
-    lines.push(`-- Relationships`);
+    lines.push("-- Relationships");
   }
 
   const safeName = (key: string) => {
@@ -183,11 +186,11 @@ export function exportToSql(graph: ModelGraph, dialect: string = "postgres"): st
   };
 
   for (const e of graph.edges) {
-    let fromName = safeName(e.from);
-    let toName = safeName(e.to);
+    const fromName = safeName(e.from);
+    const toName = safeName(e.to);
 
-    let leftKeys = e.keys.map((k) => k.left).join(", ");
-    let rightKeys = e.keys.map((k) => k.right).join(", ");
+    const leftKeys = e.keys.map((k) => k.left).join(", ");
+    const rightKeys = e.keys.map((k) => k.right).join(", ");
 
     let fkTable = fromName;
     let refTable = toName;
@@ -210,9 +213,13 @@ export function exportToSql(graph: ModelGraph, dialect: string = "postgres"): st
 
     if (fkCols && refCols) {
       if (dialect.toLowerCase() === "sparksql") {
-        lines.push(`-- ALTER TABLE ${fkTable} ADD FOREIGN KEY (${fkCols}) REFERENCES ${refTable} (${refCols});`);
+        lines.push(
+          `-- ALTER TABLE ${fkTable} ADD FOREIGN KEY (${fkCols}) REFERENCES ${refTable} (${refCols});`,
+        );
       } else {
-        lines.push(`ALTER TABLE ${fkTable} ADD FOREIGN KEY (${fkCols}) REFERENCES ${refTable} (${refCols});`);
+        lines.push(
+          `ALTER TABLE ${fkTable} ADD FOREIGN KEY (${fkCols}) REFERENCES ${refTable} (${refCols});`,
+        );
       }
     }
   }

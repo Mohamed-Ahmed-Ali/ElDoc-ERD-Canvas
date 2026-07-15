@@ -1,95 +1,77 @@
-import { useCallback, useEffect, useSyncExternalStore, useState, useMemo } from "react";
-import type { FC } from "react";
 import {
-  ReactFlow as ReactFlowBase,
   Background,
   BackgroundVariant,
-  Controls,
-  ConnectionMode,
-  useNodesState,
-  useEdgesState,
-  type Node,
-  type Edge,
   type Connection,
-  type NodeChange,
-  type ReactFlowProps,
-  useReactFlow,
-  ReactFlowProvider,
+  ConnectionMode,
+  Controls,
+  type Edge,
   MiniMap,
+  type Node,
+  type NodeChange,
+  ReactFlow as ReactFlowBase,
+  type ReactFlowProps,
+  ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
+  useReactFlow,
 } from "@xyflow/react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import type { FC } from "react";
 import "@xyflow/react/dist/style.css";
 import "./canvas.css";
 
 import dagre from "@dagrejs/dagre";
 import {
-  Plus,
+  Code,
+  LayoutDashboard,
+  ListFilter,
   Maximize,
   MousePointer2,
-  LayoutDashboard,
+  PanelRightOpen,
+  Plus,
   Share2,
   Sparkles,
   X,
-  Code,
-  PanelRightOpen,
-  ListFilter,
 } from "lucide-react";
 
+import { type ModelEdge, type ModelGraph, type ModelNode, parseSql } from "@mc/okf";
 import { createModelStore } from "../../state/model";
 import { loadPersistedGraph, persistGraph } from "../../state/persist";
-import {
-  loadViewMode,
-  persistViewMode,
-  type ViewMode,
-} from "../../state/viewMode";
 import { useTheme } from "../../state/theme";
-import {
-  type ModelNode,
-  type ModelEdge,
-  type ModelGraph,
-  parseSql,
-} from "@mc/okf";
+import { type ViewMode, loadViewMode, persistViewMode } from "../../state/viewMode";
 
 import {
-  graphToBundleFiles,
   downloadBundle,
-  graphToSqlFile,
-  downloadSql,
-  graphToCsv,
   downloadCsv,
-  graphToDbmlFile,
   downloadDbml,
+  downloadSql,
+  graphToBundleFiles,
+  graphToCsv,
+  graphToDbmlFile,
+  graphToSqlFile,
 } from "../../okf/io";
-import {
-  buildShareUrl,
-  readSharedModel,
-  clearSharedModelFromUrl,
-} from "../../share/url";
+import { buildShareUrl, clearSharedModelFromUrl, readSharedModel } from "../../share/url";
 
 import { isTauri } from "@tauri-apps/api/core";
-import {
-  watch,
-  readTextFile,
-  writeTextFile,
-  BaseDirectory,
-} from "@tauri-apps/plugin-fs";
+import { BaseDirectory, readTextFile, watch, writeTextFile } from "@tauri-apps/plugin-fs";
 
-import { TopBar } from "../TopBar";
-import { ImportDialog } from "../ImportDialog";
-import { LibraryDialog } from "../LibraryDialog";
-import { TemplateApplyDialog } from "../TemplateApplyDialog";
 import { ClearCanvasDialog } from "../ClearCanvasDialog";
 import { GlossaryDialog } from "../GlossaryDialog";
-import { Dock, type Tool } from "./Dock";
-import { SelectionPanel } from "../SelectionPanel";
-import { MartNode } from "./MartNode";
-import { GroupNode } from "./GroupNode";
-import { RelEdge } from "./RelEdge";
+import { ImportDialog } from "../ImportDialog";
+import { LibraryDialog } from "../LibraryDialog";
 import { LinterDialog } from "../LinterDialog";
-import { buildRfEdges, isEdgeReconnectable } from "./edges";
-import { CommandPalette } from "./CommandPalette";
-import { erdAwareNodeSize } from "./layoutSize";
-import { Inspector } from "../inspector/Inspector";
+import { SelectionPanel } from "../SelectionPanel";
 import { SqlEditorPanel } from "../SqlEditorPanel";
+import { TemplateApplyDialog } from "../TemplateApplyDialog";
+import { TopBar } from "../TopBar";
+import { Inspector } from "../inspector/Inspector";
+import { CommandPalette } from "./CommandPalette";
+import { Dock, type Tool } from "./Dock";
+import { GroupNode } from "./GroupNode";
+import { MartNode } from "./MartNode";
+import { RelEdge } from "./RelEdge";
+import { buildRfEdges, isEdgeReconnectable } from "./edges";
+import { erdAwareNodeSize } from "./layoutSize";
 
 // cast to FC to avoid generic component JSX typing issues with @types/react 18.3
 const ReactFlow = ReactFlowBase as unknown as FC<ReactFlowProps>;
@@ -115,11 +97,7 @@ export const store = createModelStore(persistedGraph);
 const isFirstVisit = persistedGraph === undefined;
 
 // ── helpers to convert between model and RF types ───────────────────────────
-function toRFNode(
-  n: ModelNode,
-  viewMode: ViewMode,
-  keyFields?: string[],
-): Node {
+function toRFNode(n: ModelNode, viewMode: ViewMode, keyFields?: string[]): Node {
   return {
     id: n.key,
     type: n.type === "group" ? "group" : "mart",
@@ -128,8 +106,7 @@ function toRFNode(
     extent: n.parentId ? "parent" : undefined,
     width: n.type === "group" ? n.width : undefined,
     height: n.type === "group" ? n.height : undefined,
-    style:
-      n.type === "group" ? { width: n.width, height: n.height } : undefined,
+    style: n.type === "group" ? { width: n.width, height: n.height } : undefined,
     data: {
       ...n,
       _viewMode: viewMode,
@@ -207,10 +184,7 @@ function runDagreLayout(
   edges.forEach((e) => g.setEdge(e.from, e.to));
   dagre.layout(g);
 
-  const updates = new Map<
-    string,
-    { x: number; y: number; width?: number; height?: number }
-  >();
+  const updates = new Map<string, { x: number; y: number; width?: number; height?: number }>();
 
   nodes.forEach((n) => {
     const pos = g.node(n.key);
@@ -243,8 +217,7 @@ function runDagreLayout(
 }
 
 // ── Selection types ──────────────────────────────────────────────────────────
-type Selection =
-  { type: "node"; id: string } | { type: "edge"; id: string } | null;
+type Selection = { type: "node"; id: string } | { type: "edge"; id: string } | null;
 
 // ── Inner canvas (needs ReactFlowProvider context) ────────────────────────────
 const nodeTypes = { mart: MartNode, group: GroupNode };
@@ -290,13 +263,20 @@ function CanvasInner() {
 
   const [showSelectionPane, setShowSelectionPane] = useState(false);
   const [activeTagFilters, setActiveTagFilters] = useState<string[]>([]);
-  const [highlightDepth, setHighlightDepth] = useState<"None" | "1 Level" | "2 Levels" | "All">("None");
+  const [highlightDepth, setHighlightDepth] = useState<"None" | "1 Level" | "2 Levels" | "All">(
+    "None",
+  );
 
   const activeKeys = useMemo(() => {
     if (!selection || selection.type !== "node" || highlightDepth === "None") return null;
     const active = new Set<string>();
     const queue: { id: string; depth: number }[] = [{ id: selection.id, depth: 0 }];
-    const maxDepth = highlightDepth === "1 Level" ? 1 : highlightDepth === "2 Levels" ? 2 : Infinity;
+    const maxDepth =
+      highlightDepth === "1 Level"
+        ? 1
+        : highlightDepth === "2 Levels"
+          ? 2
+          : Number.POSITIVE_INFINITY;
     const adj = new Map<string, string[]>();
     for (const e of graph.edges) {
       if (!adj.has(e.from)) adj.set(e.from, []);
@@ -330,41 +310,49 @@ function CanvasInner() {
     const kf = keyFieldsByNode(graph.edges);
     setRfNodes(
       graph.nodes.map((n) => {
-        const matchesTags = activeTagFilters.length === 0 || (n.tags && n.tags.some(t => activeTagFilters.includes(t)));
+        const matchesTags =
+          activeTagFilters.length === 0 || n.tags?.some((t) => activeTagFilters.includes(t));
         const physicallyHidden = n.isHidden || !matchesTags;
         const rfNode = toRFNode(n, viewMode, [...(kf.get(n.key) ?? [])]);
-        
+
         const isDimmed = activeKeys !== null && !activeKeys.has(n.key);
-        
+
         rfNode.hidden = physicallyHidden;
         if (!rfNode.style) rfNode.style = {};
         rfNode.style.opacity = isDimmed ? 0.2 : 1;
         rfNode.style.transition = "opacity 0.2s ease";
-        
+
         return rfNode;
       }),
     );
   }, [graph.nodes, graph.edges, viewMode, setRfNodes, activeTagFilters, activeKeys]);
-  
+
   useEffect(() => {
     const rawEdges = buildRfEdges(graph.edges, graph.nodes, viewMode, store.updateEdge);
     setRfEdges(
       rawEdges.map((e) => {
         const mEdge = graph.edges.find((ge) => e.id.startsWith(ge.id));
-        const sourceNode = graph.nodes.find(n => n.key === e.source);
-        const targetNode = graph.nodes.find(n => n.key === e.target);
-        
-        const sourceHidden = sourceNode?.isHidden || (activeTagFilters.length > 0 && !(sourceNode?.tags?.some(t => activeTagFilters.includes(t))));
-        const targetHidden = targetNode?.isHidden || (activeTagFilters.length > 0 && !(targetNode?.tags?.some(t => activeTagFilters.includes(t))));
-        
-        const isDimmed = activeKeys !== null && (!activeKeys.has(e.source) || !activeKeys.has(e.target));
-        
+        const sourceNode = graph.nodes.find((n) => n.key === e.source);
+        const targetNode = graph.nodes.find((n) => n.key === e.target);
+
+        const sourceHidden =
+          sourceNode?.isHidden ||
+          (activeTagFilters.length > 0 &&
+            !sourceNode?.tags?.some((t) => activeTagFilters.includes(t)));
+        const targetHidden =
+          targetNode?.isHidden ||
+          (activeTagFilters.length > 0 &&
+            !targetNode?.tags?.some((t) => activeTagFilters.includes(t)));
+
+        const isDimmed =
+          activeKeys !== null && (!activeKeys.has(e.source) || !activeKeys.has(e.target));
+
         return {
           ...e,
           hidden: sourceHidden || targetHidden,
           style: { ...e.style, opacity: isDimmed ? 0.2 : 1, transition: "opacity 0.2s ease" },
         };
-      })
+      }),
     );
   }, [graph.edges, graph.nodes, viewMode, setRfEdges, activeTagFilters, activeKeys]);
 
@@ -377,8 +365,7 @@ function CanvasInner() {
     const selId = selection?.type === "edge" ? selection.id : null;
     setRfEdges((eds) =>
       eds.map((e) => {
-        const modelEdgeId = (e.data as { modelEdgeId?: string } | undefined)
-          ?.modelEdgeId;
+        const modelEdgeId = (e.data as { modelEdgeId?: string } | undefined)?.modelEdgeId;
         const reconnectable = isEdgeReconnectable(modelEdgeId, selId, viewMode);
         const zIndex = modelEdgeId != null && modelEdgeId === selId ? 1000 : 0;
         return e.reconnectable === reconnectable && e.zIndex === zIndex
@@ -418,7 +405,7 @@ function CanvasInner() {
     (oldEdge: Edge, conn: Connection) => {
       if (!conn.source || !conn.target) return;
       const modelEdgeId = oldEdge.id.split("::")[0];
-      const keyIndex = parseInt(oldEdge.id.split("::")[1] || "0", 10);
+      const keyIndex = Number.parseInt(oldEdge.id.split("::")[1] || "0", 10);
 
       const extractField = (handle: string | null | undefined) => {
         if (!handle) return "";
@@ -470,10 +457,7 @@ function CanvasInner() {
       if (tool === "add" || tool === "group") {
         const pos = screenToFlowPosition({ x: e.clientX, y: e.clientY });
         const type = tool === "group" ? "group" : "mart";
-        const n = store.addNode(
-          { x: pos.x - NODE_W / 2, y: pos.y - NODE_H / 2 },
-          type,
-        );
+        const n = store.addNode({ x: pos.x - NODE_W / 2, y: pos.y - NODE_H / 2 }, type);
         setSelection({ type: "node", id: n.key });
         setTool("select");
       } else {
@@ -594,8 +578,7 @@ function CanvasInner() {
               const n: ModelNode = JSON.parse(data);
               const position = { x: n.position.x + 20, y: n.position.y + 20 };
               // addNode only accepts 'mart'|'group'; bridge is set afterwards via updateNode.
-              const baseType: "mart" | "group" =
-                n.type === "group" ? "group" : "mart";
+              const baseType: "mart" | "group" = n.type === "group" ? "group" : "mart";
               const newNode = store.addNode(position, baseType);
               store.updateNode(newNode.key, {
                 title: `${n.title} (copy)`,
@@ -628,11 +611,7 @@ function CanvasInner() {
     (e: React.MouseEvent<HTMLDivElement>) => {
       // only fire when clicking the pane (not on a node card or edge)
       const target = e.target as HTMLElement;
-      if (
-        target.closest(".react-flow__node") ||
-        target.closest(".react-flow__edge")
-      )
-        return;
+      if (target.closest(".react-flow__node") || target.closest(".react-flow__edge")) return;
       const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
       const n = store.addNode({
         x: position.x - NODE_W / 2,
@@ -657,7 +636,7 @@ function CanvasInner() {
     downloadCsv(csv, title);
   }, []);
 
-  const handleExportSql = useCallback((dialect: string = "postgres") => {
+  const handleExportSql = useCallback((dialect = "postgres") => {
     const title = `model_${dialect}`;
     const sql = graphToSqlFile(store.get(), dialect);
     downloadSql(sql, title);
@@ -685,9 +664,7 @@ function CanvasInner() {
   // if the clipboard API is blocked (insecure context / permissions).
   const handleShare = useCallback(async () => {
     const url = await buildShareUrl(store.get());
-    const isLocal = /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(
-      location.hostname,
-    );
+    const isLocal = /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname);
     const msg = isLocal
       ? "Link copied — note: a localhost link only opens on this machine. Deploy to share it."
       : "Link copied — anyone with it can open this model.";
@@ -821,11 +798,9 @@ function CanvasInner() {
     <div
       className={`flex flex-col h-screen overflow-hidden theme-${activeTheme}`}
       style={{
-        fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif",
       }}
       onKeyDown={handleKeyDown}
-      tabIndex={0}
       role="application"
       aria-label="ERD Canvas"
     >
@@ -854,14 +829,9 @@ function CanvasInner() {
         highlightDepth={highlightDepth}
         onHighlightDepthChange={setHighlightDepth}
       />
-      {shareToast && (
-        <ShareToast message={shareToast} onClose={() => setShareToast(null)} />
-      )}
+      {shareToast && <ShareToast message={shareToast} onClose={() => setShareToast(null)} />}
       {showImport && (
-        <ImportDialog
-          onConfirm={handleImportConfirm}
-          onClose={() => setShowImport(false)}
-        />
+        <ImportDialog onConfirm={handleImportConfirm} onClose={() => setShowImport(false)} />
       )}
       {showClear && (
         <ClearCanvasDialog
@@ -874,9 +844,7 @@ function CanvasInner() {
           onClose={() => setShowClear(false)}
         />
       )}
-      {showLinter && (
-        <LinterDialog graph={graph} onClose={() => setShowLinter(false)} />
-      )}
+      {showLinter && <LinterDialog graph={graph} onClose={() => setShowLinter(false)} />}
       {showGlossary && (
         <GlossaryDialog
           graph={graph}
@@ -886,10 +854,7 @@ function CanvasInner() {
         />
       )}
       {showLibrary && (
-        <LibraryDialog
-          onUse={handleUseTemplate}
-          onClose={() => setShowLibrary(false)}
-        />
+        <LibraryDialog onUse={handleUseTemplate} onClose={() => setShowLibrary(false)} />
       )}
       {pendingTemplate && (
         <TemplateApplyDialog
@@ -900,10 +865,7 @@ function CanvasInner() {
         />
       )}
 
-      <CommandPalette
-        isOpen={showCommandPalette}
-        onClose={() => setShowCommandPalette(false)}
-      />
+      <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} />
 
       <div className="flex flex-1 min-h-0 relative">
         {/* Left tool dock */}
@@ -942,7 +904,6 @@ function CanvasInner() {
             onNodeClick={onNodeClick}
             onEdgeClick={onEdgeClick}
             onEdgeDoubleClick={onEdgeDoubleClick}
-
             connectionMode={ConnectionMode.Loose}
             fitView={false}
             minZoom={0.4}
@@ -1030,7 +991,7 @@ function CanvasInner() {
         </div>
 
         {/* Custom Context Menu */}
-        {contextMenu && contextMenu.show && (
+        {contextMenu?.show && (
           <div
             className="absolute z-50 bg-white border border-[#e2e8f0] shadow-lg rounded-xl overflow-hidden py-1 min-w-[160px]"
             style={{ left: contextMenu.x, top: contextMenu.y }}
@@ -1146,21 +1107,10 @@ function CanvasInner() {
             <button
               className="w-full text-left px-4 py-2 text-[13px] text-slate-700 hover:bg-[#f1f5fb] hover:text-[#1e88e5] transition-colors"
               onClick={() => {
-                const colors = [
-                  "#94a3b8",
-                  "#f87171",
-                  "#fbbf24",
-                  "#4ade80",
-                  "#60a5fa",
-                  "#a78bfa",
-                ];
-                const edge = store
-                  .get()
-                  .edges.find((e) => e.id === edgeContextMenu.id);
+                const colors = ["#94a3b8", "#f87171", "#fbbf24", "#4ade80", "#60a5fa", "#a78bfa"];
+                const edge = store.get().edges.find((e) => e.id === edgeContextMenu.id);
                 if (edge) {
-                  const nextIdx =
-                    (colors.indexOf(edge.color || "#94a3b8") + 1) %
-                    colors.length;
+                  const nextIdx = (colors.indexOf(edge.color || "#94a3b8") + 1) % colors.length;
                   store.updateEdge(edgeContextMenu.id, {
                     color: colors[nextIdx],
                   });

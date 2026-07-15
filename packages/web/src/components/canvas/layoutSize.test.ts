@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import type { ModelNode } from "@mc/okf";
+import { describe, expect, it } from "vitest";
 import { erdAwareNodeSize } from "./layoutSize";
 
 const mk = (fields: number): ModelNode => ({

@@ -1,6 +1,6 @@
+import { type NodeProps, NodeResizer, NodeToolbar, Position } from "@xyflow/react";
+import { Palette, Trash2 } from "lucide-react";
 import { memo, useState } from "react";
-import { NodeResizer, NodeToolbar, Position, type NodeProps } from "@xyflow/react";
-import { Trash2, Palette } from "lucide-react";
 export interface GroupNodeData {
   title?: string;
   color?: string;
@@ -17,9 +17,9 @@ function GroupNodeInner(props: NodeProps) {
 
   const hexToRgba = (hex: string, alpha: number) => {
     if (!hex.startsWith("#")) return hex;
-    const r = parseInt(hex.slice(1, 3), 16) || 226;
-    const g = parseInt(hex.slice(3, 5), 16) || 232;
-    const b = parseInt(hex.slice(5, 7), 16) || 240;
+    const r = Number.parseInt(hex.slice(1, 3), 16) || 226;
+    const g = Number.parseInt(hex.slice(3, 5), 16) || 232;
+    const b = Number.parseInt(hex.slice(5, 7), 16) || 240;
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
@@ -97,7 +97,6 @@ function GroupNodeInner(props: NodeProps) {
         >
           {editingTitle ? (
             <input
-              autoFocus
               className="w-full text-[var(--group-header-text)] bg-transparent border border-blue-400 rounded px-1 outline-none min-w-0"
               value={localTitle}
               onChange={(e) => setLocalTitle(e.target.value)}

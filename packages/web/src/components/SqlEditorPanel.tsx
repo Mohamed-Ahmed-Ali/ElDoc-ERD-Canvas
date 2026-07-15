@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { X, Play, Code } from "lucide-react";
+import { Code, Play, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface SqlEditorPanelProps {
   initialSql: string;

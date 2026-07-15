@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { serializeBundle } from "../src/serialize";
 import type { ModelGraph } from "../src/types";
 
@@ -80,7 +80,7 @@ describe("serializeBundle (ElDoc superset)", () => {
   });
 });
 
-import { describe as describeCard, it as itCard, expect as expectCard } from "vitest";
+import { describe as describeCard, expect as expectCard, it as itCard } from "vitest";
 import { serializeBundle as serializeCard } from "../src/serialize";
 import type { ModelGraph as ModelGraphCard } from "../src/types";
 

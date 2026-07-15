@@ -1,0 +1,57 @@
+{
+  "nodes": [
+    {
+      "key": "dim_product",
+      "title": "dim_product",
+      "inputSource": "manual",
+      "description": "Product dimension table",
+      "schema": [
+        { "name": "product_id", "type": "int", "role": "pk" },
+        { "name": "product_name", "type": "varchar", "role": "none" },
+        { "name": "category", "type": "varchar", "role": "none" },
+        { "name": "price", "type": "decimal", "role": "none" }
+      ]
+    },
+    {
+      "key": "dim_date",
+      "title": "dim_date",
+      "inputSource": "manual",
+      "description": "Date dimension table",
+      "schema": [
+        { "name": "date_id", "type": "int", "role": "pk" },
+        { "name": "full_date", "type": "date", "role": "none" },
+        { "name": "month", "type": "int", "role": "none" },
+        { "name": "year", "type": "int", "role": "none" }
+      ]
+    },
+    {
+      "key": "fact_sales",
+      "title": "fact_sales",
+      "inputSource": "manual",
+      "description": "Sales fact table",
+      "schema": [
+        { "name": "sale_id", "type": "int", "role": "pk" },
+        { "name": "product_id", "type": "int", "role": "fk" },
+        { "name": "date_id", "type": "int", "role": "fk" },
+        { "name": "quantity", "type": "int", "role": "none" },
+        { "name": "total_amount", "type": "decimal", "role": "none" }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "dim_product",
+      "target": "fact_sales",
+      "sourceHandle": "product_id",
+      "targetHandle": "product_id"
+    },
+    {
+      "id": "edge-2",
+      "source": "dim_date",
+      "target": "fact_sales",
+      "sourceHandle": "date_id",
+      "targetHandle": "date_id"
+    }
+  ]
+}

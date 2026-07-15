@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
 import { ReactFlow, ReactFlowProvider } from "@xyflow/react";
+import { describe, expect, it } from "vitest";
 import { RelEdge } from "./RelEdge";
 
 const edgeTypes = { rel: RelEdge };

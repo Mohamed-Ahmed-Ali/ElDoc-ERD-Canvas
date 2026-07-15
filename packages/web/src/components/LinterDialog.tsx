@@ -1,5 +1,5 @@
-import { type ModelGraph } from "@mc/okf";
-import { X, AlertTriangle, AlertCircle, CheckCircle } from "lucide-react";
+import type { ModelGraph } from "@mc/okf";
+import { AlertCircle, AlertTriangle, CheckCircle, X } from "lucide-react";
 
 interface LinterDialogProps {
   graph: ModelGraph;

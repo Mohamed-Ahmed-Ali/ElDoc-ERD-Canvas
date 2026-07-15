@@ -1,22 +1,22 @@
-import { useEffect, useState } from "react";
 import {
-  Download,
-  Upload,
+  BookOpen,
+  CheckSquare,
   ChevronDown,
-  Target,
-  Share2,
+  Code,
+  Download,
   FileText,
   Image as ImageIcon,
-  Code,
-  Undo,
-  Redo,
-  CheckSquare,
-  Palette,
-  BookOpen,
   LayoutDashboard,
+  Palette,
+  Redo,
+  Share2,
+  Target,
+  Undo,
+  Upload,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { LibraryIcon } from "../lib/icons";
-import { useTheme, themeStore, type ThemeName } from "../state/theme";
+import { type ThemeName, themeStore, useTheme } from "../state/theme";
 import { LogoIcon } from "./LogoIcon";
 
 // first-visit onboarding hint pointing at the Library. Persisted so it only
@@ -233,7 +233,8 @@ export function TopBar({
           title="Highlight depth when clicking a table"
           className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7]"
         >
-          <Target size={15} /> Depth: {highlightDepth} <ChevronDown size={14} className="text-slate-400" />
+          <Target size={15} /> Depth: {highlightDepth}{" "}
+          <ChevronDown size={14} className="text-slate-400" />
         </button>
         {highlightMenuOpen && (
           <>
@@ -259,7 +260,6 @@ export function TopBar({
           </>
         )}
       </div>
-
       {/* Export — dropdown: OKF markdown, PNG image, SVG image */}
       <div className="relative">
         <button

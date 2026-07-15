@@ -1,5 +1,5 @@
+import type { ModelEdge, ModelNode } from "@mc/okf";
 import type { Edge } from "@xyflow/react";
-import type { ModelNode, ModelEdge } from "@mc/okf";
 import type { ViewMode } from "../../state/viewMode";
 import { erdAwareNodeSize } from "./layoutSize";
 
@@ -28,14 +28,14 @@ function getAbsoluteX(node: ModelNode, byKey: Map<string, ModelNode>): number {
 }
 
 // pick the horizontal side each end of an edge attaches to.
-// derived from the nodes' absolute relative position: each end exits *toward* 
-// the other node — the shortest route, no loop-around. 
+// derived from the nodes' absolute relative position: each end exits *toward*
+// the other node — the shortest route, no loop-around.
 // We ignore stored handles for horizontal direction so it dynamically updates when nodes move.
 function edgeSides(
   src: ModelNode | undefined,
   tgt: ModelNode | undefined,
   viewMode: ViewMode,
-  byKey: Map<string, ModelNode>
+  byKey: Map<string, ModelNode>,
 ): { source: Side; target: Side } {
   let source: Side = "right";
   let target: Side = "left";

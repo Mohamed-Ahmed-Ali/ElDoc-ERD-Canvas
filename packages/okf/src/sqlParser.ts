@@ -1,4 +1,4 @@
-import type { ModelGraph, ModelNode, ModelEdge, SchemaField } from "./types";
+import type { ModelEdge, ModelGraph, ModelNode, SchemaField } from "./types";
 
 export interface ParseWarning {
   line: number;
@@ -180,7 +180,7 @@ function parseSelectColumns(
 
     if (parenDepth === 0) {
       // we are at a select list item
-      let exprTokens: Token[] = [];
+      const exprTokens: Token[] = [];
       while (j < tokens.length) {
         const curr = tokens[j];
         if (curr.type === "symbol" && curr.value === "(") {
@@ -394,7 +394,6 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
             });
           } else {
             i++;
-            continue;
           }
         } else {
           const schema: SchemaField[] = [];
@@ -415,7 +414,7 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
               }
             } else if (expect("keyword", "FOREIGN")) {
               expect("keyword", "KEY");
-              let sourceCols: string[] = [];
+              const sourceCols: string[] = [];
               if (expect("symbol", "(")) {
                 while (i < tokens.length && !matchToken("symbol", ")")) {
                   const col = getIdent();
@@ -427,7 +426,7 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
               }
               if (expect("keyword", "REFERENCES")) {
                 const targetTable = getIdent();
-                let targetCols: string[] = [];
+                const targetCols: string[] = [];
                 if (expect("symbol", "(")) {
                   while (i < tokens.length && !matchToken("symbol", ")")) {
                     const col = getIdent();
@@ -501,7 +500,7 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
                     }
                     if (expect("symbol", ")")) typeStr += ")";
                   } else {
-                    typeStr += tokens[i].value + " ";
+                    typeStr += `${tokens[i].value} `;
                     i++;
                   }
                 }
@@ -524,7 +523,7 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
                   typeStr = typeStr.replace(autoIncMatch[0], "").trim();
                 } else {
                   const defaultMatch = typeStr.match(/\bDEFAULT\s+([^,\)]+)/i);
-                  if (defaultMatch && defaultMatch[1].toLowerCase().includes("uuid")) {
+                  if (defaultMatch?.[1].toLowerCase().includes("uuid")) {
                     schema[schema.length - 1].sk = true;
                     schema[schema.length - 1].generationRule = defaultMatch[0].trim();
                     typeStr = typeStr.replace(defaultMatch[0], "").trim();
@@ -577,7 +576,7 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
 
           if (expect("keyword", "FOREIGN")) {
             expect("keyword", "KEY");
-            let sourceCols: string[] = [];
+            const sourceCols: string[] = [];
             if (expect("symbol", "(")) {
               while (i < tokens.length && !matchToken("symbol", ")")) {
                 const col = getIdent();
@@ -589,7 +588,7 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
             }
             if (expect("keyword", "REFERENCES")) {
               const targetTable = getIdent();
-              let targetCols: string[] = [];
+              const targetCols: string[] = [];
               if (expect("symbol", "(")) {
                 while (i < tokens.length && !matchToken("symbol", ")")) {
                   const col = getIdent();

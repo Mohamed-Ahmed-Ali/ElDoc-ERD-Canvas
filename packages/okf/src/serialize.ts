@@ -1,5 +1,5 @@
-import type { ModelGraph, ModelNode, Cardinality } from "./types";
-import { slugify, renderFrontmatter } from "./slug";
+import { renderFrontmatter, slugify } from "./slug";
+import type { Cardinality, ModelGraph, ModelNode } from "./types";
 
 const FLIP_CARDINALITY: Record<Cardinality, Cardinality> = {
   "1:1": "1:1",
@@ -77,8 +77,7 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
 
   const fk = fkColumns(n, g, slugByKey);
   const schema = n.schema.length
-    ? "# Schema\n\n| Column | Type | Description |\n|--------|------|-------------|\n" +
-      n.schema
+    ? `# Schema\n\n| Column | Type | Description |\n|--------|------|-------------|\n${n.schema
         .map((f) => {
           const parts: string[] = [];
           if (f.role && f.role.toLowerCase() === "pk") {
@@ -91,11 +90,11 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
             if (f.keyType === "surrogateHash" && f.hashConfig) {
               kStr += ` (${f.hashConfig.algorithm}(${f.hashConfig.sourceColumns.join(",")}))`;
             }
-            parts.push(kStr + ".");
+            parts.push(`${kStr}.`);
           }
           if (f.isComposite && f.compositeGroup)
             parts.push(`**Composite Group:** ${f.compositeGroup}.`);
-          if (f.pii) parts.push(`**PII.**`);
+          if (f.pii) parts.push("**PII.**");
           if (f.isMeasure) parts.push(`**Measure** (${f.measureType || "additive"}).`);
           if (f.alias) parts.push(`**Alias:** ${f.alias}.`);
           if (f.description) parts.push(f.description);
@@ -109,19 +108,16 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
           }
           return `| \`${f.name}\` | ${f.type} | ${parts.join(" ").trim()} |`;
         })
-        .join("\n") +
-      "\n\n"
+        .join("\n")}\n\n`
     : "";
 
-  const definition =
-    n.definition && n.definition.trim()
-      ? `## Definition\n\n\`\`\`${n.inputSource === "SQL" ? "sql" : "text"}\n${n.definition.trim()}\n\`\`\`\n\n`
-      : "";
+  const definition = n.definition?.trim()
+    ? `## Definition\n\n\`\`\`${n.inputSource === "SQL" ? "sql" : "text"}\n${n.definition.trim()}\n\`\`\`\n\n`
+    : "";
 
   const outgoing = g.edges.filter((e) => e.from === n.key || (e.bidirectional && e.to === n.key));
   const joins = outgoing.length
-    ? "## Joins\n\n" +
-      outgoing
+    ? `## Joins\n\n${outgoing
         .map((e) => {
           const forward = e.from === n.key;
           const otherKey = forward ? e.to : e.from;
@@ -148,11 +144,10 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
           const suffix = (card ? ` [${card}]` : "") + dirLabel + wpLabel;
           return `- [${other.title}](./${slugByKey.get(otherKey)}.md) — ${cond}${suffix}`;
         })
-        .join("\n") +
-      "\n"
+        .join("\n")}\n`
     : "";
 
-  return `---\n${fm}\n---\n\n# ${n.title}\n${n.description ? "\n" + n.description + "\n" : ""}\n${overview}${schema}${definition}${joins}`;
+  return `---\n${fm}\n---\n\n# ${n.title}\n${n.description ? `\n${n.description}\n` : ""}\n${overview}${schema}${definition}${joins}`;
 }
 
 export function graphToDbml(graph: ModelGraph): string {

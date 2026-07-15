@@ -1,20 +1,20 @@
-import { memo, useState, useRef } from "react";
-import { Handle, Position, NodeResizer, NodeToolbar, type NodeProps } from "@xyflow/react";
+import type { ModelNode, SchemaField } from "@mc/okf";
+import { Handle, type NodeProps, NodeResizer, NodeToolbar, Position } from "@xyflow/react";
 import {
-  KeyRound,
   ChevronDown,
   ChevronRight,
   EyeOff,
+  Hash,
+  KeyRound,
+  Link,
   Plus,
   Trash2,
   X,
-  Hash,
-  Link,
 } from "lucide-react";
-import type { ModelNode, SchemaField } from "@mc/okf";
+import { memo, useRef, useState } from "react";
+import { DataMartIcon } from "../../lib/icons";
 import type { ViewMode } from "../../state/viewMode";
 import { VIEW_CONFIG, toBusinessType } from "../../state/viewMode";
-import { DataMartIcon } from "../../lib/icons";
 import { ERD_COLLAPSED_ROWS } from "./layoutSize";
 
 const SOURCE_COLOR: Record<string, string> = {
@@ -109,7 +109,6 @@ function MartHeader({ node, color }: { node: MartNodeData; color: string }) {
       <DataMartIcon size={15} className="text-slate-400 flex-shrink-0" />
       {editing ? (
         <input
-          autoFocus
           className="text-[13.5px] font-semibold flex-1 leading-tight pr-3 text-[var(--node-header-text)] bg-[var(--node-bg)] border border-blue-400 rounded px-1 outline-none min-w-0"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -253,7 +252,6 @@ function FieldRow({
 
       {editingName ? (
         <input
-          autoFocus
           className="flex-1 text-[var(--node-field-text)] bg-[var(--node-bg)] border border-blue-400 rounded px-1 outline-none min-w-0"
           value={nameVal}
           onChange={(e) => setNameVal(e.target.value)}
@@ -287,7 +285,6 @@ function FieldRow({
       {config.showType !== "none" &&
         (editingType ? (
           <input
-            autoFocus
             className="text-[var(--node-field-type-text)] font-mono text-[10.5px] w-20 bg-[var(--node-bg)] border border-blue-400 rounded px-1 outline-none min-w-0"
             value={typeVal}
             onChange={(e) => setTypeVal(e.target.value)}
@@ -450,7 +447,6 @@ function MartNodeInner(props: NodeProps) {
       onMouseLeave={handleMouseLeave}
       role="article"
       aria-label={`Table node: ${node.title}`}
-      tabIndex={0}
     >
       <NodeToolbar
         isVisible={props.selected || isHovered}
@@ -502,7 +498,6 @@ function MartNodeInner(props: NodeProps) {
         <div className="px-3 pb-2">
           {editingDesc ? (
             <textarea
-              autoFocus
               className="w-full text-[11px] text-[var(--node-header-info-text)] bg-[var(--node-bg)] border border-blue-400 rounded px-1 py-1 outline-none min-h-[40px] resize-none"
               value={desc}
               onChange={(e) => setDesc(e.target.value)}

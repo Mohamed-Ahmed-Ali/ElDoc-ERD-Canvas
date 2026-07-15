@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { slugify, parseFrontmatter, renderFrontmatter } from "../src/slug";
+import { describe, expect, it } from "vitest";
+import { parseFrontmatter, renderFrontmatter, slugify } from "../src/slug";
 
 describe("slugify", () => {
   it("kebab-cases titles", () =>
@@ -15,7 +15,7 @@ describe("frontmatter", () => {
       eldoc: { key: "a", inputSource: "SQL", position: { x: 1, y: 2 } },
     };
     const text = renderFrontmatter(fm);
-    expect(parseFrontmatter("---\n" + text + "\n---\nbody").data).toEqual(fm);
+    expect(parseFrontmatter(`---\n${text}\n---\nbody`).data).toEqual(fm);
   });
 
   it("survives colons inside unquoted scalars (the bug that motivated swapping to js-yaml)", () => {
@@ -25,7 +25,7 @@ describe("frontmatter", () => {
       description: "See https://example.com for the full spec",
     };
     const text = renderFrontmatter(fm);
-    const back = parseFrontmatter("---\n" + text + "\n---\nbody").data;
+    const back = parseFrontmatter(`---\n${text}\n---\nbody`).data;
     expect(back.description).toBe("See https://example.com for the full spec");
   });
 
@@ -40,7 +40,7 @@ describe("frontmatter", () => {
       },
     };
     const text = renderFrontmatter(fm);
-    const back = parseFrontmatter("---\n" + text + "\n---\nbody").data;
+    const back = parseFrontmatter(`---\n${text}\n---\nbody`).data;
     expect(back.eldoc.description).toBe("PK. order_id joins customers.id (one-to-many)");
   });
 
@@ -48,7 +48,7 @@ describe("frontmatter", () => {
     // `name` is the only safe scalar here; `count` and `flag` are emitted
     // unquoted by the renderer because they look like native primitives.
     const back = parseFrontmatter(
-      "---\n" + renderFrontmatter({ name: "Orders", count: 42, flag: true }) + "\n---\nbody",
+      `---\n${renderFrontmatter({ name: "Orders", count: 42, flag: true })}\n---\nbody`,
     ).data;
     expect(back).toEqual({ name: "Orders", count: 42, flag: true });
   });
@@ -65,7 +65,7 @@ describe("frontmatter", () => {
     // a serialize → parse round-trip even when it contains multiple colons,
     // uRLs, and slashes.
     const fm = { title: "X", description: "See URL: https://example.com:8080/path" };
-    const back = parseFrontmatter("---\n" + renderFrontmatter(fm) + "\n---\nbody").data;
+    const back = parseFrontmatter(`---\n${renderFrontmatter(fm)}\n---\nbody`).data;
     expect(back.description).toBe("See URL: https://example.com:8080/path");
   });
 });

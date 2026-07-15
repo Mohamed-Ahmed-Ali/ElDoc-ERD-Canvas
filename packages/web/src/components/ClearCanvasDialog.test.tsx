@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { ClearCanvasDialog } from "./ClearCanvasDialog";
 
 const base = { counts: { marts: 3, relationships: 2 } };
@@ -34,9 +34,9 @@ describe("ClearCanvasDialog", () => {
   });
 
   it("wires Delete, Export OKF & delete and Cancel", () => {
-    const onDelete = vi.fn(),
-      onExportAndDelete = vi.fn(),
-      onClose = vi.fn();
+    const onDelete = vi.fn();
+    const onExportAndDelete = vi.fn();
+    const onClose = vi.fn();
     render(
       <ClearCanvasDialog
         {...base}

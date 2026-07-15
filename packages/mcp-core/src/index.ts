@@ -1,11 +1,8 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { exportToSql, parseBundle, serializeBundle } from "@mc/okf";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
-import { parseBundle, exportToSql, serializeBundle } from "@mc/okf";
-import * as fs from "fs";
-import * as path from "path";
+import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 
 export function createEldocServer() {
   const server = new Server(
@@ -32,13 +29,11 @@ export function createEldocServer() {
             properties: {
               graphJson: {
                 type: "string",
-                description:
-                  "The JSON representation of the ElDoc model graph.",
+                description: "The JSON representation of the ElDoc model graph.",
               },
               dialect: {
                 type: "string",
-                description:
-                  "The SQL dialect (e.g. 'postgres', 'snowflake', 'bigquery').",
+                description: "The SQL dialect (e.g. 'postgres', 'snowflake', 'bigquery').",
                 default: "postgres",
               },
             },
@@ -54,8 +49,7 @@ export function createEldocServer() {
             properties: {
               graphJson: {
                 type: "string",
-                description:
-                  "The JSON representation of the ElDoc model graph.",
+                description: "The JSON representation of the ElDoc model graph.",
               },
             },
             required: ["graphJson"],
@@ -63,15 +57,13 @@ export function createEldocServer() {
         },
         {
           name: "list_tables",
-          description:
-            "Lists all table/node names and descriptions in the model.",
+          description: "Lists all table/node names and descriptions in the model.",
           inputSchema: {
             type: "object",
             properties: {
               graphJson: {
                 type: "string",
-                description:
-                  "The JSON representation of the ElDoc model graph.",
+                description: "The JSON representation of the ElDoc model graph.",
               },
             },
             required: ["graphJson"],
@@ -79,15 +71,13 @@ export function createEldocServer() {
         },
         {
           name: "describe_table",
-          description:
-            "Returns the schema (columns, types, roles) for a specific table.",
+          description: "Returns the schema (columns, types, roles) for a specific table.",
           inputSchema: {
             type: "object",
             properties: {
               graphJson: {
                 type: "string",
-                description:
-                  "The JSON representation of the ElDoc model graph.",
+                description: "The JSON representation of the ElDoc model graph.",
               },
               tableName: {
                 type: "string",
@@ -99,15 +89,13 @@ export function createEldocServer() {
         },
         {
           name: "suggest_joins",
-          description:
-            "Analyzes schema fields and suggests potential Foreign Key connections.",
+          description: "Analyzes schema fields and suggests potential Foreign Key connections.",
           inputSchema: {
             type: "object",
             properties: {
               graphJson: {
                 type: "string",
-                description:
-                  "The JSON representation of the ElDoc model graph.",
+                description: "The JSON representation of the ElDoc model graph.",
               },
             },
             required: ["graphJson"],
@@ -115,8 +103,7 @@ export function createEldocServer() {
         },
         {
           name: "mutate_add_table",
-          description:
-            "Adds a new table/node to the ElDoc model OKF file and saves it.",
+          description: "Adds a new table/node to the ElDoc model OKF file and saves it.",
           inputSchema: {
             type: "object",
             properties: {
@@ -132,8 +119,7 @@ export function createEldocServer() {
         },
         {
           name: "mutate_add_column",
-          description:
-            "Adds a column to an existing table in the model.okf file.",
+          description: "Adds a column to an existing table in the model.okf file.",
           inputSchema: {
             type: "object",
             properties: {
@@ -154,8 +140,7 @@ export function createEldocServer() {
         },
         {
           name: "mutate_add_foreign_key",
-          description:
-            "Adds a foreign key edge between two tables in the model.okf file.",
+          description: "Adds a foreign key edge between two tables in the model.okf file.",
           inputSchema: {
             type: "object",
             properties: {
@@ -168,13 +153,7 @@ export function createEldocServer() {
               targetTable: { type: "string" },
               targetColumn: { type: "string" },
             },
-            required: [
-              "filePath",
-              "sourceTable",
-              "sourceColumn",
-              "targetTable",
-              "targetColumn",
-            ],
+            required: ["filePath", "sourceTable", "sourceColumn", "targetTable", "targetColumn"],
           },
         },
       ],
@@ -194,9 +173,7 @@ export function createEldocServer() {
         };
       } catch (err: any) {
         return {
-          content: [
-            { type: "text", text: `Error generating SQL: ${err.message}` },
-          ],
+          content: [{ type: "text", text: `Error generating SQL: ${err.message}` }],
           isError: true,
         };
       }
@@ -214,9 +191,7 @@ export function createEldocServer() {
         if (glossary) text += `--- GLOSSARY ---\n${glossary}\n\n`;
         if (kpis) text += `--- KPIs ---\n${kpis}\n\n`;
         return {
-          content: [
-            { type: "text", text: text || "No business context found." },
-          ],
+          content: [{ type: "text", text: text || "No business context found." }],
         };
       } catch (err: any) {
         return {
@@ -244,9 +219,7 @@ export function createEldocServer() {
         };
       } catch (err: any) {
         return {
-          content: [
-            { type: "text", text: `Error reading tables: ${err.message}` },
-          ],
+          content: [{ type: "text", text: `Error reading tables: ${err.message}` }],
           isError: true,
         };
       }
@@ -256,15 +229,11 @@ export function createEldocServer() {
       try {
         const graph = JSON.parse(graphJson);
         const table = graph.nodes.find(
-          (n: any) =>
-            n.title.toLowerCase() === tableName.toLowerCase() ||
-            n.key === tableName,
+          (n: any) => n.title.toLowerCase() === tableName.toLowerCase() || n.key === tableName,
         );
         if (!table) {
           return {
-            content: [
-              { type: "text", text: `Table '${tableName}' not found.` },
-            ],
+            content: [{ type: "text", text: `Table '${tableName}' not found.` }],
             isError: true,
           };
         }
@@ -272,21 +241,17 @@ export function createEldocServer() {
           .map((f: any) => {
             let desc = `  - ${f.name} (${f.type})`;
             if (f.role && f.role !== "none") desc += ` [Role: ${f.role}]`;
-            if (f.pii) desc += ` [PII]`;
+            if (f.pii) desc += " [PII]";
             if (f.description) desc += ` - ${f.description}`;
             return desc;
           })
           .join("\n");
         return {
-          content: [
-            { type: "text", text: `Schema for ${table.title}:\n${schema}` },
-          ],
+          content: [{ type: "text", text: `Schema for ${table.title}:\n${schema}` }],
         };
       } catch (err: any) {
         return {
-          content: [
-            { type: "text", text: `Error describing table: ${err.message}` },
-          ],
+          content: [{ type: "text", text: `Error describing table: ${err.message}` }],
           isError: true,
         };
       }
@@ -314,9 +279,7 @@ export function createEldocServer() {
             ) {
               for (const pk of pks) {
                 if (n.key === pk.table.key) continue; // Skip self
-                const targetName = pk.table.title
-                  .toLowerCase()
-                  .replace(/s$/, ""); // Basic singularization
+                const targetName = pk.table.title.toLowerCase().replace(/s$/, ""); // Basic singularization
                 if (
                   f.name.toLowerCase().startsWith(targetName) ||
                   f.name.toLowerCase() === pk.field.name.toLowerCase()
@@ -334,18 +297,13 @@ export function createEldocServer() {
           content: [
             {
               type: "text",
-              text:
-                suggestions.length > 0
-                  ? suggestions.join("\n")
-                  : "No join suggestions found.",
+              text: suggestions.length > 0 ? suggestions.join("\n") : "No join suggestions found.",
             },
           ],
         };
       } catch (err: any) {
         return {
-          content: [
-            { type: "text", text: `Error analyzing joins: ${err.message}` },
-          ],
+          content: [{ type: "text", text: `Error analyzing joins: ${err.message}` }],
           isError: true,
         };
       }
@@ -360,14 +318,14 @@ export function createEldocServer() {
         const raw = fs.readFileSync(filePath, "utf8");
         const graph = JSON.parse(raw);
 
-        let counter = Math.max(
+        const counter = Math.max(
           0,
           ...graph.nodes.map((n: any) => {
             const m = /(\d+)$/.exec(n.key);
             return m ? Number(m[1]) : 0;
           }),
         );
-        const key = "n" + (counter + 1);
+        const key = `n${counter + 1}`;
 
         graph.nodes.push({
           key,
@@ -382,9 +340,7 @@ export function createEldocServer() {
 
         fs.writeFileSync(filePath, JSON.stringify(graph, null, 2));
         return {
-          content: [
-            { type: "text", text: `Table ${tableName} added to ${filePath}.` },
-          ],
+          content: [{ type: "text", text: `Table ${tableName} added to ${filePath}.` }],
         };
       } catch (e: any) {
         return { isError: true, content: [{ type: "text", text: e.message }] };
@@ -394,17 +350,13 @@ export function createEldocServer() {
       const tableName = String(request.params.arguments?.tableName);
       const columnName = String(request.params.arguments?.columnName);
       const columnType = String(request.params.arguments?.columnType);
-      const role = request.params.arguments?.role
-        ? String(request.params.arguments?.role)
-        : "none";
+      const role = request.params.arguments?.role ? String(request.params.arguments?.role) : "none";
 
       try {
         const raw = fs.readFileSync(filePath, "utf8");
         const graph = JSON.parse(raw);
         const table = graph.nodes.find(
-          (n: any) =>
-            n.title.toLowerCase() === tableName.toLowerCase() ||
-            n.key === tableName,
+          (n: any) => n.title.toLowerCase() === tableName.toLowerCase() || n.key === tableName,
         );
         if (!table) throw new Error(`Table ${tableName} not found`);
 
@@ -440,26 +392,22 @@ export function createEldocServer() {
         const graph = JSON.parse(raw);
 
         const src = graph.nodes.find(
-          (n: any) =>
-            n.title.toLowerCase() === sourceTable.toLowerCase() ||
-            n.key === sourceTable,
+          (n: any) => n.title.toLowerCase() === sourceTable.toLowerCase() || n.key === sourceTable,
         );
         const tgt = graph.nodes.find(
-          (n: any) =>
-            n.title.toLowerCase() === targetTable.toLowerCase() ||
-            n.key === targetTable,
+          (n: any) => n.title.toLowerCase() === targetTable.toLowerCase() || n.key === targetTable,
         );
         if (!src) throw new Error(`Source table ${sourceTable} not found`);
         if (!tgt) throw new Error(`Target table ${targetTable} not found`);
 
-        let counter = Math.max(
+        const counter = Math.max(
           0,
           ...graph.edges.map((e: any) => {
             const m = /(\d+)$/.exec(e.id);
             return m ? Number(m[1]) : 0;
           }),
         );
-        const edgeId = "e" + (counter + 1);
+        const edgeId = `e${counter + 1}`;
 
         graph.edges.push({
           id: edgeId,

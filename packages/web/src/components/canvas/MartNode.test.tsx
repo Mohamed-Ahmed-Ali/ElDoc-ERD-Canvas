@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { ReactFlowProvider } from "@xyflow/react";
+import { describe, expect, it } from "vitest";
 import { MartNode } from "./MartNode";
 
 const node = {

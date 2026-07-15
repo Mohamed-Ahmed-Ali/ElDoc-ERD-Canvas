@@ -1,0 +1,199 @@
+{
+  "storageId": null,
+  "version": 1,
+  "nodes": [
+    {
+      "key": "users",
+      "type": "mart",
+      "title": "Users",
+      "description": "Registered customers of the platform",
+      "inputSource": "TABLE",
+      "color": "#8b5cf6",
+      "status": "created",
+      "position": {
+        "x": 100,
+        "y": 100
+      },
+      "schema": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "role": "pk",
+          "isComposite": false,
+          "keyType": "surrogateUuid"
+        },
+        {
+          "name": "email",
+          "type": "varchar",
+          "role": "none",
+          "isComposite": false,
+          "keyType": "attribute"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp",
+          "role": "none",
+          "isComposite": false,
+          "keyType": "attribute"
+        }
+      ]
+    },
+    {
+      "key": "products",
+      "type": "mart",
+      "title": "Products",
+      "description": "Inventory items available for purchase",
+      "inputSource": "TABLE",
+      "color": "#10b981",
+      "status": "created",
+      "position": {
+        "x": 800,
+        "y": 100
+      },
+      "schema": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "role": "pk",
+          "isComposite": false,
+          "keyType": "surrogateUuid"
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "role": "none",
+          "isComposite": false,
+          "keyType": "attribute"
+        },
+        {
+          "name": "price",
+          "type": "decimal",
+          "role": "none",
+          "isComposite": false,
+          "keyType": "attribute",
+          "isMeasure": true,
+          "measureType": "additive"
+        },
+        {
+          "name": "stock_quantity",
+          "type": "integer",
+          "role": "none",
+          "isComposite": false,
+          "keyType": "attribute"
+        }
+      ]
+    },
+    {
+      "key": "orders",
+      "type": "mart",
+      "title": "Orders",
+      "description": "Customer purchases",
+      "inputSource": "TABLE",
+      "color": "#f59e0b",
+      "status": "created",
+      "position": {
+        "x": 450,
+        "y": 400
+      },
+      "schema": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "role": "pk",
+          "isComposite": false,
+          "keyType": "surrogateUuid"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "role": "fk",
+          "isComposite": false,
+          "keyType": "attribute",
+          "foreignKeyRef": {
+            "targetTable": "users",
+            "targetColumn": "id"
+          }
+        },
+        {
+          "name": "product_id",
+          "type": "uuid",
+          "role": "fk",
+          "isComposite": false,
+          "keyType": "attribute",
+          "foreignKeyRef": {
+            "targetTable": "products",
+            "targetColumn": "id"
+          }
+        },
+        {
+          "name": "total_amount",
+          "type": "decimal",
+          "role": "none",
+          "isComposite": false,
+          "keyType": "attribute",
+          "isMeasure": true,
+          "measureType": "additive"
+        },
+        {
+          "name": "status",
+          "type": "varchar",
+          "role": "none",
+          "isComposite": false,
+          "keyType": "attribute"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_user_orders",
+      "from": "orders",
+      "to": "users",
+      "keys": [
+        {
+          "left": "user_id",
+          "right": "id"
+        }
+      ],
+      "bidirectional": false,
+      "direction": "from_to",
+      "cardinality": "N:1",
+      "lineType": "bezier",
+      "color": "#8b5cf6",
+      "animated": true
+    },
+    {
+      "id": "e_product_orders",
+      "from": "orders",
+      "to": "products",
+      "keys": [
+        {
+          "left": "product_id",
+          "right": "id"
+        }
+      ],
+      "bidirectional": false,
+      "direction": "from_to",
+      "cardinality": "N:1",
+      "lineType": "bezier",
+      "color": "#10b981",
+      "animated": true
+    }
+  ],
+  "glossary": [
+    {
+      "id": "g1",
+      "term": "Active User",
+      "definition": "A user who has placed at least one order in the last 30 days."
+    }
+  ],
+  "kpis": [
+    {
+      "id": "k1",
+      "name": "Gross Merchandise Value (GMV)",
+      "definition": "Total value of all orders",
+      "formula": "SUM(orders.total_amount)",
+      "owner": "Finance Team"
+    }
+  ]
+}

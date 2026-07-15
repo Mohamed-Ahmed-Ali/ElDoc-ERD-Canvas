@@ -13,13 +13,8 @@
   "engines": {
     "vscode": "^1.96.0"
   },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished",
-    "onCommand:eldoc.openCanvas"
-  ],
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished", "onCommand:eldoc.openCanvas"],
   "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {

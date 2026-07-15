@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import initSqlJs from "sql.js";
+import { describe, expect, it } from "vitest";
 import { exportToSql } from "../src/sql";
 import type { ModelGraph } from "../src/types";
 

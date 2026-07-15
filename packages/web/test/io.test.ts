@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { graphToBundleFiles, filesToGraph } from "../src/okf/io";
+import { describe, expect, it } from "vitest";
+import { filesToGraph, graphToBundleFiles } from "../src/okf/io";
 import { createModelStore } from "../src/state/model";
 describe("okf io", () => {
   it("exports a populated model to markdown files and re-imports it", () => {

@@ -1,4 +1,4 @@
-import type { ModelGraph, ModelNode, ModelEdge, InputSource, SchemaField } from "@mc/okf";
+import type { InputSource, ModelEdge, ModelGraph, ModelNode, SchemaField } from "@mc/okf";
 
 // ── tiny authoring helpers ─────────────────────────────────────────────────
 const f = (
@@ -1345,7 +1345,8 @@ export const TEMPLATES: Template[] = [
         {
           id: "g1",
           term: "Active Customer",
-          definition: "A customer who has made at least one successful purchase in the last 12 months.",
+          definition:
+            "A customer who has made at least one successful purchase in the last 12 months.",
           refs: [{ nodeKey: "dim_users", fieldName: "last_active_date" }],
         },
         {
@@ -1353,13 +1354,14 @@ export const TEMPLATES: Template[] = [
           term: "MRR",
           definition: "Monthly Recurring Revenue.",
           refs: [{ nodeKey: "dim_subscriptions", fieldName: "monthly_amount" }],
-        }
+        },
       ],
       kpis: [
         {
           id: "k1",
           name: "Customer Lifetime Value (LTV)",
-          definition: "The total projected revenue a customer will generate during their relationship with us.",
+          definition:
+            "The total projected revenue a customer will generate during their relationship with us.",
           formula: "Average Order Value * Purchase Frequency * Customer Lifespan",
           owner: "Marketing Analytics Team",
           refs: [{ nodeKey: "dim_users", fieldName: "ltv_score" }],
@@ -1371,7 +1373,7 @@ export const TEMPLATES: Template[] = [
           formula: "AVG(resolved_at - created_at)",
           owner: "Customer Support Team",
           refs: [{ nodeKey: "fct_tickets", fieldName: "resolution_hours" }],
-        }
+        },
       ],
       comments: [
         {
@@ -1391,7 +1393,7 @@ export const TEMPLATES: Template[] = [
           body: "Are there ever orphaned opportunities without an account?",
           createdAt: new Date().toISOString(),
           resolved: false,
-        }
+        },
       ],
       nodes: [
         // --- GROUPS ---
@@ -1405,7 +1407,7 @@ export const TEMPLATES: Template[] = [
           width: 800,
           height: 600,
           color: "rgba(30, 136, 229, 0.1)",
-          schema: []
+          schema: [],
         },
         {
           key: "group_billing",
@@ -1417,7 +1419,7 @@ export const TEMPLATES: Template[] = [
           width: 800,
           height: 600,
           color: "rgba(67, 160, 71, 0.1)",
-          schema: []
+          schema: [],
         },
         {
           key: "group_analytics",
@@ -1429,7 +1431,7 @@ export const TEMPLATES: Template[] = [
           width: 800,
           height: 600,
           color: "rgba(142, 36, 170, 0.1)",
-          schema: []
+          schema: [],
         },
         {
           key: "group_support",
@@ -1441,7 +1443,7 @@ export const TEMPLATES: Template[] = [
           width: 800,
           height: 600,
           color: "rgba(251, 140, 0, 0.1)",
-          schema: []
+          schema: [],
         },
 
         // --- CRM DOMAIN ---
@@ -1457,12 +1459,34 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 50, y: 50 },
           schema: [
-            { name: "user_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateUuid", defaultValue: "gen_random_uuid()" },
+            {
+              name: "user_id",
+              type: "UUID",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateUuid",
+              defaultValue: "gen_random_uuid()",
+            },
             { name: "account_id", type: "UUID", fk: true, role: "fk", keyType: "surrogateUuid" },
-            { name: "email", type: "VARCHAR(255)", unique: true, nullable: false, pii: true, role: "none", keyType: "attribute" },
-            { name: "ltv_score", type: "FLOAT", isMeasure: true, measureType: "non-additive", role: "none", keyType: "attribute" },
-            { name: "last_active_date", type: "DATE", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "email",
+              type: "VARCHAR(255)",
+              unique: true,
+              nullable: false,
+              pii: true,
+              role: "none",
+              keyType: "attribute",
+            },
+            {
+              name: "ltv_score",
+              type: "FLOAT",
+              isMeasure: true,
+              measureType: "non-additive",
+              role: "none",
+              keyType: "attribute",
+            },
+            { name: "last_active_date", type: "DATE", role: "none", keyType: "attribute" },
+          ],
         },
         {
           key: "dim_accounts",
@@ -1475,11 +1499,29 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 50 },
           schema: [
-            { name: "account_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
-            { name: "company_name", type: "VARCHAR(255)", nullable: false, role: "none", keyType: "attribute" },
+            {
+              name: "account_id",
+              type: "UUID",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
+            {
+              name: "company_name",
+              type: "VARCHAR(255)",
+              nullable: false,
+              role: "none",
+              keyType: "attribute",
+            },
             { name: "industry", type: "VARCHAR(100)", role: "none", keyType: "attribute" },
-            { name: "created_at", type: "TIMESTAMP", defaultValue: "CURRENT_TIMESTAMP", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "created_at",
+              type: "TIMESTAMP",
+              defaultValue: "CURRENT_TIMESTAMP",
+              role: "none",
+              keyType: "attribute",
+            },
+          ],
         },
         {
           key: "fct_opportunities",
@@ -1492,12 +1534,32 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 50, y: 300 },
           schema: [
-            { name: "opportunity_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            {
+              name: "opportunity_id",
+              type: "UUID",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
             { name: "account_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
-            { name: "stage", type: "VARCHAR(50)", checkExpression: "stage IN ('Prospecting', 'Qualification', 'Closed Won', 'Closed Lost')", role: "none", keyType: "attribute" },
-            { name: "amount", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
-            { name: "close_date", type: "DATE", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "stage",
+              type: "VARCHAR(50)",
+              checkExpression:
+                "stage IN ('Prospecting', 'Qualification', 'Closed Won', 'Closed Lost')",
+              role: "none",
+              keyType: "attribute",
+            },
+            {
+              name: "amount",
+              type: "DECIMAL(10,2)",
+              isMeasure: true,
+              measureType: "additive",
+              role: "none",
+              keyType: "attribute",
+            },
+            { name: "close_date", type: "DATE", role: "none", keyType: "attribute" },
+          ],
         },
         {
           key: "dim_contacts",
@@ -1510,11 +1572,29 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 300 },
           schema: [
-            { name: "contact_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            {
+              name: "contact_id",
+              type: "UUID",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
             { name: "account_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
-            { name: "phone_number", type: "VARCHAR(20)", pii: true, role: "none", keyType: "attribute" },
-            { name: "is_primary", type: "BOOLEAN", defaultValue: "false", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "phone_number",
+              type: "VARCHAR(20)",
+              pii: true,
+              role: "none",
+              keyType: "attribute",
+            },
+            {
+              name: "is_primary",
+              type: "BOOLEAN",
+              defaultValue: "false",
+              role: "none",
+              keyType: "attribute",
+            },
+          ],
         },
 
         // --- BILLING DOMAIN ---
@@ -1529,13 +1609,32 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 50, y: 50 },
           schema: [
-            { name: "invoice_id", type: "BIGINT", pk: true, role: "pk", keyType: "surrogateSequence" },
+            {
+              name: "invoice_id",
+              type: "BIGINT",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
             { name: "account_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
             { name: "subscription_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
-            { name: "total_amount", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
-            { name: "status", type: "VARCHAR(20)", defaultValue: "'DRAFT'", role: "none", keyType: "attribute" },
-            { name: "due_date", type: "DATE", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "total_amount",
+              type: "DECIMAL(10,2)",
+              isMeasure: true,
+              measureType: "additive",
+              role: "none",
+              keyType: "attribute",
+            },
+            {
+              name: "status",
+              type: "VARCHAR(20)",
+              defaultValue: "'DRAFT'",
+              role: "none",
+              keyType: "attribute",
+            },
+            { name: "due_date", type: "DATE", role: "none", keyType: "attribute" },
+          ],
         },
         {
           key: "fct_payments",
@@ -1548,12 +1647,31 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 50 },
           schema: [
-            { name: "payment_id", type: "BIGINT", pk: true, role: "pk", keyType: "surrogateSequence" },
+            {
+              name: "payment_id",
+              type: "BIGINT",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
             { name: "invoice_id", type: "BIGINT", fk: true, role: "fk", keyType: "attribute" },
-            { name: "amount_paid", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
+            {
+              name: "amount_paid",
+              type: "DECIMAL(10,2)",
+              isMeasure: true,
+              measureType: "additive",
+              role: "none",
+              keyType: "attribute",
+            },
             { name: "payment_method", type: "VARCHAR(50)", role: "none", keyType: "attribute" },
-            { name: "payment_date", type: "TIMESTAMP", defaultValue: "CURRENT_TIMESTAMP", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "payment_date",
+              type: "TIMESTAMP",
+              defaultValue: "CURRENT_TIMESTAMP",
+              role: "none",
+              keyType: "attribute",
+            },
+          ],
         },
         {
           key: "dim_subscriptions",
@@ -1566,13 +1684,26 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 50, y: 300 },
           schema: [
-            { name: "subscription_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            {
+              name: "subscription_id",
+              type: "UUID",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
             { name: "account_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
             { name: "product_id", type: "INTEGER", fk: true, role: "fk", keyType: "attribute" },
-            { name: "monthly_amount", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
+            {
+              name: "monthly_amount",
+              type: "DECIMAL(10,2)",
+              isMeasure: true,
+              measureType: "additive",
+              role: "none",
+              keyType: "attribute",
+            },
             { name: "start_date", type: "DATE", role: "none", keyType: "attribute" },
-            { name: "end_date", type: "DATE", role: "none", keyType: "attribute" }
-          ]
+            { name: "end_date", type: "DATE", role: "none", keyType: "attribute" },
+          ],
         },
         {
           key: "dim_products",
@@ -1585,11 +1716,29 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 300 },
           schema: [
-            { name: "product_id", type: "INTEGER", pk: true, role: "pk", keyType: "surrogateSequence" },
-            { name: "name", type: "VARCHAR(100)", unique: true, role: "none", keyType: "attribute" },
+            {
+              name: "product_id",
+              type: "INTEGER",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
+            {
+              name: "name",
+              type: "VARCHAR(100)",
+              unique: true,
+              role: "none",
+              keyType: "attribute",
+            },
             { name: "base_price", type: "DECIMAL(10,2)", role: "none", keyType: "attribute" },
-            { name: "is_active", type: "BOOLEAN", defaultValue: "true", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "is_active",
+              type: "BOOLEAN",
+              defaultValue: "true",
+              role: "none",
+              keyType: "attribute",
+            },
+          ],
         },
 
         // --- ANALYTICS DOMAIN ---
@@ -1607,10 +1756,16 @@ export const TEMPLATES: Template[] = [
             { name: "event_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
             { name: "session_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
             { name: "user_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
-            { name: "event_name", type: "VARCHAR(100)", nullable: false, role: "none", keyType: "attribute" },
+            {
+              name: "event_name",
+              type: "VARCHAR(100)",
+              nullable: false,
+              role: "none",
+              keyType: "attribute",
+            },
             { name: "event_timestamp", type: "TIMESTAMP", role: "none", keyType: "attribute" },
-            { name: "properties", type: "JSONB", role: "none", keyType: "attribute" }
-          ]
+            { name: "properties", type: "JSONB", role: "none", keyType: "attribute" },
+          ],
         },
         {
           key: "dim_sessions",
@@ -1623,13 +1778,26 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 50 },
           schema: [
-            { name: "session_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            {
+              name: "session_id",
+              type: "UUID",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
             { name: "user_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
             { name: "device_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
             { name: "start_time", type: "TIMESTAMP", role: "none", keyType: "attribute" },
             { name: "end_time", type: "TIMESTAMP", role: "none", keyType: "attribute" },
-            { name: "duration_seconds", type: "INTEGER", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "duration_seconds",
+              type: "INTEGER",
+              isMeasure: true,
+              measureType: "additive",
+              role: "none",
+              keyType: "attribute",
+            },
+          ],
         },
         {
           key: "dim_devices",
@@ -1645,8 +1813,8 @@ export const TEMPLATES: Template[] = [
             { name: "device_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
             { name: "platform", type: "VARCHAR(50)", role: "none", keyType: "attribute" },
             { name: "os_version", type: "VARCHAR(50)", role: "none", keyType: "attribute" },
-            { name: "model", type: "VARCHAR(100)", role: "none", keyType: "attribute" }
-          ]
+            { name: "model", type: "VARCHAR(100)", role: "none", keyType: "attribute" },
+          ],
         },
         {
           key: "fct_metrics_rollup",
@@ -1660,10 +1828,31 @@ export const TEMPLATES: Template[] = [
           position: { x: 350, y: 300 },
           schema: [
             { name: "date_day", type: "DATE", pk: true, role: "pk", keyType: "surrogateSequence" },
-            { name: "total_events", type: "BIGINT", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
-            { name: "active_users", type: "INTEGER", isMeasure: true, measureType: "non-additive", role: "none", keyType: "attribute" },
-            { name: "total_revenue", type: "DECIMAL(12,2)", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "total_events",
+              type: "BIGINT",
+              isMeasure: true,
+              measureType: "additive",
+              role: "none",
+              keyType: "attribute",
+            },
+            {
+              name: "active_users",
+              type: "INTEGER",
+              isMeasure: true,
+              measureType: "non-additive",
+              role: "none",
+              keyType: "attribute",
+            },
+            {
+              name: "total_revenue",
+              type: "DECIMAL(12,2)",
+              isMeasure: true,
+              measureType: "additive",
+              role: "none",
+              keyType: "attribute",
+            },
+          ],
         },
 
         // --- SUPPORT DOMAIN ---
@@ -1678,15 +1867,40 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 50, y: 50 },
           schema: [
-            { name: "ticket_id", type: "BIGINT", pk: true, role: "pk", keyType: "surrogateSequence" },
+            {
+              name: "ticket_id",
+              type: "BIGINT",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
             { name: "user_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
             { name: "agent_id", type: "INTEGER", fk: true, role: "fk", keyType: "attribute" },
-            { name: "status", type: "VARCHAR(20)", defaultValue: "'OPEN'", role: "none", keyType: "attribute" },
-            { name: "priority", type: "VARCHAR(10)", checkExpression: "priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')", role: "none", keyType: "attribute" },
+            {
+              name: "status",
+              type: "VARCHAR(20)",
+              defaultValue: "'OPEN'",
+              role: "none",
+              keyType: "attribute",
+            },
+            {
+              name: "priority",
+              type: "VARCHAR(10)",
+              checkExpression: "priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')",
+              role: "none",
+              keyType: "attribute",
+            },
             { name: "created_at", type: "TIMESTAMP", role: "none", keyType: "attribute" },
             { name: "resolved_at", type: "TIMESTAMP", role: "none", keyType: "attribute" },
-            { name: "resolution_hours", type: "FLOAT", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "resolution_hours",
+              type: "FLOAT",
+              isMeasure: true,
+              measureType: "additive",
+              role: "none",
+              keyType: "attribute",
+            },
+          ],
         },
         {
           key: "dim_agents",
@@ -1699,11 +1913,29 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 50 },
           schema: [
-            { name: "agent_id", type: "INTEGER", pk: true, role: "pk", keyType: "surrogateSequence" },
+            {
+              name: "agent_id",
+              type: "INTEGER",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
             { name: "full_name", type: "VARCHAR(100)", role: "none", keyType: "attribute" },
-            { name: "tier", type: "INTEGER", defaultValue: "1", role: "none", keyType: "attribute" },
-            { name: "is_active", type: "BOOLEAN", defaultValue: "true", role: "none", keyType: "attribute" }
-          ]
+            {
+              name: "tier",
+              type: "INTEGER",
+              defaultValue: "1",
+              role: "none",
+              keyType: "attribute",
+            },
+            {
+              name: "is_active",
+              type: "BOOLEAN",
+              defaultValue: "true",
+              role: "none",
+              keyType: "attribute",
+            },
+          ],
         },
         {
           key: "ticket_kb_bridge",
@@ -1718,8 +1950,8 @@ export const TEMPLATES: Template[] = [
           position: { x: 50, y: 300 },
           schema: [
             { name: "ticket_id", type: "BIGINT", fk: true, role: "fk", keyType: "attribute" },
-            { name: "article_id", type: "INTEGER", fk: true, role: "fk", keyType: "attribute" }
-          ]
+            { name: "article_id", type: "INTEGER", fk: true, role: "fk", keyType: "attribute" },
+          ],
         },
         {
           key: "dim_kb_articles",
@@ -1732,35 +1964,193 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 300 },
           schema: [
-            { name: "article_id", type: "INTEGER", pk: true, role: "pk", keyType: "surrogateSequence" },
+            {
+              name: "article_id",
+              type: "INTEGER",
+              pk: true,
+              role: "pk",
+              keyType: "surrogateSequence",
+            },
             { name: "title", type: "VARCHAR(255)", role: "none", keyType: "attribute" },
-            { name: "views", type: "INTEGER", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
-            { name: "last_updated", type: "TIMESTAMP", role: "none", keyType: "attribute" }
-          ]
-        }
+            {
+              name: "views",
+              type: "INTEGER",
+              isMeasure: true,
+              measureType: "additive",
+              role: "none",
+              keyType: "attribute",
+            },
+            { name: "last_updated", type: "TIMESTAMP", role: "none", keyType: "attribute" },
+          ],
+        },
       ],
       edges: [
         // cRM Edges
-        { id: "e1", from: "dim_users", to: "dim_accounts", keys: [{ left: "account_id", right: "account_id" }], bidirectional: false, cardinality: "N:1", lineType: "bezier", color: "#1e88e5" },
-        { id: "e2", from: "fct_opportunities", to: "dim_accounts", keys: [{ left: "account_id", right: "account_id" }], bidirectional: false, cardinality: "N:1", lineType: "bezier", color: "#1e88e5" },
-        { id: "e3", from: "dim_contacts", to: "dim_accounts", keys: [{ left: "account_id", right: "account_id" }], bidirectional: false, cardinality: "N:1", lineType: "bezier", color: "#1e88e5" },
+        {
+          id: "e1",
+          from: "dim_users",
+          to: "dim_accounts",
+          keys: [{ left: "account_id", right: "account_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "bezier",
+          color: "#1e88e5",
+        },
+        {
+          id: "e2",
+          from: "fct_opportunities",
+          to: "dim_accounts",
+          keys: [{ left: "account_id", right: "account_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "bezier",
+          color: "#1e88e5",
+        },
+        {
+          id: "e3",
+          from: "dim_contacts",
+          to: "dim_accounts",
+          keys: [{ left: "account_id", right: "account_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "bezier",
+          color: "#1e88e5",
+        },
         // billing Edges
-        { id: "e4", from: "fct_invoices", to: "dim_accounts", keys: [{ left: "account_id", right: "account_id" }], bidirectional: false, cardinality: "N:1", lineType: "step", color: "#43a047", animated: true },
-        { id: "e5", from: "fct_invoices", to: "dim_subscriptions", keys: [{ left: "subscription_id", right: "subscription_id" }], bidirectional: false, cardinality: "N:1", lineType: "step", color: "#43a047" },
-        { id: "e6", from: "fct_payments", to: "fct_invoices", keys: [{ left: "invoice_id", right: "invoice_id" }], bidirectional: false, cardinality: "1:N", lineType: "step", color: "#43a047" },
-        { id: "e7", from: "dim_subscriptions", to: "dim_products", keys: [{ left: "product_id", right: "product_id" }], bidirectional: false, cardinality: "N:1", lineType: "bezier", color: "#43a047" },
-        { id: "e8", from: "dim_subscriptions", to: "dim_accounts", keys: [{ left: "account_id", right: "account_id" }], bidirectional: false, cardinality: "N:1", lineType: "bezier", color: "#43a047" },
+        {
+          id: "e4",
+          from: "fct_invoices",
+          to: "dim_accounts",
+          keys: [{ left: "account_id", right: "account_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "step",
+          color: "#43a047",
+          animated: true,
+        },
+        {
+          id: "e5",
+          from: "fct_invoices",
+          to: "dim_subscriptions",
+          keys: [{ left: "subscription_id", right: "subscription_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "step",
+          color: "#43a047",
+        },
+        {
+          id: "e6",
+          from: "fct_payments",
+          to: "fct_invoices",
+          keys: [{ left: "invoice_id", right: "invoice_id" }],
+          bidirectional: false,
+          cardinality: "1:N",
+          lineType: "step",
+          color: "#43a047",
+        },
+        {
+          id: "e7",
+          from: "dim_subscriptions",
+          to: "dim_products",
+          keys: [{ left: "product_id", right: "product_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "bezier",
+          color: "#43a047",
+        },
+        {
+          id: "e8",
+          from: "dim_subscriptions",
+          to: "dim_accounts",
+          keys: [{ left: "account_id", right: "account_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "bezier",
+          color: "#43a047",
+        },
         // analytics Edges
-        { id: "e9", from: "fct_events", to: "dim_sessions", keys: [{ left: "session_id", right: "session_id" }], bidirectional: false, cardinality: "N:1", lineType: "straight", color: "#8e24aa" },
-        { id: "e10", from: "fct_events", to: "dim_users", keys: [{ left: "user_id", right: "user_id" }], bidirectional: false, cardinality: "N:1", lineType: "straight", color: "#8e24aa" },
-        { id: "e11", from: "dim_sessions", to: "dim_users", keys: [{ left: "user_id", right: "user_id" }], bidirectional: false, cardinality: "N:1", lineType: "bezier", color: "#8e24aa" },
-        { id: "e12", from: "dim_sessions", to: "dim_devices", keys: [{ left: "device_id", right: "device_id" }], bidirectional: false, cardinality: "N:1", lineType: "bezier", color: "#8e24aa" },
+        {
+          id: "e9",
+          from: "fct_events",
+          to: "dim_sessions",
+          keys: [{ left: "session_id", right: "session_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "straight",
+          color: "#8e24aa",
+        },
+        {
+          id: "e10",
+          from: "fct_events",
+          to: "dim_users",
+          keys: [{ left: "user_id", right: "user_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "straight",
+          color: "#8e24aa",
+        },
+        {
+          id: "e11",
+          from: "dim_sessions",
+          to: "dim_users",
+          keys: [{ left: "user_id", right: "user_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "bezier",
+          color: "#8e24aa",
+        },
+        {
+          id: "e12",
+          from: "dim_sessions",
+          to: "dim_devices",
+          keys: [{ left: "device_id", right: "device_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "bezier",
+          color: "#8e24aa",
+        },
         // support Edges
-        { id: "e13", from: "fct_tickets", to: "dim_users", keys: [{ left: "user_id", right: "user_id" }], bidirectional: false, cardinality: "N:1", lineType: "bezier", color: "#fb8c00" },
-        { id: "e14", from: "fct_tickets", to: "dim_agents", keys: [{ left: "agent_id", right: "agent_id" }], bidirectional: false, cardinality: "N:1", lineType: "bezier", color: "#fb8c00" },
-        { id: "e15", from: "ticket_kb_bridge", to: "fct_tickets", keys: [{ left: "ticket_id", right: "ticket_id" }], bidirectional: true, cardinality: "1:N", lineType: "straight", color: "#fb8c00" },
-        { id: "e16", from: "ticket_kb_bridge", to: "dim_kb_articles", keys: [{ left: "article_id", right: "article_id" }], bidirectional: true, cardinality: "N:1", lineType: "straight", color: "#fb8c00" }
-      ]
-    }
-  }
+        {
+          id: "e13",
+          from: "fct_tickets",
+          to: "dim_users",
+          keys: [{ left: "user_id", right: "user_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "bezier",
+          color: "#fb8c00",
+        },
+        {
+          id: "e14",
+          from: "fct_tickets",
+          to: "dim_agents",
+          keys: [{ left: "agent_id", right: "agent_id" }],
+          bidirectional: false,
+          cardinality: "N:1",
+          lineType: "bezier",
+          color: "#fb8c00",
+        },
+        {
+          id: "e15",
+          from: "ticket_kb_bridge",
+          to: "fct_tickets",
+          keys: [{ left: "ticket_id", right: "ticket_id" }],
+          bidirectional: true,
+          cardinality: "1:N",
+          lineType: "straight",
+          color: "#fb8c00",
+        },
+        {
+          id: "e16",
+          from: "ticket_kb_bridge",
+          to: "dim_kb_articles",
+          keys: [{ left: "article_id", right: "article_id" }],
+          bidirectional: true,
+          cardinality: "N:1",
+          lineType: "straight",
+          color: "#fb8c00",
+        },
+      ],
+    },
+  },
 ];

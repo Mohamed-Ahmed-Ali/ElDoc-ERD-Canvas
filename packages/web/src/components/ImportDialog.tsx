@@ -1,7 +1,7 @@
+import { type ModelGraph, parseSql } from "@mc/okf";
+import { Check, Copy } from "lucide-react";
 import { useRef, useState } from "react";
-import { Copy, Check } from "lucide-react";
 import { filesToGraph, parsePastedMarkdown } from "../okf/io";
-import { parseSql, type ModelGraph } from "@mc/okf";
 
 interface ImportDialogProps {
   onConfirm: (graph: ModelGraph, mode: "replace" | "merge") => void;
@@ -47,7 +47,7 @@ export function ImportDialog({ onConfirm, onClose }: ImportDialogProps) {
     if (uploaded && uploaded.length > 0) {
       for (const file of Array.from(uploaded)) {
         if (isSqlFile(file.name)) {
-          sqlContent += (await file.text()) + "\n";
+          sqlContent += `${await file.text()}\n`;
         } else {
           files[file.name] = await file.text();
         }
@@ -57,7 +57,7 @@ export function ImportDialog({ onConfirm, onClose }: ImportDialogProps) {
     const pasteTrimmed = paste.trim();
     if (pasteTrimmed) {
       if (isSqlText(pasteTrimmed)) {
-        sqlContent += pasteTrimmed + "\n";
+        sqlContent += `${pasteTrimmed}\n`;
       } else {
         files = { ...files, ...parsePastedMarkdown(pasteTrimmed) };
       }
@@ -143,7 +143,7 @@ export function ImportDialog({ onConfirm, onClose }: ImportDialogProps) {
             <a
               href="/ai-instructions.html"
               target="_blank"
-              rel="noopener"
+              rel="noreferrer noopener"
               className="text-[12.5px] text-[#1e88e5] hover:text-[#1976d2] underline underline-offset-2"
             >
               View guide ↗

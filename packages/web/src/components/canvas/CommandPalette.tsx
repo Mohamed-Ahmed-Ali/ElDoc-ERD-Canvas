@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { Search } from "lucide-react";
-import { store } from "./Canvas";
 import { useReactFlow } from "@xyflow/react";
+import { Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { store } from "./Canvas";
 
 export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [query, setQuery] = useState("");
@@ -24,15 +24,12 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
   if (query.trim()) {
     const q = query.toLowerCase();
     for (const n of nodes) {
-      if (
-        n.title.toLowerCase().includes(q) ||
-        (n.description && n.description.toLowerCase().includes(q))
-      ) {
+      if (n.title.toLowerCase().includes(q) || n.description?.toLowerCase().includes(q)) {
         results.push({ type: "table", node: n, match: n.title });
       }
       if (n.schema) {
         for (const f of n.schema) {
-          if (f.name.toLowerCase().includes(q) || (f.alias && f.alias.toLowerCase().includes(q))) {
+          if (f.name.toLowerCase().includes(q) || f.alias?.toLowerCase().includes(q)) {
             results.push({ type: "column", node: n, field: f, match: `${n.title} > ${f.name}` });
           }
         }

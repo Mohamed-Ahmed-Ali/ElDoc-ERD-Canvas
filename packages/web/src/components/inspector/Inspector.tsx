@@ -1,9 +1,9 @@
-import { useRef, useState, useCallback, useEffect } from "react";
+import type { CommentEntry, ModelEdge, ModelGraph, ModelNode } from "@mc/okf";
 import { PanelRightOpen } from "lucide-react";
-import type { ModelNode, ModelEdge, ModelGraph, CommentEntry } from "@mc/okf";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { CommentsPanel } from "./CommentsPanel";
 import { ObjectInspector } from "./ObjectInspector";
 import { RelationshipInspector } from "./RelationshipInspector";
-import { CommentsPanel } from "./CommentsPanel";
 
 // persist inspector width across reloads so the user doesn't have to re-drag
 // every session. Falls back to 320 if localStorage is unavailable.

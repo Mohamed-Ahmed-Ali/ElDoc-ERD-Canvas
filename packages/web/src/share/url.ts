@@ -1,4 +1,4 @@
-import type { ModelGraph, ModelNode, ModelEdge, SchemaField } from "@mc/okf";
+import type { ModelEdge, ModelGraph, ModelNode, SchemaField } from "@mc/okf";
 
 // shareable model links. The whole model is gzip-compressed and packed into the
 // uRL hash (#m=…) — no backend, fully anonymous, and the hash never leaves the
@@ -162,7 +162,7 @@ export async function readSharedModel(): Promise<ModelGraph | null> {
     return await decodeModel(matchM[1]);
   }
 
-  const matchG = new RegExp(`[#&](?:g|gist)=([^&]+)`).exec(location.hash);
+  const matchG = /[#&](?:g|gist)=([^&]+)/.exec(location.hash);
   if (matchG) {
     const gistId = matchG[1];
     const graph = await fetchGistModel(gistId);

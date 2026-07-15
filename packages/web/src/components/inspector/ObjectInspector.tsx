@@ -1,9 +1,9 @@
+import type { InputSource, ModelNode, SchemaField, TagEntry } from "@mc/okf";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import { ChevronRight, ChevronDown } from "lucide-react";
-import type { ModelNode, InputSource, SchemaField, TagEntry } from "@mc/okf";
-import { SchemaEditor } from "./SchemaEditor";
-import { InfoTip } from "./InfoTip";
 import { InputSourceIcon, OutputSchemaIcon } from "../../lib/icons";
+import { InfoTip } from "./InfoTip";
+import { SchemaEditor } from "./SchemaEditor";
 
 const INPUT_SOURCES: InputSource[] = ["SQL", "CONNECTOR", "VIEW", "TABLE"];
 
@@ -79,7 +79,7 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
   const defHint = DEFINITION_HINT[node.inputSource];
 
   const statusClass = isCreated ? "bg-[#ecfdf5] text-[#047857]" : "bg-[#f1f5f9] text-[#475569]";
-  const statusText = isCreated ? `✓ Created` : "◷ Draft";
+  const statusText = isCreated ? "✓ Created" : "◷ Draft";
 
   return (
     <div className="flex flex-col gap-[15px]">

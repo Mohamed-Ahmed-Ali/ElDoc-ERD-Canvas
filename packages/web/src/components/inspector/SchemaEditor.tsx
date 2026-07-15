@@ -1,6 +1,6 @@
-import { useState } from "react";
+import type { MeasureType, SchemaField } from "@mc/okf";
 import { GripVertical, Settings } from "lucide-react";
-import type { SchemaField, MeasureType } from "@mc/okf";
+import { useState } from "react";
 import { InfoTip } from "./InfoTip";
 
 // canonical ElDoc schema types — the set accepted across storages (BigQuery,
@@ -176,7 +176,7 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
                   value={field.role ?? "none"}
                   onChange={(e) => {
                     const role = e.target.value as SchemaField["role"];
-                    let patch: Partial<SchemaField> = { role };
+                    const patch: Partial<SchemaField> = { role };
                     if (role === "pk") {
                       patch.keyType = nodeType === "bridge" ? "businessKey" : "surrogateSequence";
                     } else if (role === "none") {

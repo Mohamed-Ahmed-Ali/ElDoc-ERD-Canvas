@@ -1,5 +1,5 @@
 import type { ModelNode } from "@mc/okf";
-import { type ViewMode, VIEW_CONFIG } from "../../state/viewMode";
+import { VIEW_CONFIG, type ViewMode } from "../../state/viewMode";
 
 const ERD_HEADER = 66; // header + type-chip row
 const ERD_ROW = 24;

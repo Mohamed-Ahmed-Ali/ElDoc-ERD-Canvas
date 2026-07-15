@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { ChevronRight, ChevronDown, X, Rocket } from "lucide-react";
 import type { ModelGraph } from "@mc/okf";
-import { TEMPLATES, type Template } from "../templates";
+import { ChevronDown, ChevronRight, Rocket, X } from "lucide-react";
+import { useState } from "react";
 import { DataMartIcon, JoinIcon, LibraryIcon } from "../lib/icons";
+import { TEMPLATES, type Template } from "../templates";
 
 interface Props {
   onUse: (graph: ModelGraph, name: string) => void;
@@ -125,7 +125,7 @@ function TemplateRow({
   );
 }
 
-import { type SchemaField } from "@mc/okf";
+import type { SchemaField } from "@mc/okf";
 
 function MartRow({ title, fields }: { title: string; fields: SchemaField[] }) {
   const [open, setOpen] = useState(false);

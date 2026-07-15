@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { MessageSquare, Check, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import type { CommentEntry, ModelGraph } from "@mc/okf";
+import { Check, ChevronDown, ChevronRight, MessageSquare, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 // author handle: free-text, persisted locally. Anonymous-first — no login.
 const AUTHOR_KEY = "mc.author.v1";

@@ -1,7 +1,7 @@
-import { useState, useSyncExternalStore, useRef, useCallback, useEffect } from "react";
+import type { ModelNode, TagEntry } from "@mc/okf";
+import { ListFilter, Plus, Trash2, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { store } from "./canvas/Canvas";
-import { TagEntry, ModelNode } from "@mc/okf";
-import { X, Plus, Trash2, ListFilter } from "lucide-react";
 
 interface SelectionPanelProps {
   onClose: () => void;
@@ -68,7 +68,7 @@ export function SelectionPanel({
   const handleCreateTag = () => {
     if (!newTagName.trim()) return;
     const newTag: TagEntry = {
-      id: "tag_" + Date.now().toString(),
+      id: `tag_${Date.now().toString()}`,
       name: newTagName.trim(),
       color: newTagColor,
     };
@@ -172,7 +172,10 @@ export function SelectionPanel({
                   key={n.key}
                   className="flex items-center justify-between px-3 py-2 hover:bg-[#f8fafc] rounded-md cursor-pointer group transition-colors border border-transparent hover:border-[#e2e8f0]"
                 >
-                  <span className="text-[13px] text-slate-700 truncate mr-2 flex-1 font-medium" title={n.title || n.key}>
+                  <span
+                    className="text-[13px] text-slate-700 truncate mr-2 flex-1 font-medium"
+                    title={n.title || n.key}
+                  >
                     {n.title || n.key}
                   </span>
                   <input
@@ -193,7 +196,9 @@ export function SelectionPanel({
         ) : (
           <div className="p-4 flex flex-col gap-6">
             <div className="flex flex-col gap-3">
-              <h3 className="text-[11px] font-[700] text-slate-400 uppercase tracking-wider">Create Tag</h3>
+              <h3 className="text-[11px] font-[700] text-slate-400 uppercase tracking-wider">
+                Create Tag
+              </h3>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -224,7 +229,9 @@ export function SelectionPanel({
             <div className="h-px bg-[#e2e8f0] w-full" />
 
             <div className="flex flex-col gap-3">
-              <h3 className="text-[11px] font-[700] text-slate-400 uppercase tracking-wider">Filter by Tag</h3>
+              <h3 className="text-[11px] font-[700] text-slate-400 uppercase tracking-wider">
+                Filter by Tag
+              </h3>
               {tags.length === 0 ? (
                 <div className="text-[13px] text-slate-400 py-2">No tags defined</div>
               ) : (
@@ -248,7 +255,11 @@ export function SelectionPanel({
                         <span className="text-[13px] font-medium text-slate-700">{t.name}</span>
                       </div>
                       <button
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteTag(t.id); }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDeleteTag(t.id);
+                        }}
                         className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
                         title="Delete tag"
                       >

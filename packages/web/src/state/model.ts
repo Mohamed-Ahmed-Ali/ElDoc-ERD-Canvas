@@ -1,10 +1,10 @@
 import type {
-  ModelGraph,
-  ModelNode,
-  ModelEdge,
+  CommentEntry,
   GlossaryEntry,
   KpiEntry,
-  CommentEntry,
+  ModelEdge,
+  ModelGraph,
+  ModelNode,
   TagEntry,
 } from "@mc/okf";
 
@@ -27,13 +27,13 @@ function migrateGraph(initial?: Partial<ModelGraph>): ModelGraph {
             f.keyType = f.keyType ?? "attribute";
             f.isComposite = f.isComposite ?? false;
           }
-          delete f.pk;
+          f.pk = undefined;
         }
         if (f.fk !== undefined) {
           if (f.fk && f.role !== "pk") {
             f.role = "fk";
           }
-          delete f.fk;
+          f.fk = undefined;
         }
       });
     });

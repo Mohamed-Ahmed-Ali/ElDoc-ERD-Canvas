@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createModelStore } from "../src/state/model";
 describe("model store", () => {
   it("adds a node defaulting to SQL + pending", () => {

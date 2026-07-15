@@ -1,12 +1,12 @@
+import { parseFrontmatter } from "./slug";
 import type {
+  Cardinality,
+  InputSource,
+  ModelEdge,
   ModelGraph,
   ModelNode,
-  ModelEdge,
-  InputSource,
-  Cardinality,
   SchemaField,
 } from "./types";
-import { parseFrontmatter } from "./slug";
 
 const FLIP_CARDINALITY: Record<Cardinality, Cardinality> = {
   "1:1": "1:1",
@@ -68,7 +68,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
   for (const [path, text] of docs) {
     const { data, body } = parseFrontmatter(text);
     const fromSlug = basename(path);
-    const fromKey = (data.eldoc && data.eldoc.key) || fromSlug;
+    const fromKey = data.eldoc?.key || fromSlug;
     const fromSchema = parseSchema(body);
     for (const ln of body.split("\n")) {
       const m = ln.match(/^- \[.*?\]\(\.\/(.+?)\.md\)\s*(?:—|--)?\s*(.*)$/);
@@ -125,7 +125,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
   for (const [path, text] of docs) {
     const { data, body } = parseFrontmatter(text);
     if (typeof data.type === "string" && /^eldoc data mart$/i.test(data.type.trim())) continue;
-    const fromKey = (data.eldoc && data.eldoc.key) || basename(path);
+    const fromKey = data.eldoc?.key || basename(path);
     for (const ln of body.split("\n")) {
       if (!/join/i.test(ln)) continue;
       if (/^[-*]\s+\[/.test(ln.trim())) continue; // strict-parser list items
@@ -177,7 +177,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     seen.set(pairKey, e);
     edges.push(e);
   }
-  const storageId = (docs[0] && (parseFrontmatter(docs[0][1]).data.eldoc || {}).storageId) || null;
+  const storageId = (docs[0] && parseFrontmatter(docs[0][1]).data.eldoc?.storageId) || null;
   return { storageId, nodes, edges };
 }
 

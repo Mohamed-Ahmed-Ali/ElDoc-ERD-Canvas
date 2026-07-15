@@ -1,9 +1,9 @@
-import { serializeBundle, parseBundle, exportToSql, graphToDbml, type ModelGraph } from "@mc/okf";
+import { type ModelGraph, exportToSql, graphToDbml, parseBundle, serializeBundle } from "@mc/okf";
 export function graphToBundleFiles(g: ModelGraph, projectTitle: string): Record<string, string> {
   return serializeBundle(g, projectTitle).files;
 }
 
-export function graphToSqlFile(g: ModelGraph, dialect: string = "postgres"): string {
+export function graphToSqlFile(g: ModelGraph, dialect = "postgres"): string {
   return exportToSql(g, dialect);
 }
 

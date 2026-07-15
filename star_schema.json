@@ -1,0 +1,139 @@
+{
+  "nodes": [
+    {
+      "key": "n1",
+      "type": "mart",
+      "title": "dim_product",
+      "description": "Product Dimension",
+      "inputSource": "SQL",
+      "schema": [
+        {
+          "name": "product_id",
+          "type": "int",
+          "role": "pk",
+          "keyType": "surrogateSequence",
+          "isComposite": false
+        },
+        {
+          "name": "product_name",
+          "type": "varchar",
+          "role": "none",
+          "keyType": "attribute",
+          "isComposite": false
+        },
+        {
+          "name": "price",
+          "type": "decimal",
+          "role": "none",
+          "keyType": "attribute",
+          "isComposite": false
+        }
+      ],
+      "position": {
+        "x": 192.16520264620536,
+        "y": 428.73904404061994
+      },
+      "status": "pending"
+    },
+    {
+      "key": "n2",
+      "type": "mart",
+      "title": "dim_date",
+      "description": "Date Dimension",
+      "inputSource": "SQL",
+      "schema": [
+        {
+          "name": "date_id",
+          "type": "int",
+          "role": "pk",
+          "keyType": "surrogateSequence",
+          "isComposite": false
+        },
+        {
+          "name": "full_date",
+          "type": "date",
+          "role": "none",
+          "keyType": "attribute",
+          "isComposite": false
+        }
+      ],
+      "position": {
+        "x": 148.29784917511634,
+        "y": 68.9701476550793
+      },
+      "status": "pending"
+    },
+    {
+      "key": "n3",
+      "type": "mart",
+      "title": "fact_sales",
+      "description": "Fact Sales",
+      "inputSource": "SQL",
+      "schema": [
+        {
+          "name": "sale_id",
+          "type": "int",
+          "role": "pk",
+          "keyType": "surrogateSequence",
+          "isComposite": false
+        },
+        {
+          "name": "product_id",
+          "type": "int",
+          "role": "fk",
+          "keyType": "attribute",
+          "isComposite": false
+        },
+        {
+          "name": "date_id",
+          "type": "int",
+          "role": "fk",
+          "keyType": "attribute",
+          "isComposite": false
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "role": "none",
+          "keyType": "attribute",
+          "isComposite": false
+        }
+      ],
+      "position": {
+        "x": 283.4867112663419,
+        "y": 314.9554837195656
+      },
+      "status": "pending"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "n3",
+      "to": "n1",
+      "keys": [
+        {
+          "left": "product_id",
+          "right": "product_id"
+        }
+      ],
+      "bidirectional": false,
+      "lineType": "bezier",
+      "animated": true
+    },
+    {
+      "id": "e2",
+      "from": "n3",
+      "to": "n2",
+      "keys": [
+        {
+          "left": "date_id",
+          "right": "date_id"
+        }
+      ],
+      "bidirectional": false,
+      "lineType": "bezier",
+      "animated": true
+    }
+  ]
+}

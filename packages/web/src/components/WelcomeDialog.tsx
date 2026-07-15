@@ -1,7 +1,7 @@
-import { X, Rocket, Plus, Download, ExternalLink } from "lucide-react";
 import type { ModelGraph } from "@mc/okf";
-import { TEMPLATES } from "../templates";
+import { Download, ExternalLink, Plus, Rocket, X } from "lucide-react";
 import { LibraryIcon } from "../lib/icons";
+import { TEMPLATES } from "../templates";
 
 interface Props {
   /** Roll a template onto the canvas. */
@@ -89,7 +89,7 @@ export function WelcomeDialog({ onUseTemplate, onStartBlank, onImport }: Props) 
           <a
             href="/ai-instructions.html"
             target="_blank"
-            rel="noopener"
+            rel="noreferrer noopener"
             className="flex items-center gap-[5px] text-[12.5px] font-[550] text-[#1e88e5] hover:underline"
           >
             Import guide <ExternalLink size={13} />

@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { parseBundle, serializeBundle } from "@mc/okf";
+import { describe, expect, it } from "vitest";
 import { TEMPLATES } from "../src/templates";
-import { serializeBundle, parseBundle } from "@mc/okf";
 
 describe("templates", () => {
   it("ships the base models", () => {

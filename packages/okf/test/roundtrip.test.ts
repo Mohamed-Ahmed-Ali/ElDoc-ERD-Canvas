@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { serializeBundle, parseBundle } from "../src/index";
+import { describe, expect, it } from "vitest";
+import { parseBundle, serializeBundle } from "../src/index";
 import type { ModelGraph } from "../src/types";
 
 const graph: ModelGraph = {
@@ -77,17 +77,15 @@ describe("okf round-trip", () => {
     ]);
     // legacy 3-column table still imports.
     const legacy = parseBundle({
-      "p/a.md":
-        frontless("a", "A") +
-        "\n## Schema\n\n| Column | Type | PK |\n|--|--|--|\n| `x` | INTEGER | ✓ |\n",
+      "p/a.md": `${frontless("a", "A")}\n## Schema\n\n| Column | Type | PK |\n|--|--|--|\n| \`x\` | INTEGER | ✓ |\n`,
     });
     expect(legacy.nodes[0].schema).toEqual([{ name: "x", type: "INTEGER", role: "pk" }]);
   });
 
   it("collapses mutual Joins lines into one bidirectional edge", () => {
     const files = {
-      "p/a.md": frontless("a", "A") + "\n## Joins\n- [B](./b.md) — `x = y`\n",
-      "p/b.md": frontless("b", "B") + "\n## Joins\n- [A](./a.md) — `y = x`\n",
+      "p/a.md": `${frontless("a", "A")}\n## Joins\n- [B](./b.md) — \`x = y\`\n`,
+      "p/b.md": `${frontless("b", "B")}\n## Joins\n- [A](./a.md) — \`y = x\`\n`,
     };
     const g = parseBundle(files);
     expect(g.edges).toHaveLength(1);
@@ -203,9 +201,9 @@ describe("serialize → parse round-trip (superset)", () => {
   });
 });
 
-import { describe as descRt, it as itRt, expect as expRt } from "vitest";
-import { serializeBundle as serRt, parseBundle as parRt } from "../src/index";
-import type { ModelGraph as GraphRt, Cardinality as CardRt } from "../src/types";
+import { describe as descRt, expect as expRt, it as itRt } from "vitest";
+import { parseBundle as parRt, serializeBundle as serRt } from "../src/index";
+import type { Cardinality as CardRt, ModelGraph as GraphRt } from "../src/types";
 
 descRt("cardinality round-trip", () => {
   const make = (cardinality: CardRt, bidirectional: boolean): GraphRt => ({

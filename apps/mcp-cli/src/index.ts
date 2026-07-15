@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createEldocServer } from "@mc/mcp-core/src/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
 async function main() {
   const server = createEldocServer();

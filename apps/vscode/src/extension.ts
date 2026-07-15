@@ -1,6 +1,6 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
 import * as vscode from "vscode";
-import * as path from "path";
-import * as fs from "fs";
 
 class SidebarProvider implements vscode.WebviewViewProvider {
   constructor(private readonly _extensionUri: vscode.Uri) {}
@@ -21,7 +21,7 @@ class SidebarProvider implements vscode.WebviewViewProvider {
       </style>
     </head>
     <body>
-      <img class="logo" src="${webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'eldoc-erd-canvas-icon.svg'))}" alt="ElDoc Logo">
+      <img class="logo" src="${webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "eldoc-erd-canvas-icon.svg"))}" alt="ElDoc Logo">
       <h2>ElDoc ERD Canvas</h2>
       <p>Design your database models visually and generate SQL.</p>
       <button onclick="openCanvas()">Launch Canvas 🚀</button>
@@ -34,9 +34,9 @@ class SidebarProvider implements vscode.WebviewViewProvider {
     </body>
     </html>`;
 
-    webviewView.webview.onDidReceiveMessage(data => {
-      if (data.command === 'openCanvas') {
-        vscode.commands.executeCommand('eldoc.openCanvas');
+    webviewView.webview.onDidReceiveMessage((data) => {
+      if (data.command === "openCanvas") {
+        vscode.commands.executeCommand("eldoc.openCanvas");
       }
     });
   }
@@ -47,105 +47,155 @@ export function activate(context: vscode.ExtensionContext) {
 
   const sidebarProvider = new SidebarProvider(context.extensionUri);
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider("eldoc.sidebarView", sidebarProvider)
+    vscode.window.registerWebviewViewProvider("eldoc.sidebarView", sidebarProvider),
   );
-  if (vscode.lm && vscode.lm.registerMcpServerDefinitionProvider) {
+  if (vscode.lm?.registerMcpServerDefinitionProvider) {
     context.subscriptions.push(
-      vscode.lm.registerMcpServerDefinitionProvider('eldoc.mcpServer', {
+      vscode.lm.registerMcpServerDefinitionProvider("eldoc.mcpServer", {
         provideMcpServerDefinitions: async () => {
           return [
             {
-              id: 'eldoc',
-              name: 'ElDoc ERD Canvas',
-              command: 'node',
-              args: [context.asAbsolutePath('dist/mcp-server.js')]
-            }
+              id: "eldoc",
+              name: "ElDoc ERD Canvas",
+              command: "node",
+              args: [context.asAbsolutePath("dist/mcp-server.js")],
+            },
           ];
-        }
-      })
+        },
+      }),
     );
   }
 
   // --- Auto-Register with Cline (Claude Dev) ---
   try {
-    const clineSettingsPath = vscode.Uri.joinPath(context.globalStorageUri, '..', 'saoudrizwan.claude-dev', 'settings', 'cline_mcp_settings.json');
-    vscode.workspace.fs.readFile(clineSettingsPath).then(async (data) => {
-      try {
-        const settings = JSON.parse(Buffer.from(data).toString('utf8'));
-        if (!settings.mcpServers) settings.mcpServers = {};
-        const mcpPath = context.asAbsolutePath('dist/mcp-server.js');
-        let needsUpdate = false;
-        if (!settings.mcpServers['eldoc-erd-canvas'] || settings.mcpServers['eldoc-erd-canvas'].args[0] !== mcpPath) {
+    const clineSettingsPath = vscode.Uri.joinPath(
+      context.globalStorageUri,
+      "..",
+      "saoudrizwan.claude-dev",
+      "settings",
+      "cline_mcp_settings.json",
+    );
+    vscode.workspace.fs.readFile(clineSettingsPath).then(
+      async (data) => {
+        try {
+          const settings = JSON.parse(Buffer.from(data).toString("utf8"));
+          if (!settings.mcpServers) settings.mcpServers = {};
+          const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
+          let needsUpdate = false;
+          if (
+            !settings.mcpServers["eldoc-erd-canvas"] ||
+            settings.mcpServers["eldoc-erd-canvas"].args[0] !== mcpPath
+          ) {
             needsUpdate = true;
-        }
-        if (needsUpdate) {
-          settings.mcpServers['eldoc-erd-canvas'] = { command: 'node', args: [mcpPath], disabled: false, autoApprove: [] };
-          await vscode.workspace.fs.writeFile(clineSettingsPath, Buffer.from(JSON.stringify(settings, null, 2), 'utf8'));
-        }
-      } catch (e) {}
-    }, () => {});
+          }
+          if (needsUpdate) {
+            settings.mcpServers["eldoc-erd-canvas"] = {
+              command: "node",
+              args: [mcpPath],
+              disabled: false,
+              autoApprove: [],
+            };
+            await vscode.workspace.fs.writeFile(
+              clineSettingsPath,
+              Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
+            );
+          }
+        } catch (e) {}
+      },
+      () => {},
+    );
   } catch (e) {}
 
   // --- Auto-Register with Antigravity ---
   try {
-    const os = require('os');
-    const antigravityPath = vscode.Uri.file(path.join(os.homedir(), '.gemini', 'config', 'mcp.json'));
-    vscode.workspace.fs.readFile(antigravityPath).then(async (data) => {
-      try {
-        const settings = JSON.parse(Buffer.from(data).toString('utf8'));
-        if (!settings.mcpServers) settings.mcpServers = {};
-        const mcpPath = context.asAbsolutePath('dist/mcp-server.js');
-        let needsUpdate = false;
-        if (!settings.mcpServers['eldoc-erd-canvas'] || settings.mcpServers['eldoc-erd-canvas'].args[0] !== mcpPath) {
+    const os = require("node:os");
+    const antigravityPath = vscode.Uri.file(
+      path.join(os.homedir(), ".gemini", "config", "mcp.json"),
+    );
+    vscode.workspace.fs.readFile(antigravityPath).then(
+      async (data) => {
+        try {
+          const settings = JSON.parse(Buffer.from(data).toString("utf8"));
+          if (!settings.mcpServers) settings.mcpServers = {};
+          const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
+          let needsUpdate = false;
+          if (
+            !settings.mcpServers["eldoc-erd-canvas"] ||
+            settings.mcpServers["eldoc-erd-canvas"].args[0] !== mcpPath
+          ) {
             needsUpdate = true;
-        }
-        if (needsUpdate) {
-          settings.mcpServers['eldoc-erd-canvas'] = { command: 'node', args: [mcpPath] };
-          await vscode.workspace.fs.writeFile(antigravityPath, Buffer.from(JSON.stringify(settings, null, 2), 'utf8'));
-          console.log("Successfully auto-registered ElDoc MCP server with Antigravity.");
-        }
-      } catch (e) {}
-    }, async () => {
+          }
+          if (needsUpdate) {
+            settings.mcpServers["eldoc-erd-canvas"] = { command: "node", args: [mcpPath] };
+            await vscode.workspace.fs.writeFile(
+              antigravityPath,
+              Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
+            );
+            console.log("Successfully auto-registered ElDoc MCP server with Antigravity.");
+          }
+        } catch (e) {}
+      },
+      async () => {
         // File doesn't exist, create it
         try {
-            const mcpPath = context.asAbsolutePath('dist/mcp-server.js');
-            const settings = { mcpServers: { 'eldoc-erd-canvas': { command: 'node', args: [mcpPath] } } };
-            await vscode.workspace.fs.writeFile(antigravityPath, Buffer.from(JSON.stringify(settings, null, 2), 'utf8'));
+          const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
+          const settings = {
+            mcpServers: { "eldoc-erd-canvas": { command: "node", args: [mcpPath] } },
+          };
+          await vscode.workspace.fs.writeFile(
+            antigravityPath,
+            Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
+          );
         } catch (e) {}
-    });
+      },
+    );
   } catch (e) {}
 
   // --- Auto-Register with GitHub Copilot ---
   try {
-    const os = require('os');
-    const copilotPath = vscode.Uri.file(path.join(os.homedir(), '.mcp.json'));
-    vscode.workspace.fs.readFile(copilotPath).then(async (data) => {
-      try {
-        const settings = JSON.parse(Buffer.from(data).toString('utf8'));
-        if (!settings.mcpServers) settings.mcpServers = {};
-        const mcpPath = context.asAbsolutePath('dist/mcp-server.js');
-        let needsUpdate = false;
-        if (!settings.mcpServers['eldoc-erd-canvas'] || settings.mcpServers['eldoc-erd-canvas'].args[0] !== mcpPath) {
+    const os = require("node:os");
+    const copilotPath = vscode.Uri.file(path.join(os.homedir(), ".mcp.json"));
+    vscode.workspace.fs.readFile(copilotPath).then(
+      async (data) => {
+        try {
+          const settings = JSON.parse(Buffer.from(data).toString("utf8"));
+          if (!settings.mcpServers) settings.mcpServers = {};
+          const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
+          let needsUpdate = false;
+          if (
+            !settings.mcpServers["eldoc-erd-canvas"] ||
+            settings.mcpServers["eldoc-erd-canvas"].args[0] !== mcpPath
+          ) {
             needsUpdate = true;
-        }
-        if (needsUpdate) {
-          settings.mcpServers['eldoc-erd-canvas'] = { command: 'node', args: [mcpPath] };
-          await vscode.workspace.fs.writeFile(copilotPath, Buffer.from(JSON.stringify(settings, null, 2), 'utf8'));
-          console.log("Successfully auto-registered ElDoc MCP server with GitHub Copilot.");
-        }
-      } catch (e) {}
-    }, async () => {
+          }
+          if (needsUpdate) {
+            settings.mcpServers["eldoc-erd-canvas"] = { command: "node", args: [mcpPath] };
+            await vscode.workspace.fs.writeFile(
+              copilotPath,
+              Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
+            );
+            console.log("Successfully auto-registered ElDoc MCP server with GitHub Copilot.");
+          }
+        } catch (e) {}
+      },
+      async () => {
         // File doesn't exist, create it
         try {
-            const mcpPath = context.asAbsolutePath('dist/mcp-server.js');
-            const settings = { mcpServers: { 'eldoc-erd-canvas': { command: 'node', args: [mcpPath] } } };
-            await vscode.workspace.fs.writeFile(copilotPath, Buffer.from(JSON.stringify(settings, null, 2), 'utf8'));
+          const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
+          const settings = {
+            mcpServers: { "eldoc-erd-canvas": { command: "node", args: [mcpPath] } },
+          };
+          await vscode.workspace.fs.writeFile(
+            copilotPath,
+            Buffer.from(JSON.stringify(settings, null, 2), "utf8"),
+          );
         } catch (e) {}
-    });
+      },
+    );
   } catch (e) {}
   // ---------------------------------------------
 
-  let disposable = vscode.commands.registerCommand("eldoc.openCanvas", () => {
+  const disposable = vscode.commands.registerCommand("eldoc.openCanvas", () => {
     const panel = vscode.window.createWebviewPanel(
       "eldocCanvas",
       "ElDoc ERD Canvas",
@@ -276,7 +326,7 @@ function wrapIframe(panel: vscode.WebviewPanel, src: string) {
 }
 
 function missingBundleMessage(webviewRoot: vscode.Uri) {
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
   <html lang="en"><head><meta charset="UTF-8"><title>ElDoc ERD Canvas</title>
   <style>body{font:14px/1.5 -apple-system,BlinkMacSystemFont,sans-serif;padding:24px;color:#b91c1c}</style>
   </head><body>
@@ -298,15 +348,15 @@ function rewriteAssetUrls(panel: vscode.WebviewPanel, html: string, webviewRoot:
   const toUri = (rel: string) =>
     panel.webview.asWebviewUri(vscode.Uri.joinPath(webviewRoot, rel)).toString();
   let rewritten = html
-    .replace(
-      /(href|src)=(['"])\.\/(assets\/[^'"]+)\2/g,
-      (_m, attr, quote, path) => {
-        return `${attr}=${quote}${toUri(path)}${quote}`;
-      },
-    )
+    .replace(/(href|src)=(['"])\.\/(assets\/[^'"]+)\2/g, (_m, attr, quote, path) => {
+      return `${attr}=${quote}${toUri(path)}${quote}`;
+    })
     // vite also emits `<link rel="stylesheet" href="/assets/...">` with a leading
     // slash in some configs — handle that too.
-    .replace(/(href|src)=(['"])\/((?:assets|favicon)[^'"]+)\2/g, (_m, attr, quote, p) => `${attr}=${quote}${toUri(p)}${quote}`)
+    .replace(
+      /(href|src)=(['"])\/((?:assets|favicon)[^'"]+)\2/g,
+      (_m, attr, quote, p) => `${attr}=${quote}${toUri(p)}${quote}`,
+    )
     // VS Code webviews don't support crossorigin on local resources, which Vite adds by default
     .replace(/ crossorigin/g, "");
 
@@ -330,7 +380,7 @@ function rewriteAssetUrls(panel: vscode.WebviewPanel, html: string, webviewRoot:
       });
     </script>
   `;
-  rewritten = rewritten.replace('</body>', `${bridgeScript}</body>`);
+  rewritten = rewritten.replace("</body>", `${bridgeScript}</body>`);
   return rewritten;
 }
 

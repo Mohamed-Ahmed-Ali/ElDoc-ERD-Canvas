@@ -1,15 +1,15 @@
-import { memo, useState } from "react";
+import type { ModelEdge } from "@mc/okf";
 import {
   BaseEdge,
   EdgeLabelRenderer,
-  getBezierPath,
-  getStraightPath,
-  getSmoothStepPath,
-  useReactFlow,
-  Position,
   type EdgeProps,
+  Position,
+  getBezierPath,
+  getSmoothStepPath,
+  getStraightPath,
+  useReactFlow,
 } from "@xyflow/react";
-import type { ModelEdge } from "@mc/okf";
+import { memo, useState } from "react";
 import { useTheme } from "../../state/theme";
 
 export type RelEdgeData = Pick<
@@ -64,11 +64,35 @@ function CrowsFootMarkers({ id, color }: CrowsFootMarkersProps) {
         orient="auto-start-reverse"
       >
         {/* Three crow's foot lines, fanning from the entry point outward */}
-        <line x1="2" y1="3"  x2="12" y2="10" stroke={color} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="2" y1="10" x2="16" y2="10" stroke={color} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="2" y1="17" x2="12" y2="10" stroke={color} strokeWidth={sw} strokeLinecap="round" />
+        <line x1="2" y1="3" x2="12" y2="10" stroke={color} strokeWidth={sw} strokeLinecap="round" />
+        <line
+          x1="2"
+          y1="10"
+          x2="16"
+          y2="10"
+          stroke={color}
+          strokeWidth={sw}
+          strokeLinecap="round"
+        />
+        <line
+          x1="2"
+          y1="17"
+          x2="12"
+          y2="10"
+          stroke={color}
+          strokeWidth={sw}
+          strokeLinecap="round"
+        />
         {/* Mandatory bar — sits closest to the node */}
-        <line x1="16" y1="2" x2="16" y2="18" stroke={color} strokeWidth={sw} strokeLinecap="round" />
+        <line
+          x1="16"
+          y1="2"
+          x2="16"
+          y2="18"
+          stroke={color}
+          strokeWidth={sw}
+          strokeLinecap="round"
+        />
       </marker>
 
       {/* ── One end: double bar (exactly one, mandatory) ── */}
@@ -81,8 +105,16 @@ function CrowsFootMarkers({ id, color }: CrowsFootMarkersProps) {
         markerHeight="13"
         orient="auto-start-reverse"
       >
-        <line x1="9"  y1="2" x2="9"  y2="18" stroke={color} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="16" y1="2" x2="16" y2="18" stroke={color} strokeWidth={sw} strokeLinecap="round" />
+        <line x1="9" y1="2" x2="9" y2="18" stroke={color} strokeWidth={sw} strokeLinecap="round" />
+        <line
+          x1="16"
+          y1="2"
+          x2="16"
+          y2="18"
+          stroke={color}
+          strokeWidth={sw}
+          strokeLinecap="round"
+        />
       </marker>
     </>
   );
@@ -101,8 +133,18 @@ function RelEdgeInner(props: EdgeProps) {
   const [localWaypoints, setLocalWaypoints] = useState<{ x: number; y: number }[] | null>(null);
   const [lastClick, setLastClick] = useState<{ time: number; idx: number } | null>(null);
 
-  const { id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, selected, style } =
-    props;
+  const {
+    id,
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    sourcePosition,
+    targetPosition,
+    data,
+    selected,
+    style,
+  } = props;
 
   const edgeData = data as unknown as RelEdgeData | undefined;
   const keys = edgeData?.keys ?? [];
@@ -146,13 +188,21 @@ function RelEdgeInner(props: EdgeProps) {
 
     if (i > 0) {
       sPos = isHorizontal
-        ? dx > 0 ? Position.Right : Position.Left
-        : dy > 0 ? Position.Bottom : Position.Top;
+        ? dx > 0
+          ? Position.Right
+          : Position.Left
+        : dy > 0
+          ? Position.Bottom
+          : Position.Top;
     }
     if (i < pts.length - 2) {
       tPos = isHorizontal
-        ? dx > 0 ? Position.Left : Position.Right
-        : dy > 0 ? Position.Top : Position.Bottom;
+        ? dx > 0
+          ? Position.Left
+          : Position.Right
+        : dy > 0
+          ? Position.Top
+          : Position.Bottom;
     }
 
     let segmentPath = "";
@@ -161,23 +211,33 @@ function RelEdgeInner(props: EdgeProps) {
 
     if (lineType === "straight") {
       [segmentPath, segLabelX, segLabelY] = getStraightPath({
-        sourceX: p1.x, sourceY: p1.y,
-        targetX: p2.x, targetY: p2.y,
+        sourceX: p1.x,
+        sourceY: p1.y,
+        targetX: p2.x,
+        targetY: p2.y,
       });
     } else if (lineType === "step") {
       [segmentPath, segLabelX, segLabelY] = getSmoothStepPath({
-        sourceX: p1.x, sourceY: p1.y, sourcePosition: sPos,
-        targetX: p2.x, targetY: p2.y, targetPosition: tPos,
+        sourceX: p1.x,
+        sourceY: p1.y,
+        sourcePosition: sPos,
+        targetX: p2.x,
+        targetY: p2.y,
+        targetPosition: tPos,
         borderRadius: 0,
       });
     } else {
       [segmentPath, segLabelX, segLabelY] = getBezierPath({
-        sourceX: p1.x, sourceY: p1.y, sourcePosition: sPos,
-        targetX: p2.x, targetY: p2.y, targetPosition: tPos,
+        sourceX: p1.x,
+        sourceY: p1.y,
+        sourcePosition: sPos,
+        targetX: p2.x,
+        targetY: p2.y,
+        targetPosition: tPos,
       });
     }
 
-    edgePath += segmentPath + " ";
+    edgePath += `${segmentPath} `;
 
     // Label anchors to the mathematical centre of the middle segment,
     // returned directly by the React Flow path generator.
@@ -225,16 +285,16 @@ function RelEdgeInner(props: EdgeProps) {
   if (!isCompact && cardinality) {
     if (cardinality === "1:N") {
       markerStartId = `cf-one-${id}`;
-      markerEndId   = `cf-many-${id}`;
+      markerEndId = `cf-many-${id}`;
     } else if (cardinality === "N:1") {
       markerStartId = `cf-many-${id}`;
-      markerEndId   = `cf-one-${id}`;
+      markerEndId = `cf-one-${id}`;
     } else if (cardinality === "1:1") {
       markerStartId = `cf-one-${id}`;
-      markerEndId   = `cf-one-${id}`;
+      markerEndId = `cf-one-${id}`;
     } else if (cardinality === "N:N") {
       markerStartId = `cf-many-${id}`;
-      markerEndId   = `cf-many-${id}`;
+      markerEndId = `cf-many-${id}`;
     }
   }
 
@@ -267,22 +327,18 @@ function RelEdgeInner(props: EdgeProps) {
     if (direction === "bidirectional") {
       midArrow = "↔";
     } else if (direction === "from_to") {
-      midArrow = Math.abs(edgeDx) > Math.abs(edgeDy)
-        ? edgeDx > 0 ? "→" : "←"
-        : edgeDy > 0 ? "↓" : "↑";
+      midArrow =
+        Math.abs(edgeDx) > Math.abs(edgeDy) ? (edgeDx > 0 ? "→" : "←") : edgeDy > 0 ? "↓" : "↑";
     } else if (direction === "to_from") {
-      midArrow = Math.abs(edgeDx) > Math.abs(edgeDy)
-        ? edgeDx < 0 ? "→" : "←"
-        : edgeDy < 0 ? "↓" : "↑";
+      midArrow =
+        Math.abs(edgeDx) > Math.abs(edgeDy) ? (edgeDx < 0 ? "→" : "←") : edgeDy < 0 ? "↓" : "↑";
     }
   }
 
   const showLabel = !!(columnsText || midArrow || cardinality);
 
   const labelBg = isTurbo ? "#1A192B" : isDark ? "#1e293b" : "#ffffff";
-  const labelBorder = selected
-    ? "#1e88e5"
-    : isTurbo ? "#ae53ba" : isDark ? "#334155" : "#d8dee8";
+  const labelBorder = selected ? "#1e88e5" : isTurbo ? "#ae53ba" : isDark ? "#334155" : "#d8dee8";
   const labelColor = isTurbo ? "#e2e8f0" : isDark ? "#f1f5f9" : "#0f172a";
   const arrowColor = selected ? "#1e88e5" : isDark ? "#64748b" : "#94a3b8";
 
@@ -324,14 +380,13 @@ function RelEdgeInner(props: EdgeProps) {
       (e.target as Element).releasePointerCapture(e.pointerId);
       setDragPointIdx(null);
       setLocalWaypoints(null);
-      
+
       // Only persist to the store if the user actually dragged the point
       if (localWaypoints !== waypoints && edgeData?.modelEdgeId && edgeData.onUpdateEdge) {
         edgeData.onUpdateEdge(edgeData.modelEdgeId, { waypoints: localWaypoints });
       }
     }
   };
-
 
   // ── Render ───────────────────────────────────────────────────────────────
 
@@ -364,7 +419,13 @@ function RelEdgeInner(props: EdgeProps) {
       <BaseEdge
         id={id}
         path={edgePath}
-        style={{ stroke: strokeColor, strokeWidth, strokeDasharray, opacity: style?.opacity, transition: style?.transition }}
+        style={{
+          stroke: strokeColor,
+          strokeWidth,
+          strokeDasharray,
+          opacity: style?.opacity,
+          transition: style?.transition,
+        }}
         className={shouldFlow ? "react-flow__edge-path" : ""}
         markerStart={markerStartId ? `url(#${markerStartId})` : undefined}
         markerEnd={markerEndId ? `url(#${markerEndId})` : undefined}
@@ -399,14 +460,28 @@ function RelEdgeInner(props: EdgeProps) {
           >
             {cardinality && (
               <span style={{ fontSize: 9.5, fontWeight: 600, color: markerColor }}>
-                {cardinality === "1:N" ? "One to Many (1:N)" : cardinality === "N:1" ? "Many to One (N:1)" : cardinality === "N:N" ? "Many to Many (N:N)" : cardinality === "1:1" ? "One to One (1:1)" : cardinality}
+                {cardinality === "1:N"
+                  ? "One to Many (1:N)"
+                  : cardinality === "N:1"
+                    ? "Many to One (N:1)"
+                    : cardinality === "N:N"
+                      ? "Many to Many (N:N)"
+                      : cardinality === "1:1"
+                        ? "One to One (1:1)"
+                        : cardinality}
               </span>
             )}
             {midArrow && !cardinality && (
               <span style={{ fontSize: 9, color: arrowColor }}>{midArrow}</span>
             )}
             {columnsText && (
-              <span style={{ fontSize: 9, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", opacity: 0.7 }}>
+              <span
+                style={{
+                  fontSize: 9,
+                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                  opacity: 0.7,
+                }}
+              >
                 {columnsText}
               </span>
             )}

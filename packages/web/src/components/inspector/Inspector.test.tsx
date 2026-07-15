@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import type { ModelGraph, ModelNode } from "@mc/okf";
 import { render, screen } from "@testing-library/react";
-import type { ModelNode, ModelGraph } from "@mc/okf";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Inspector } from "./Inspector";
 
 const node: ModelNode = {

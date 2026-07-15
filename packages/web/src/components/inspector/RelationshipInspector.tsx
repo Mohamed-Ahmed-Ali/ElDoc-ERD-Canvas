@@ -1,4 +1,4 @@
-import type { ModelEdge, ModelNode, JoinKey, Cardinality } from "@mc/okf";
+import type { Cardinality, JoinKey, ModelEdge, ModelNode } from "@mc/okf";
 import { JoinIcon } from "../../lib/icons";
 import { InfoTip } from "./InfoTip";
 

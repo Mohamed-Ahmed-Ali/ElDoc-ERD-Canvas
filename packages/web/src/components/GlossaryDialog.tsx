@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { X, BookOpen, TrendingUp, Plus, Trash2, Link } from "lucide-react";
 import type { GlossaryEntry, KpiEntry, ModelGraph } from "@mc/okf";
+import { BookOpen, Link, Plus, Trash2, TrendingUp, X } from "lucide-react";
+import { useState } from "react";
 
 interface GlossaryDialogProps {
   graph: ModelGraph;
@@ -58,14 +58,14 @@ function GlossaryTab({
                 value={entry.term}
                 onChange={(e) => update(entry.id, { term: e.target.value })}
                 placeholder="Term (e.g. Gross Revenue)"
-                className={inputCls + " font-semibold"}
+                className={`${inputCls} font-semibold`}
               />
               <textarea
                 value={entry.definition}
                 onChange={(e) => update(entry.id, { definition: e.target.value })}
                 placeholder="Plain-language definition…"
                 rows={2}
-                className={inputCls + " resize-none"}
+                className={`${inputCls} resize-none`}
               />
             </div>
             <button
@@ -137,21 +137,21 @@ function KpiTab({
                 value={entry.name}
                 onChange={(e) => update(entry.id, { name: e.target.value })}
                 placeholder="KPI name (e.g. Monthly Recurring Revenue)"
-                className={inputCls + " font-semibold"}
+                className={`${inputCls} font-semibold`}
               />
               <textarea
                 value={entry.definition}
                 onChange={(e) => update(entry.id, { definition: e.target.value })}
                 placeholder="What it is (business meaning)…"
                 rows={2}
-                className={inputCls + " resize-none"}
+                className={`${inputCls} resize-none`}
               />
               <textarea
                 value={entry.formula}
                 onChange={(e) => update(entry.id, { formula: e.target.value })}
                 placeholder="How it's calculated (plain language)…"
                 rows={2}
-                className={inputCls + " resize-none font-mono text-[11.5px]"}
+                className={`${inputCls} resize-none font-mono text-[11.5px]`}
               />
               <input
                 type="text"

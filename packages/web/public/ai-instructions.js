@@ -1,26 +1,22 @@
 // powers the "Copy these instructions" button on the OKF guide page. External
 // (not inline) so it satisfies the app's CSP (script-src 'self'). Copies the
 // canonical raw guide so what's pasted into an AI assistant stays in sync.
-(function () {
-  var btn = document.getElementById("copy-btn");
-  var label = document.getElementById("copy-label");
+(() => {
+  const btn = document.getElementById("copy-btn");
+  const label = document.getElementById("copy-label");
   if (!btn || !label) return;
-  btn.addEventListener("click", function () {
+  btn.addEventListener("click", () => {
     fetch("/okf-format.md")
-      .then(function (r) {
-        return r.text();
-      })
-      .then(function (md) {
-        return navigator.clipboard.writeText(md);
-      })
-      .then(function () {
-        var prev = label.textContent;
+      .then((r) => r.text())
+      .then((md) => navigator.clipboard.writeText(md))
+      .then(() => {
+        const prev = label.textContent;
         label.textContent = "Copied — paste into Claude";
-        setTimeout(function () {
+        setTimeout(() => {
           label.textContent = prev;
         }, 2500);
       })
-      .catch(function () {
+      .catch(() => {
         window.open("/okf-format.md", "_blank");
       });
   });

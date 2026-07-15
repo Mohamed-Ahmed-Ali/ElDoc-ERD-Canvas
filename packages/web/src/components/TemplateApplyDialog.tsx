@@ -1,5 +1,5 @@
-import { useState } from "react";
 import type { ModelGraph } from "@mc/okf";
+import { useState } from "react";
 
 interface TemplateApplyDialogProps {
   graph: ModelGraph;

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
 import type { ModelGraph } from "@mc/okf";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { TemplateApplyDialog } from "./TemplateApplyDialog";
 
 const graph: ModelGraph = {
