@@ -79,19 +79,6 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
 
   return (
     <div className="flex flex-col gap-[15px]">
-      {/* Title */}
-      <div>
-        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
-          Title
-        </label>
-        <input
-          type="text"
-          value={node.title}
-          onChange={(e) => onUpdate({ title: e.target.value })}
-          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
-        />
-      </div>
-
       {/* Node type — mart vs bridge (factless-fact) */}
       <div>
         <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
@@ -173,6 +160,19 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
           value={node.namespace ?? ""}
           onChange={(e) => onUpdate({ namespace: e.target.value || undefined })}
           placeholder="optional"
+          className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
+        />
+      </div>
+
+      {/* Title */}
+      <div>
+        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+          Title
+        </label>
+        <input
+          type="text"
+          value={node.title}
+          onChange={(e) => onUpdate({ title: e.target.value })}
           className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
         />
       </div>

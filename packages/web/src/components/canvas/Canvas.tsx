@@ -95,7 +95,6 @@ function toRFNode(n: ModelNode, viewMode: ViewMode, keyFields?: string[]): Node 
     width: n.type === "group" ? n.width : undefined,
     height: n.type === "group" ? n.height : undefined,
     style: n.type === "group" ? { width: n.width, height: n.height } : undefined,
-    zIndex: n.type === "group" ? -1 : 2000,
     data: {
       ...n,
       _viewMode: viewMode,
@@ -307,6 +306,7 @@ function CanvasInner() {
         const isDimmed = activeKeys !== null && !activeKeys.has(n.key);
 
         rfNode.hidden = physicallyHidden;
+        rfNode.zIndex = 2000;
         if (!rfNode.style) rfNode.style = {};
         rfNode.style.opacity = isDimmed ? 0.2 : 1;
         rfNode.style.transition = "opacity 0.2s ease";

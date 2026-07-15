@@ -443,7 +443,7 @@ function RelEdgeInner(props: EdgeProps) {
               border: `1px solid ${labelBorder}`,
               borderRadius: 4,
               padding: "1px 6px",
-              zIndex: 1001,
+              zIndex: selected ? 1001 : 1,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
