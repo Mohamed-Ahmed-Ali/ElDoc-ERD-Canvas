@@ -33,8 +33,18 @@ export function serializeBundle(graph: ModelGraph, projectTitle = "Data Marts"):
         `| [${n.title}](./${slugByKey.get(n.key)}.md) | ${n.inputSource} | ${graph.storageId ?? "—"} |`,
     )
     .join("\n");
+  const indexFrontmatter: Record<string, any> = {
+    type: "index",
+    title: projectTitle,
+    description: "Index of exported ElDoc data marts.",
+    tags: ["eldoc", "index"],
+  };
+  if (graph.tags?.length) {
+    indexFrontmatter.graphTags = graph.tags;
+  }
+
   files[`${folder}/index.md`] =
-    `---\n${renderFrontmatter({ type: "index", title: projectTitle, description: "Index of exported ElDoc data marts.", tags: ["eldoc", "index"] })}\n---\n\n# ${projectTitle}\n\n| Data Mart | Type | Storage |\n|-----------|------|---------|\n${rows}\n`;
+    `---\n${renderFrontmatter(indexFrontmatter)}\n---\n\n# ${projectTitle}\n\n| Data Mart | Type | Storage |\n|-----------|------|---------|\n${rows}\n`;
   return { files };
 }
 
@@ -59,12 +69,16 @@ function fkColumns(
 }
 
 function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>): string {
-  const fm = renderFrontmatter({
+  const frontmatterObj: Record<string, any> = {
     type: "ElDoc Data Mart",
     title: n.title,
     description: n.description || undefined,
-    tags: ["eldoc", n.inputSource.toLowerCase()],
-  });
+    tags: ["eldoc", n.inputSource.toLowerCase(), ...(n.tags || [])],
+  };
+  if (n.color !== undefined) frontmatterObj.color = n.color;
+  if (n.isHidden !== undefined) frontmatterObj.isHidden = n.isHidden;
+
+  const fm = renderFrontmatter(frontmatterObj);
   const overview = [
     "## Overview",
     "",
@@ -166,7 +180,11 @@ export function graphToDbml(graph: ModelGraph): string {
   for (const n of graph.nodes) {
     if (n.type === "group") continue; // DBML doesn't natively support "domains/groups", could use TableGroups but let's skip
 
-    dbml += `Table ${escapeId(n.title)} {\n`;
+    let tableSettings = "";
+    if (n.color) {
+      tableSettings = ` [headercolor: ${n.color}]`;
+    }
+    dbml += `Table ${escapeId(n.title)}${tableSettings} {\n`;
 
     for (const f of n.schema) {
       dbml += `  ${escapeId(f.name)} ${f.type || "varchar"}`;

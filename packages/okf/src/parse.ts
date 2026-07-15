@@ -25,6 +25,14 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
   const docs = Object.entries(files)
     .filter(([p]) => p.endsWith(".md") && !p.endsWith("index.md"))
     .filter(([, text]) => isMartDoc(text));
+  
+  const indexDoc = files[Object.keys(files).find(p => p.endsWith("index.md")) || ""];
+  let graphTags: any[] | undefined = undefined;
+  if (indexDoc) {
+    const { data } = parseFrontmatter(indexDoc);
+    if (data.graphTags) graphTags = data.graphTags;
+  }
+
   const nodes: ModelNode[] = [];
   const slugToKey = new Map<string, string>();
   const pkByKey = new Map<string, string | undefined>();
@@ -44,6 +52,11 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
       sourceFromType(data.type) ||
       "SQL") as InputSource;
     const eldocId = eldoc.id ?? (ov.id && ov.id !== "—" ? ov.id : null);
+    
+    const parsedTags = Array.isArray(data.tags)
+      ? data.tags.filter((t: any) => typeof t === "string" && t !== "eldoc" && t !== inputSource.toLowerCase())
+      : [];
+
     nodes.push({
       key,
       title,
@@ -54,6 +67,9 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
       position: eldoc.position || { x: 0, y: 0 },
       status: eldocId || ov.status === "PUBLISHED" ? "created" : "pending",
       eldocId,
+      ...(data.color !== undefined ? { color: String(data.color) } : {}),
+      ...(data.isHidden !== undefined ? { isHidden: Boolean(data.isHidden) } : {}),
+      ...(parsedTags.length > 0 ? { tags: parsedTags } : {}),
     });
   }
 
@@ -178,7 +194,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
     edges.push(e);
   }
   const storageId = (docs[0] && parseFrontmatter(docs[0][1]).data.eldoc?.storageId) || null;
-  return { storageId, nodes, edges };
+  return { storageId, nodes, edges, ...(graphTags ? { tags: graphTags } : {}) };
 }
 
 function inferSource(tags: unknown): InputSource | undefined {

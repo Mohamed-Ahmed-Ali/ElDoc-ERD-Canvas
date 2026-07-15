@@ -44,6 +44,9 @@ function sanitize(g: ModelGraph): ModelGraph {
         ...(n.parentId !== undefined ? { parentId: n.parentId } : {}),
         ...(n.width !== undefined ? { width: n.width } : {}),
         ...(n.height !== undefined ? { height: n.height } : {}),
+        ...(n.color !== undefined ? { color: n.color } : {}),
+        ...(n.isHidden !== undefined ? { isHidden: n.isHidden } : {}),
+        ...(n.tags?.length ? { tags: n.tags } : {}),
       }),
     ),
     edges: g.edges.map(
@@ -59,6 +62,7 @@ function sanitize(g: ModelGraph): ModelGraph {
     ),
     ...(g.glossary?.length ? { glossary: g.glossary } : {}),
     ...(g.kpis?.length ? { kpis: g.kpis } : {}),
+    ...(g.tags?.length ? { tags: g.tags } : {}),
     // ponytail: comments travel in the share link too — anonymous-first means
     // there's no separate persistence path, so dropping them on share would
     // silently delete a review thread. Authors are free-text handles, not PII.
