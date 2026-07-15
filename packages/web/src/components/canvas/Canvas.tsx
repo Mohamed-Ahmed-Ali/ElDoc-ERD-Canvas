@@ -76,25 +76,13 @@ import { erdAwareNodeSize } from "./layoutSize";
 // cast to FC to avoid generic component JSX typing issues with @types/react 18.3
 const ReactFlow = ReactFlowBase as unknown as FC<ReactFlowProps>;
 
-// ── store singleton (exported so external modules can share this instance) ───
-// a shared link (#m=…) wins over localStorage: opening it reopens that exact
-// model. Otherwise rehydrate from localStorage so a refresh doesn't wipe work.
-//
-// ponytail: the shared-link decode used to run as a module-top-level `await`,
-// which blocks first paint AND throws a corrupt-link boot crash that the error
-// boundary can't catch (it happens before React mounts). We init synchronously
-// from localStorage now, and apply the shared link in a `useEffect` inside
-// `CanvasApp` — a hash parse failure degrades to an empty canvas instead of a
-// white screen, and the await no longer blocks the bundle evaluation graph.
-const persistedGraph = loadPersistedGraph();
-export const store = createModelStore(persistedGraph);
+import { store, isFirstVisit } from "../../state/store";
 
 // a truly first-ever visit has no persisted model and no shared link. Captured at
 // module load — before the persist effect writes an (empty) graph — so it stays
 // true for the session. A shared link is detected inside `CanvasApp` once it
 // decodes, so a first visit can still be opened from #m=… (see applySharedModel
 // in CanvasApp). Kept here as a stable flag so `WelcomeDialog` reads once.
-const isFirstVisit = persistedGraph === undefined;
 
 // ── helpers to convert between model and RF types ───────────────────────────
 function toRFNode(n: ModelNode, viewMode: ViewMode, keyFields?: string[]): Node {

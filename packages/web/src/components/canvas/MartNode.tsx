@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { memo, useRef, useState } from "react";
+import { store } from "../../state/store";
 import { DataMartIcon } from "../../lib/icons";
 import type { ViewMode } from "../../state/viewMode";
 import { VIEW_CONFIG, toBusinessType } from "../../state/viewMode";
@@ -69,9 +70,7 @@ function MartHeader({ node, color }: { node: MartNodeData; color: string }) {
   const commit = () => {
     setEditing(false);
     if (title.trim() && title !== node[headerProp]) {
-      import("./Canvas").then(({ store }) => {
-        store.updateNode(node.key, { [headerProp]: title.trim() });
-      });
+      store.updateNode(node.key, { [headerProp]: title.trim() });
     } else {
       setTitle(node[headerProp]);
     }
@@ -159,12 +158,10 @@ function FieldRow({
   const commitName = () => {
     setEditingName(false);
     if (nameVal.trim() && nameVal !== displayVal) {
-      import("./Canvas").then(({ store }) => {
-        const newSchema = schema.map((sf) =>
-          sf.name === f.name ? { ...sf, [config.fieldName]: nameVal.trim() } : sf,
-        );
-        store.updateNode(node.key, { schema: newSchema });
-      });
+      const newSchema = schema.map((sf) =>
+        sf.name === f.name ? { ...sf, [config.fieldName]: nameVal.trim() } : sf,
+      );
+      store.updateNode(node.key, { schema: newSchema });
     } else {
       setNameVal(displayVal);
     }
@@ -173,12 +170,10 @@ function FieldRow({
   const commitType = () => {
     setEditingType(false);
     if (typeVal.trim() && typeVal !== f.type) {
-      import("./Canvas").then(({ store }) => {
-        const newSchema = schema.map((sf) =>
-          sf.name === f.name ? { ...sf, type: typeVal.trim().toUpperCase() } : sf,
-        );
-        store.updateNode(node.key, { schema: newSchema });
-      });
+      const newSchema = schema.map((sf) =>
+        sf.name === f.name ? { ...sf, type: typeVal.trim().toUpperCase() } : sf,
+      );
+      store.updateNode(node.key, { schema: newSchema });
     } else {
       setTypeVal(f.type);
     }
@@ -186,10 +181,8 @@ function FieldRow({
 
   const removeField = (e: React.MouseEvent) => {
     e.stopPropagation();
-    import("./Canvas").then(({ store }) => {
-      const newSchema = schema.filter((sf) => sf.name !== f.name);
-      store.updateNode(node.key, { schema: newSchema });
-    });
+    const newSchema = schema.filter((sf) => sf.name !== f.name);
+    store.updateNode(node.key, { schema: newSchema });
   };
 
   let displayedType = config.showType === "business" ? toBusinessType(f.type) : f.type;
@@ -389,25 +382,19 @@ function MartNodeInner(props: NodeProps) {
   const commitDesc = () => {
     setEditingDesc(false);
     if (desc.trim() !== (node.description || "")) {
-      import("./Canvas").then(({ store }) => {
-        store.updateNode(node.key, { description: desc.trim() });
-      });
+      store.updateNode(node.key, { description: desc.trim() });
     } else {
       setDesc(node.description || "");
     }
   };
 
   const addField = () => {
-    import("./Canvas").then(({ store }) => {
-      const newField = { name: `new_col_${node.schema.length + 1}`, type: "STRING", pk: false };
-      store.updateNode(node.key, { schema: [...node.schema, newField] });
-    });
+    const newField = { name: `new_col_${node.schema.length + 1}`, type: "STRING", pk: false };
+    store.updateNode(node.key, { schema: [...node.schema, newField] });
   };
 
   const removeNode = () => {
-    import("./Canvas").then(({ store }) => {
-      store.removeNode(node.key);
-    });
+    store.removeNode(node.key);
   };
 
   return (

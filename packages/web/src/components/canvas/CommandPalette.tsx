@@ -1,7 +1,7 @@
 import { useReactFlow } from "@xyflow/react";
 import { Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { store } from "./Canvas";
+import { store } from "../../state/store";
 
 export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [query, setQuery] = useState("");

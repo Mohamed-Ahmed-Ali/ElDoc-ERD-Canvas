@@ -42,6 +42,10 @@ const mart = (
   description,
   schema,
   position: { x: 0, y: 0 },
+  materialization: "table",
+  dataTier: "gold",
+  updateFrequency: "daily",
+  grain: description?.split(".")[0],
 });
 // edges carry cardinality so the ERD/OKF export reads like a real star schema.
 // default N:1 because the common case is a fact row pointing at one dimension.
@@ -77,8 +81,8 @@ const ecommerce: ModelGraph = {
       "Customer",
       "VIEW",
       [
-        f("customer_id", "STRING", true, "Surrogate customer key."),
-        f("email", "STRING", { pii: true }, "Primary contact address used for login and outreach."),
+        f("customer_id", "STRING", { pk: true, role: "pk", keyType: "surrogateSequence", scdType: "type2" }, "Surrogate customer key."),
+        f("email", "STRING", { pii: true, dataClassification: "restricted", maskingPolicy: "SHA256_HASH", dataQualityRules: "REGEX('^[^@]+@[^@]+$')" }, "Primary contact address used for login and outreach."),
         f("country", "STRING", false, "Customer's country, used for geo segmentation."),
         f("region", "STRING", false, "Sub-national region or state within the country."),
         f("acquisition_channel", "STRING", false, "First-touch channel that won the customer."),
@@ -110,9 +114,9 @@ const ecommerce: ModelGraph = {
       "Product",
       "VIEW",
       [
-        f("product_id", "STRING", true, "Surrogate product key."),
-        f("sku", "STRING", false, "Stock-keeping unit code that identifies the sellable item."),
-        f("name", "STRING", { pii: true }, "Display name of the product."),
+        f("product_id", "STRING", { pk: true, role: "pk", keyType: "surrogateSequence", scdType: "type1" }, "Surrogate product key."),
+        f("sku", "STRING", { dataQualityRules: "NOT_NULL, UNIQUE" }, "Stock-keeping unit code that identifies the sellable item."),
+        f("name", "STRING", { pii: true, dataClassification: "public" }, "Display name of the product."),
         f("category", "STRING", false, "Top-level category in the product hierarchy."),
         f("subcategory", "STRING", false, "Second-level grouping within the category."),
         f("brand", "STRING", false, "Manufacturer or brand label."),
@@ -132,7 +136,7 @@ const ecommerce: ModelGraph = {
       "Orders",
       "VIEW",
       [
-        f("order_id", "STRING", true, "Unique identifier for the order."),
+        f("order_id", "STRING", { pk: true, role: "pk", keyType: "surrogateSequence", lineageType: "DIRECT" }, "Unique identifier for the order."),
         f("customer_id", "STRING", false, "Buyer."),
         f("order_ts", "TIMESTAMP", false, "Moment the order was placed."),
         f("channel", "STRING", false, "Sales channel through which the order came in."),

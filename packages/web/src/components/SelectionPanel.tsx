@@ -1,7 +1,7 @@
 import type { ModelNode, TagEntry } from "@mc/okf";
 import { ListFilter, Plus, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { store } from "./canvas/Canvas";
+import { store } from "../state/store";
 
 interface SelectionPanelProps {
   onClose: () => void;

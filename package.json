@@ -1,6 +1,7 @@
 {
   "name": "eldoc-erd-canvas",
   "private": true,
+  "description": "ElDoc ERD Canvas is a blazing-fast, completely free static web application for designing data models, entity-relationship diagrams (ERDs), and instantly generating SQL definitions using AI.",
   "license": "Apache-2.0",
   "scripts": {
     "dev": "pnpm --filter @mc/web dev",

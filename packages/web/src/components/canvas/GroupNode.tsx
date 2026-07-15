@@ -1,6 +1,8 @@
 import { type NodeProps, NodeResizer, NodeToolbar, Position } from "@xyflow/react";
 import { Palette, Trash2 } from "lucide-react";
 import { memo, useState } from "react";
+import { store } from "../../state/store";
+
 export interface GroupNodeData {
   title?: string;
   color?: string;
@@ -29,26 +31,20 @@ function GroupNodeInner(props: NodeProps) {
   const commitTitle = () => {
     setEditingTitle(false);
     if (localTitle.trim() && localTitle !== title) {
-      import("./Canvas").then(({ store }) => {
-        store.updateNode(node.key, { title: localTitle.trim() });
-      });
+      store.updateNode(node.key, { title: localTitle.trim() });
     } else {
       setLocalTitle(title);
     }
   };
 
   const removeNode = () => {
-    import("./Canvas").then(({ store }) => {
-      store.removeNode(node.key);
-    });
+    store.removeNode(node.key);
   };
 
   const cycleColor = () => {
     const colors = ["#cbd5e1", "#fca5a5", "#fcd34d", "#86efac", "#93c5fd", "#c4b5fd"];
     const nextIdx = (colors.indexOf(rawColor || "#cbd5e1") + 1) % colors.length;
-    import("./Canvas").then(({ store }) => {
-      store.updateNode(node.key, { color: colors[nextIdx] });
-    });
+    store.updateNode(node.key, { color: colors[nextIdx] });
   };
 
   return (

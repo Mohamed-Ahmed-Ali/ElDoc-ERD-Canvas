@@ -6,6 +6,14 @@ export default defineConfig({
   plugins: [react()],
   build: {
     target: "esnext",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "@xyflow/react", "lucide-react"],
+          dagre: ["@dagrejs/dagre"]
+        }
+      }
+    }
   },
   server: {
     port: 5173,

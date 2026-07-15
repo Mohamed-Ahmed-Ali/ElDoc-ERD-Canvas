@@ -113,6 +113,11 @@ export function createEldocServer() {
               },
               tableName: { type: "string" },
               description: { type: "string" },
+              materialization: { type: "string", description: "Optional: table, view, ephemeral, materialized_view" },
+              dataTier: { type: "string", description: "Optional: bronze, silver, gold, raw, staged, curated" },
+              updateFrequency: { type: "string", description: "Optional: real-time, hourly, daily, weekly, monthly, manual" },
+              partitioning: { type: "string", description: "Optional partitioning string" },
+              grain: { type: "string", description: "Optional grain string" },
             },
             required: ["filePath", "tableName"],
           },
@@ -141,6 +146,22 @@ export function createEldocServer() {
               lineageLogic: {
                 type: "string",
                 description: "Optional logic/expression JSON string",
+              },
+              scdType: {
+                type: "string",
+                description: "Optional: type1, type2, type3",
+              },
+              dataClassification: {
+                type: "string",
+                description: "Optional: public, internal, confidential, restricted",
+              },
+              maskingPolicy: {
+                type: "string",
+                description: "Optional masking policy string",
+              },
+              dataQualityRules: {
+                type: "string",
+                description: "Optional data quality rules string",
               },
             },
             required: ["filePath", "tableName", "columnName", "columnType"],
@@ -252,6 +273,10 @@ export function createEldocServer() {
             if (f.pii) desc += " [PII]";
             if (f.lineageType && f.lineageType !== "none") desc += ` [Lineage: ${f.lineageType}]`;
             if (f.lineageLogic) desc += ` [Logic: ${f.lineageLogic}]`;
+            if (f.scdType) desc += ` [SCD: ${f.scdType}]`;
+            if (f.dataClassification) desc += ` [Classification: ${f.dataClassification}]`;
+            if (f.maskingPolicy) desc += ` [Masking: ${f.maskingPolicy}]`;
+            if (f.dataQualityRules) desc += ` [Quality Rules: ${f.dataQualityRules}]`;
             if (f.description) desc += ` - ${f.description}`;
             return desc;
           })
@@ -337,6 +362,12 @@ export function createEldocServer() {
         );
         const key = `n${counter + 1}`;
 
+        const materialization = request.params.arguments?.materialization ? String(request.params.arguments?.materialization) : undefined;
+        const dataTier = request.params.arguments?.dataTier ? String(request.params.arguments?.dataTier) : undefined;
+        const updateFrequency = request.params.arguments?.updateFrequency ? String(request.params.arguments?.updateFrequency) : undefined;
+        const partitioning = request.params.arguments?.partitioning ? String(request.params.arguments?.partitioning) : undefined;
+        const grain = request.params.arguments?.grain ? String(request.params.arguments?.grain) : undefined;
+
         graph.nodes.push({
           key,
           type: "mart",
@@ -346,6 +377,11 @@ export function createEldocServer() {
           schema: [],
           position: { x: Math.random() * 500, y: Math.random() * 500 },
           status: "pending",
+          ...(materialization && { materialization }),
+          ...(dataTier && { dataTier }),
+          ...(updateFrequency && { updateFrequency }),
+          ...(partitioning && { partitioning }),
+          ...(grain && { grain }),
         });
 
         fs.writeFileSync(filePath, JSON.stringify(graph, null, 2));
@@ -379,8 +415,17 @@ export function createEldocServer() {
           keyType: role === "pk" ? "surrogateSequence" : "attribute",
           isComposite: false,
         };
+        const scdType = request.params.arguments?.scdType ? String(request.params.arguments?.scdType) : undefined;
+        const dataClassification = request.params.arguments?.dataClassification ? String(request.params.arguments?.dataClassification) : undefined;
+        const maskingPolicy = request.params.arguments?.maskingPolicy ? String(request.params.arguments?.maskingPolicy) : undefined;
+        const dataQualityRules = request.params.arguments?.dataQualityRules ? String(request.params.arguments?.dataQualityRules) : undefined;
+
         if (lineageType) newField.lineageType = lineageType;
         if (lineageLogic) newField.lineageLogic = lineageLogic;
+        if (scdType) newField.scdType = scdType;
+        if (dataClassification) newField.dataClassification = dataClassification;
+        if (maskingPolicy) newField.maskingPolicy = maskingPolicy;
+        if (dataQualityRules) newField.dataQualityRules = dataQualityRules;
 
         table.schema.push(newField);
 
