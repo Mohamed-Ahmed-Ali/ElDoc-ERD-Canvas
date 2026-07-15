@@ -35,7 +35,6 @@ function sanitize(g: ModelGraph): ModelGraph {
           }),
         ),
         position: n.position,
-        status: "pending",
         ...(n.type ? { type: n.type } : {}),
         ...(n.definition !== undefined && n.definition !== null
           ? { definition: n.definition }

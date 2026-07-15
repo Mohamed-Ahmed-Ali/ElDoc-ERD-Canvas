@@ -9,8 +9,6 @@ const node: ModelNode = {
   inputSource: "SQL",
   schema: [{ name: "id", type: "INTEGER", pk: true }],
   position: { x: 0, y: 0 },
-  status: "pending",
-  eldocId: undefined,
 };
 const graph: ModelGraph = { storageId: null, nodes: [node], edges: [] };
 const noop = () => {};

@@ -42,7 +42,6 @@ const mart = (
   description,
   schema,
   position: { x: 0, y: 0 },
-  status: "pending",
 });
 // edges carry cardinality so the ERD/OKF export reads like a real star schema.
 // default N:1 because the common case is a fact row pointing at one dimension.
@@ -1385,7 +1384,7 @@ export const TEMPLATES: Template[] = [
           author: "Data Engineer",
           body: "Ensure this fact table is partitioned by event_date in Snowflake.",
           createdAt: new Date().toISOString(),
-          resolved: false,
+            resolved: false,
         },
         {
           id: "c2",
@@ -1394,7 +1393,7 @@ export const TEMPLATES: Template[] = [
           author: "BI Analyst",
           body: "Are there ever orphaned opportunities without an account?",
           createdAt: new Date().toISOString(),
-          resolved: false,
+            resolved: false,
         },
       ],
       nodes: [
@@ -1404,7 +1403,6 @@ export const TEMPLATES: Template[] = [
           title: "CRM Domain",
           type: "group",
           inputSource: "TABLE",
-          status: "created",
           position: { x: 0, y: 0 },
           width: 800,
           height: 600,
@@ -1416,7 +1414,6 @@ export const TEMPLATES: Template[] = [
           title: "Billing Domain",
           type: "group",
           inputSource: "TABLE",
-          status: "created",
           position: { x: 900, y: 0 },
           width: 800,
           height: 600,
@@ -1428,7 +1425,6 @@ export const TEMPLATES: Template[] = [
           title: "Analytics Domain",
           type: "group",
           inputSource: "TABLE",
-          status: "created",
           position: { x: 0, y: 700 },
           width: 800,
           height: 600,
@@ -1440,7 +1436,6 @@ export const TEMPLATES: Template[] = [
           title: "Support Domain",
           type: "group",
           inputSource: "TABLE",
-          status: "created",
           position: { x: 900, y: 700 },
           width: 800,
           height: 600,
@@ -1458,7 +1453,6 @@ export const TEMPLATES: Template[] = [
           inputSource: "TABLE",
           color: "#1e88e5",
           description: "Core dimensional table for users.",
-          status: "pending",
           position: { x: 50, y: 50 },
           schema: [
             {
@@ -1498,7 +1492,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "TABLE",
           color: "#1e88e5",
-          status: "pending",
           position: { x: 350, y: 50 },
           schema: [
             {
@@ -1533,7 +1526,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "VIEW",
           color: "#1e88e5",
-          status: "pending",
           position: { x: 50, y: 300 },
           schema: [
             {
@@ -1571,7 +1563,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "TABLE",
           color: "#1e88e5",
-          status: "pending",
           position: { x: 350, y: 300 },
           schema: [
             {
@@ -1608,7 +1599,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "VIEW",
           color: "#43a047",
-          status: "pending",
           position: { x: 50, y: 50 },
           schema: [
             {
@@ -1646,7 +1636,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "CONNECTOR",
           color: "#43a047",
-          status: "pending",
           position: { x: 350, y: 50 },
           schema: [
             {
@@ -1683,7 +1672,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "TABLE",
           color: "#43a047",
-          status: "pending",
           position: { x: 50, y: 300 },
           schema: [
             {
@@ -1715,7 +1703,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "TABLE",
           color: "#43a047",
-          status: "pending",
           position: { x: 350, y: 300 },
           schema: [
             {
@@ -1752,7 +1739,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "VIEW",
           color: "#8e24aa",
-          status: "pending",
           position: { x: 50, y: 50 },
           schema: [
             { name: "event_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
@@ -1777,7 +1763,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "TABLE",
           color: "#8e24aa",
-          status: "pending",
           position: { x: 350, y: 50 },
           schema: [
             {
@@ -1809,7 +1794,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "TABLE",
           color: "#8e24aa",
-          status: "pending",
           position: { x: 50, y: 300 },
           schema: [
             { name: "device_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
@@ -1826,7 +1810,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "VIEW",
           color: "#8e24aa",
-          status: "pending",
           position: { x: 350, y: 300 },
           schema: [
             { name: "date_day", type: "DATE", pk: true, role: "pk", keyType: "surrogateSequence" },
@@ -1866,7 +1849,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "VIEW",
           color: "#fb8c00",
-          status: "pending",
           position: { x: 50, y: 50 },
           schema: [
             {
@@ -1912,7 +1894,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "TABLE",
           color: "#fb8c00",
-          status: "pending",
           position: { x: 350, y: 50 },
           schema: [
             {
@@ -1948,7 +1929,6 @@ export const TEMPLATES: Template[] = [
           inputSource: "CONNECTOR",
           color: "#fb8c00",
           description: "Factless fact bridging tickets to knowledge base articles.",
-          status: "pending",
           position: { x: 50, y: 300 },
           schema: [
             { name: "ticket_id", type: "BIGINT", fk: true, role: "fk", keyType: "attribute" },
@@ -1963,7 +1943,6 @@ export const TEMPLATES: Template[] = [
           type: "mart",
           inputSource: "TABLE",
           color: "#fb8c00",
-          status: "pending",
           position: { x: 350, y: 300 },
           schema: [
             {

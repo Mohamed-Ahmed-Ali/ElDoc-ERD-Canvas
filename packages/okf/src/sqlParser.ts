@@ -342,7 +342,6 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
             key: viewName,
             title: viewName,
             inputSource: "VIEW",
-            status: "pending",
             schema: fields,
             position: { x: 0, y: 0 },
           });
@@ -388,7 +387,6 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
               key: tableName,
               title: tableName,
               inputSource: "SQL",
-              status: "pending",
               schema: fields,
               position: { x: 0, y: 0 },
             });
@@ -562,7 +560,6 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
             key: tableName,
             title: tableName,
             inputSource: "SQL",
-            status: "pending",
             schema,
             position: { x: 0, y: 0 },
           });
@@ -635,7 +632,6 @@ export function parseSqlRobust(sql: string, strict = false): ParseResult {
         key: "Query_Result",
         title: "Query Result",
         inputSource: "SQL",
-        status: "pending",
         schema: fields,
         position: { x: 0, y: 0 },
       });

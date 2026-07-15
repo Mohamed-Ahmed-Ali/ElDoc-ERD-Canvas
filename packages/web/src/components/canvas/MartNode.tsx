@@ -24,30 +24,7 @@ const SOURCE_COLOR: Record<string, string> = {
   TABLE: "#8b5cf6",
 };
 
-const STATUS_TIP: Record<string, string> = {
-  created: "Created",
-  pending: "Draft",
-  creating: "Creating…",
-  error: "Error — check details",
-};
-
 export type MartNodeData = ModelNode & { _viewMode?: ViewMode; _keyFields?: string[] };
-
-function StatusDot({ status }: { status: string }) {
-  const base = "absolute top-[10px] right-[10px] w-[9px] h-[9px] rounded-full z-10";
-  const colors: Record<string, string> = {
-    created: "bg-[#10b981]",
-    pending: "bg-slate-300",
-    creating: "bg-[#1e88e5] animate-pulse",
-    error: "bg-[#ef4444]",
-  };
-  return (
-    <span
-      className={`${base} ${colors[status] ?? "bg-slate-300"}`}
-      title={STATUS_TIP[status] ?? status}
-    />
-  );
-}
 
 // node-level connectable ports (the only way to draw a new relationship).
 function NodePorts() {
@@ -478,7 +455,6 @@ function MartNodeInner(props: NodeProps) {
       </NodeToolbar>
 
       <NodeResizer isVisible={props.selected} minWidth={200} minHeight={90} />
-      <StatusDot status={node.status} />
       <MartHeader node={node} color={color} />
 
       {/* Meta row: type chip + (compact) field count */}

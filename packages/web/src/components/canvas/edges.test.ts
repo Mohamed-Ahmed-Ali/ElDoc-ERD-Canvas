@@ -9,8 +9,6 @@ const node = (key: string, fields: string[]): ModelNode => ({
   inputSource: "VIEW",
   schema: fields.map(field),
   position: { x: 0, y: 0 },
-  status: "created",
-  eldocId: undefined,
 });
 
 const nodes = [node("a", ["id", "x"]), node("b", ["a_id", "y"])];
@@ -93,8 +91,6 @@ describe("buildRfEdges geometry-derived sides (no stored handle)", () => {
     inputSource: "VIEW",
     schema: [field("id")],
     position: { x, y: 0 },
-    status: "created",
-    eldocId: undefined,
   });
   // import/template edges carry no stored handle — the case that used to jump.
   const bare: ModelEdge = {
@@ -139,7 +135,6 @@ describe("buildRfEdges cardinality passthrough", () => {
       key: "a",
       title: "A",
       inputSource: "TABLE",
-      status: "pending",
       position: { x: 0, y: 0 },
       schema: [{ name: "x", type: "STRING", pk: true }],
     },
@@ -147,7 +142,6 @@ describe("buildRfEdges cardinality passthrough", () => {
       key: "b",
       title: "B",
       inputSource: "TABLE",
-      status: "pending",
       position: { x: 0, y: 0 },
       schema: [{ name: "y", type: "STRING", pk: true }],
     },

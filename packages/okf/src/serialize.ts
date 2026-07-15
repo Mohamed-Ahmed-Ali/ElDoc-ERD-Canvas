@@ -82,8 +82,6 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
   const overviewParts = [
     "## Overview",
     "",
-    `- **ID:** \`${n.eldocId ?? "—"}\``,
-    `- **Status:** ${n.status === "created" ? "PUBLISHED" : "DRAFT"}`,
     `- **Definition type:** ${n.inputSource}`,
     `- **Storage:** ${g.storageId ?? "—"}`,
   ];

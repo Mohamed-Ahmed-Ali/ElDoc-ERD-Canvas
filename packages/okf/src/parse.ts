@@ -51,8 +51,7 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
       inferSource(data.tags) ||
       sourceFromType(data.type) ||
       "SQL") as InputSource;
-    const eldocId = eldoc.id ?? (ov.id && ov.id !== "—" ? ov.id : null);
-    
+        
     const parsedTags = Array.isArray(data.tags)
       ? data.tags.filter((t: any) => typeof t === "string" && t !== "eldoc" && t !== inputSource.toLowerCase())
       : [];
@@ -61,12 +60,10 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
       key,
       title,
       inputSource,
-      description: data.description || undefined,
+      description: data.description ? String(data.description) : "",
       definition: parseDefinition(body),
       schema,
       position: eldoc.position || { x: 0, y: 0 },
-      status: eldocId || ov.status === "PUBLISHED" ? "created" : "pending",
-      eldocId,
       ...(data.color !== undefined ? { color: String(data.color) } : {}),
       ...(data.isHidden !== undefined ? { isHidden: Boolean(data.isHidden) } : {}),
       ...(parsedTags.length > 0 ? { tags: parsedTags } : {}),
@@ -225,8 +222,6 @@ function sourceFromType(type: unknown): InputSource | undefined {
 }
 
 function parseOverview(body: string): { 
-  id?: string; 
-  status?: string; 
   definitionType?: string;
   grain?: string;
   materialization?: string;
@@ -235,8 +230,6 @@ function parseOverview(body: string): {
   dataTier?: string;
 } {
   const out: { 
-    id?: string; 
-    status?: string; 
     definitionType?: string;
     grain?: string;
     materialization?: string;
@@ -248,8 +241,6 @@ function parseOverview(body: string): {
     const m = body.match(new RegExp(`^- \\*\\*${label}:\\*\\*\\s*\`?([^\`\\n]+?)\`?\\s*$`, "im"));
     return m ? m[1].trim() : undefined;
   };
-  out.id = grab("ID");
-  out.status = grab("Status");
   out.definitionType = grab("Definition type");
   out.grain = grab("Grain");
   out.materialization = grab("Materialization");

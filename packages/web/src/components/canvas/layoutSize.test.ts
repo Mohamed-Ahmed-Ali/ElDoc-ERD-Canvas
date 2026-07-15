@@ -8,8 +8,6 @@ const mk = (fields: number): ModelNode => ({
   inputSource: "VIEW",
   schema: Array.from({ length: fields }, (_, i) => ({ name: `f${i}`, type: "STRING", pk: false })),
   position: { x: 0, y: 0 },
-  status: "created",
-  eldocId: undefined,
 });
 
 describe("erdAwareNodeSize", () => {

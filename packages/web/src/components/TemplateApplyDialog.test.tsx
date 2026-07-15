@@ -12,7 +12,6 @@ const graph: ModelGraph = {
       inputSource: "SQL",
       schema: [],
       position: { x: 0, y: 0 },
-      status: "pending",
     },
     {
       key: "b",
@@ -20,7 +19,6 @@ const graph: ModelGraph = {
       inputSource: "SQL",
       schema: [],
       position: { x: 0, y: 0 },
-      status: "pending",
     },
   ],
   edges: [

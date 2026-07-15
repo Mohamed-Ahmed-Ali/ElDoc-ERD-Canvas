@@ -71,26 +71,15 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
     );
   }
 
-  const isCreated = node.status === "created";
-  const [defOpen, setDefOpen] = useState(false);
+    const [defOpen, setDefOpen] = useState(false);
   // input source / definition / output schema live under a collapsed "Advanced"
   // section so the title and description are visible first.
   const [advOpen, setAdvOpen] = useState(false);
   const [tableSettingsOpen, setTableSettingsOpen] = useState(false);
   const defHint = DEFINITION_HINT[node.inputSource];
 
-  const statusClass = isCreated ? "bg-[#ecfdf5] text-[#047857]" : "bg-[#f1f5f9] text-[#475569]";
-  const statusText = isCreated ? "✓ Created" : "◷ Draft";
-
   return (
     <div className="flex flex-col gap-[15px]">
-      {/* Status pill */}
-      <div
-        className={`text-[12px] px-[11px] py-[9px] rounded-lg flex items-center gap-2 ${statusClass}`}
-      >
-        {statusText}
-      </div>
-
       {/* Node type — mart vs bridge (factless-fact) */}
       <div>
         <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
@@ -419,28 +408,6 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
                 onChange={(schema) => onUpdate({ schema: schema as SchemaField[] })}
               />
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* Details */}
-      <div>
-        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
-          Details
-        </label>
-        {isCreated ? (
-          <div className="text-[12px] text-slate-500 flex flex-col gap-1 p-[2px]">
-            <span>
-              Created:{" "}
-              <strong className="text-slate-900 font-semibold">{usDate(node.createdAt)}</strong>
-            </span>
-            <span>
-              By: <strong className="text-slate-900 font-semibold">{node.createdBy ?? "—"}</strong>
-            </span>
-          </div>
-        ) : (
-          <div className="text-[12px] text-slate-400 italic p-[2px]">
-            Unsaved drafts do not have a created date.
           </div>
         )}
       </div>

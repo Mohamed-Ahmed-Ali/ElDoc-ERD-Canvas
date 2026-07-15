@@ -1,5 +1,4 @@
 export type InputSource = "SQL" | "CONNECTOR" | "VIEW" | "TABLE";
-export type NodeStatus = "pending" | "creating" | "created" | "error";
 export type Cardinality = "1:1" | "1:N" | "N:1" | "N:N";
 // how a measure aggregates across dimensions. `additive` sums/avgs along every
 // dimension; `semi-additive` along some (e.g. over time); `non-additive` only
@@ -70,7 +69,6 @@ export interface ModelNode {
   title: string;
   inputSource: InputSource;
   description?: string;
-  eldocId?: string;
   definition?: string | null; // optional source definition (SQL / table ref / view)
   schema: SchemaField[];
   position: { x: number; y: number };
@@ -78,10 +76,6 @@ export interface ModelNode {
   height?: number;
   parentId?: string;
   color?: string;
-  status: NodeStatus;
-  createdAt?: string | null;
-  createdBy?: string | null;
-  error?: string | null;
   // the grain of a fact (e.g. "one row per order line"). Empty on dimensions.
   grain?: string;
   // data engineering semantics

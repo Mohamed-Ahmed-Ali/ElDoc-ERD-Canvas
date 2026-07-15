@@ -137,7 +137,6 @@ export function createModelStore(initial?: Partial<ModelGraph>) {
         position,
         width: isGroup ? 400 : undefined,
         height: isGroup ? 300 : undefined,
-        status: "pending",
       };
       g = { ...g, nodes: [...g.nodes, n] };
       lastStateStr = JSON.stringify(g);

@@ -7,8 +7,6 @@ const from: ModelNode = {
   key: "tx",
   title: "Transactions",
   inputSource: "TABLE",
-  status: "pending",
-  eldocId: undefined,
   position: { x: 0, y: 0 },
   schema: [{ name: "block_hash", type: "STRING", pk: true }],
 };
@@ -16,8 +14,6 @@ const to: ModelNode = {
   key: "blocks",
   title: "Blocks",
   inputSource: "TABLE",
-  status: "pending",
-  eldocId: undefined,
   position: { x: 0, y: 0 },
   schema: [{ name: "hash", type: "STRING", pk: true }],
 };
