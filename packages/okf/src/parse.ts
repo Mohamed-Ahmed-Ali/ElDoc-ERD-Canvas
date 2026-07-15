@@ -284,6 +284,18 @@ function parseSchema(body: string): import("./types").SchemaField[] {
         }
       }
 
+      const lineageMatch = desc.match(/\*\*Lineage:\*\*\s*([A-Z_]+)\./i);
+      if (lineageMatch) {
+        field.lineageType = lineageMatch[1] as any;
+        desc = desc.replace(lineageMatch[0], "").trim();
+      }
+
+      const logicMatch = desc.match(/\*\*Logic:\*\*\s*`([^`]+)`\./i);
+      if (logicMatch) {
+        field.lineageLogic = logicMatch[1];
+        desc = desc.replace(logicMatch[0], "").trim();
+      }
+
       if (desc) field.description = desc;
     }
     out.push(field);

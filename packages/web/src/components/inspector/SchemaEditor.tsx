@@ -1,4 +1,4 @@
-import type { MeasureType, SchemaField } from "@mc/okf";
+import type { MeasureType, SchemaField, LineageType } from "@mc/okf";
 import { GripVertical, Settings } from "lucide-react";
 import { useState } from "react";
 import { InfoTip } from "./InfoTip";
@@ -23,6 +23,15 @@ const MEASURE_TYPES: { value: MeasureType; label: string }[] = [
   { value: "additive", label: "Additive" },
   { value: "semi-additive", label: "Semi-additive" },
   { value: "non-additive", label: "Non-additive" },
+];
+
+const LINEAGE_TYPES: { value: LineageType; label: string }[] = [
+  { value: "DIRECT", label: "DIRECT (Pass-Through)" },
+  { value: "DERIVED", label: "DERIVED (Transformed)" },
+  { value: "JOIN", label: "JOIN (Key/Relationship)" },
+  { value: "AGGREGATE", label: "AGGREGATE" },
+  { value: "CONSTANT", label: "CONSTANT (Hardcoded)" },
+  { value: "FILTER", label: "FILTER (Conditional)" },
 ];
 
 interface SchemaEditorProps {
@@ -74,14 +83,14 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
   }
 
   const cols =
-    "16px minmax(100px,1.2fr) 85px 65px 115px 35px 95px minmax(80px,1fr) minmax(110px,1.3fr) 24px 22px";
+    "16px minmax(100px,1.2fr) 85px 65px 115px 35px minmax(80px,1fr) minmax(110px,1.3fr) 28px 28px";
   const inputCls =
     "w-full text-[12.5px] px-[7px] py-[5px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]";
 
   return (
     <div className="border border-[#d8dee8] rounded-[10px] overflow-hidden">
-      <div className="overflow-x-auto">
-        <div className="min-w-[760px]">
+      <div className="overflow-x-auto pb-1 pr-1">
+        <div className="min-w-[660px]">
           {/* Header */}
           <div
             className="grid bg-[#f8fafc] px-[10px] py-[7px] text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.3px] border-b border-[#d8dee8] gap-[6px]"
@@ -99,10 +108,6 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
             <span className="flex items-center gap-[3px]">
               PII{" "}
               <InfoTip text="Personally Identifiable Information (e.g. emails, phone numbers). Flags sensitive columns." />
-            </span>
-            <span className="flex items-center gap-[3px]">
-              <InfoTip text="Mark as a measure (metric). Then choose how it aggregates." />
-              <span className="leading-none">Msr</span>
             </span>
             <span className="flex items-center gap-[3px]">
               Alias <InfoTip text="Business-friendly label for the field." />
@@ -216,27 +221,6 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
                   className="w-4 h-4 mx-auto block cursor-pointer accent-red-500"
                 />
 
-                <select
-                  value={field.isMeasure ? (field.measureType ?? "additive") : "none"}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "none") {
-                      updateField(i, { isMeasure: false, measureType: undefined });
-                    } else {
-                      updateField(i, { isMeasure: true, measureType: val as MeasureType });
-                    }
-                  }}
-                  className="w-full text-[11px] px-[4px] py-[5px] border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
-                  title="Measure aggregation type"
-                >
-                  <option value="none">None</option>
-                  {MEASURE_TYPES.map((m) => (
-                    <option key={m.value} value={m.value}>
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
-
                 <input
                   type="text"
                   value={field.alias ?? ""}
@@ -301,6 +285,32 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
                         className={inputCls}
                       />
                     )}
+                  </div>
+
+                  {/* Measure Type */}
+                  <div className="flex flex-col gap-1 w-[180px]">
+                    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                      Measure Settings
+                    </label>
+                    <select
+                      value={field.isMeasure ? (field.measureType ?? "additive") : "none"}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "none") {
+                          updateField(i, { isMeasure: false, measureType: undefined });
+                        } else {
+                          updateField(i, { isMeasure: true, measureType: val as MeasureType });
+                        }
+                      }}
+                      className={`${inputCls} mt-1`}
+                    >
+                      <option value="none">Not a measure</option>
+                      {MEASURE_TYPES.map((m) => (
+                        <option key={m.value} value={m.value}>
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Hash Config */}
@@ -463,6 +473,39 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
                         Unique Constraint
                       </label>
                     </div>
+                  </div>
+
+                  {/* Column Lineage */}
+                  <div className="flex flex-col gap-1 flex-1 min-w-[280px]">
+                    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                      Column Lineage Types
+                    </label>
+                    <select
+                      value={field.lineageType ?? "none"}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "none") {
+                          updateField(i, { lineageType: undefined });
+                        } else {
+                          updateField(i, { lineageType: val as LineageType });
+                        }
+                      }}
+                      className={`${inputCls} mt-1`}
+                    >
+                      <option value="none">None</option>
+                      {LINEAGE_TYPES.map((lt) => (
+                        <option key={lt.value} value={lt.value}>
+                          {lt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <textarea
+                      placeholder={'e.g. {"logic": "source.column", "calculation": "FIELD_ACCESS"}'}
+                      value={field.lineageLogic ?? ""}
+                      onChange={(e) => updateField(i, { lineageLogic: e.target.value })}
+                      className={`${inputCls} mt-1 h-[60px] resize-y font-mono text-[11px]`}
+                      title="Lineage logic and calculation details"
+                    />
                   </div>
                 </div>
               )}

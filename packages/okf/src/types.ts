@@ -6,6 +6,8 @@ export type Cardinality = "1:1" | "1:N" | "N:1" | "N:N";
 // on the grain (ratios, medians). Stored on the field, surfaced in the linter.
 export type MeasureType = "additive" | "semi-additive" | "non-additive";
 
+export type LineageType = "DIRECT" | "DERIVED" | "JOIN" | "AGGREGATE" | "CONSTANT" | "FILTER";
+
 export interface SchemaField {
   name: string;
   type: string;
@@ -43,6 +45,10 @@ export interface SchemaField {
     targetTable: string;
     targetColumn: string;
   };
+  
+  // column lineage semantics
+  lineageType?: LineageType;
+  lineageLogic?: string;
 }
 export interface JoinKey {
   left: string;

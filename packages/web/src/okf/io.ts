@@ -22,6 +22,8 @@ export function graphToCsv(g: ModelGraph): string {
       "Foreign Key To",
       "Column Description",
       "PII",
+      "Lineage Type",
+      "Lineage Logic",
     ].join(","),
   ];
   for (const node of g.nodes) {
@@ -46,6 +48,8 @@ export function graphToCsv(g: ModelGraph): string {
           JSON.stringify(fkTo),
           JSON.stringify(field.description || ""),
           field.pii ? "Yes" : "No",
+          JSON.stringify(field.lineageType || "none"),
+          JSON.stringify(field.lineageLogic || ""),
         ].join(","),
       );
     }

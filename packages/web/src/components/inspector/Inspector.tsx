@@ -133,7 +133,7 @@ export function Inspector({
     if (!resizingRef.current) return;
     const delta = startXRef.current - e.clientX;
     const newWidth = Math.min(
-      window.innerWidth * 0.5,
+      window.innerWidth - 60,
       Math.max(MIN_WIDTH, startWidthRef.current + delta),
     );
     setWidth(newWidth);

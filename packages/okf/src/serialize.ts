@@ -110,6 +110,8 @@ function renderNode(n: ModelNode, g: ModelGraph, slugByKey: Map<string, string>)
             parts.push(`**Composite Group:** ${f.compositeGroup}.`);
           if (f.pii) parts.push("**PII.**");
           if (f.isMeasure) parts.push(`**Measure** (${f.measureType || "additive"}).`);
+          if (f.lineageType) parts.push(`**Lineage:** ${f.lineageType}.`);
+          if (f.lineageLogic) parts.push(`**Logic:** \`${f.lineageLogic}\`.`);
           if (f.alias) parts.push(`**Alias:** ${f.alias}.`);
           if (f.description) parts.push(f.description);
           const ref = fk.get(f.name);
@@ -196,6 +198,8 @@ export function graphToDbml(graph: ModelGraph): string {
       if (f.alias) noteParts.push(`Alias: ${f.alias}`);
       if (f.pii) noteParts.push("PII");
       if (f.isMeasure) noteParts.push(`Measure: ${f.measureType || "additive"}`);
+      if (f.lineageType) noteParts.push(`Lineage: ${f.lineageType}`);
+      if (f.lineageLogic) noteParts.push(`Logic: ${f.lineageLogic}`);
       if (f.keyType && f.keyType !== "attribute") {
         if (f.keyType === "surrogateHash" && f.hashConfig) {
           noteParts.push(

@@ -134,6 +134,14 @@ export function createEldocServer() {
                 type: "string",
                 description: "Optional: pk, fk, or none",
               },
+              lineageType: {
+                type: "string",
+                description: "Optional: DIRECT, DERIVED, JOIN, AGGREGATE, CONSTANT, FILTER",
+              },
+              lineageLogic: {
+                type: "string",
+                description: "Optional logic/expression JSON string",
+              },
             },
             required: ["filePath", "tableName", "columnName", "columnType"],
           },
@@ -242,6 +250,8 @@ export function createEldocServer() {
             let desc = `  - ${f.name} (${f.type})`;
             if (f.role && f.role !== "none") desc += ` [Role: ${f.role}]`;
             if (f.pii) desc += " [PII]";
+            if (f.lineageType && f.lineageType !== "none") desc += ` [Lineage: ${f.lineageType}]`;
+            if (f.lineageLogic) desc += ` [Logic: ${f.lineageLogic}]`;
             if (f.description) desc += ` - ${f.description}`;
             return desc;
           })
@@ -351,6 +361,8 @@ export function createEldocServer() {
       const columnName = String(request.params.arguments?.columnName);
       const columnType = String(request.params.arguments?.columnType);
       const role = request.params.arguments?.role ? String(request.params.arguments?.role) : "none";
+      const lineageType = request.params.arguments?.lineageType ? String(request.params.arguments?.lineageType) : undefined;
+      const lineageLogic = request.params.arguments?.lineageLogic ? String(request.params.arguments?.lineageLogic) : undefined;
 
       try {
         const raw = fs.readFileSync(filePath, "utf8");
@@ -360,13 +372,17 @@ export function createEldocServer() {
         );
         if (!table) throw new Error(`Table ${tableName} not found`);
 
-        table.schema.push({
+        const newField: any = {
           name: columnName,
           type: columnType,
           role,
           keyType: role === "pk" ? "surrogateSequence" : "attribute",
           isComposite: false,
-        });
+        };
+        if (lineageType) newField.lineageType = lineageType;
+        if (lineageLogic) newField.lineageLogic = lineageLogic;
+
+        table.schema.push(newField);
 
         fs.writeFileSync(filePath, JSON.stringify(graph, null, 2));
         return {

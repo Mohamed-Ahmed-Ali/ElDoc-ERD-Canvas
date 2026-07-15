@@ -24,6 +24,8 @@ const f = (
     role: "none",
     keyType: "attribute",
     isComposite: false,
+    lineageType: "DIRECT",
+    lineageLogic: `{"logic": "source.${name}", "calculation": "FIELD_ACCESS"}`,
     ...opts,
   } as SchemaField;
 };
