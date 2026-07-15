@@ -72,6 +72,8 @@ export interface ModelNode {
   error?: string | null;
   // the grain of a fact (e.g. "one row per order line"). Empty on dimensions.
   grain?: string;
+  tags?: string[];
+  isHidden?: boolean;
 }
 export type RelationDirection = "unspecified" | "from_to" | "to_from" | "bidirectional";
 
@@ -110,6 +112,15 @@ export interface ModelGraph {
   // handle the user types once and we persist locally. Resolved threads stay in
   // history but are filtered out of the open-threads count.
   comments?: CommentEntry[];
+  // manual tags that can be assigned to nodes for filtering
+  tags?: TagEntry[];
+}
+
+/** A tag that can be assigned to a node for filtering/coloring. */
+export interface TagEntry {
+  id: string;
+  name: string;
+  color: string;
 }
 
 /** A business term in the glossary. `refs` links the term to concrete columns. */

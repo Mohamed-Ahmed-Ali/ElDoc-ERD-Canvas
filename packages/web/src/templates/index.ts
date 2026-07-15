@@ -1459,9 +1459,9 @@ export const TEMPLATES: Template[] = [
           schema: [
             { name: "user_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateUuid", defaultValue: "gen_random_uuid()" },
             { name: "account_id", type: "UUID", fk: true, role: "fk", keyType: "surrogateUuid" },
-            { name: "email", type: "VARCHAR(255)", unique: true, nullable: false, pii: true },
-            { name: "ltv_score", type: "FLOAT", isMeasure: true, measureType: "non-additive" },
-            { name: "last_active_date", type: "DATE" }
+            { name: "email", type: "VARCHAR(255)", unique: true, nullable: false, pii: true, role: "none", keyType: "attribute" },
+            { name: "ltv_score", type: "FLOAT", isMeasure: true, measureType: "non-additive", role: "none", keyType: "attribute" },
+            { name: "last_active_date", type: "DATE", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1475,10 +1475,10 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 50 },
           schema: [
-            { name: "account_id", type: "UUID", pk: true, role: "pk" },
-            { name: "company_name", type: "VARCHAR(255)", nullable: false },
-            { name: "industry", type: "VARCHAR(100)" },
-            { name: "created_at", type: "TIMESTAMP", defaultValue: "CURRENT_TIMESTAMP" }
+            { name: "account_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "company_name", type: "VARCHAR(255)", nullable: false, role: "none", keyType: "attribute" },
+            { name: "industry", type: "VARCHAR(100)", role: "none", keyType: "attribute" },
+            { name: "created_at", type: "TIMESTAMP", defaultValue: "CURRENT_TIMESTAMP", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1492,11 +1492,11 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 50, y: 300 },
           schema: [
-            { name: "opportunity_id", type: "UUID", pk: true, role: "pk" },
-            { name: "account_id", type: "UUID", fk: true, role: "fk" },
-            { name: "stage", type: "VARCHAR(50)", checkExpression: "stage IN ('Prospecting', 'Qualification', 'Closed Won', 'Closed Lost')" },
-            { name: "amount", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive" },
-            { name: "close_date", type: "DATE" }
+            { name: "opportunity_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "account_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
+            { name: "stage", type: "VARCHAR(50)", checkExpression: "stage IN ('Prospecting', 'Qualification', 'Closed Won', 'Closed Lost')", role: "none", keyType: "attribute" },
+            { name: "amount", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
+            { name: "close_date", type: "DATE", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1510,10 +1510,10 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 300 },
           schema: [
-            { name: "contact_id", type: "UUID", pk: true, role: "pk" },
-            { name: "account_id", type: "UUID", fk: true, role: "fk" },
-            { name: "phone_number", type: "VARCHAR(20)", pii: true },
-            { name: "is_primary", type: "BOOLEAN", defaultValue: "false" }
+            { name: "contact_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "account_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
+            { name: "phone_number", type: "VARCHAR(20)", pii: true, role: "none", keyType: "attribute" },
+            { name: "is_primary", type: "BOOLEAN", defaultValue: "false", role: "none", keyType: "attribute" }
           ]
         },
 
@@ -1530,11 +1530,11 @@ export const TEMPLATES: Template[] = [
           position: { x: 50, y: 50 },
           schema: [
             { name: "invoice_id", type: "BIGINT", pk: true, role: "pk", keyType: "surrogateSequence" },
-            { name: "account_id", type: "UUID", fk: true, role: "fk" },
-            { name: "subscription_id", type: "UUID", fk: true, role: "fk" },
-            { name: "total_amount", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive" },
-            { name: "status", type: "VARCHAR(20)", defaultValue: "'DRAFT'" },
-            { name: "due_date", type: "DATE" }
+            { name: "account_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
+            { name: "subscription_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
+            { name: "total_amount", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
+            { name: "status", type: "VARCHAR(20)", defaultValue: "'DRAFT'", role: "none", keyType: "attribute" },
+            { name: "due_date", type: "DATE", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1548,11 +1548,11 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 50 },
           schema: [
-            { name: "payment_id", type: "BIGINT", pk: true, role: "pk" },
-            { name: "invoice_id", type: "BIGINT", fk: true, role: "fk" },
-            { name: "amount_paid", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive" },
-            { name: "payment_method", type: "VARCHAR(50)" },
-            { name: "payment_date", type: "TIMESTAMP", defaultValue: "CURRENT_TIMESTAMP" }
+            { name: "payment_id", type: "BIGINT", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "invoice_id", type: "BIGINT", fk: true, role: "fk", keyType: "attribute" },
+            { name: "amount_paid", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
+            { name: "payment_method", type: "VARCHAR(50)", role: "none", keyType: "attribute" },
+            { name: "payment_date", type: "TIMESTAMP", defaultValue: "CURRENT_TIMESTAMP", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1566,12 +1566,12 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 50, y: 300 },
           schema: [
-            { name: "subscription_id", type: "UUID", pk: true, role: "pk" },
-            { name: "account_id", type: "UUID", fk: true, role: "fk" },
-            { name: "product_id", type: "INTEGER", fk: true, role: "fk" },
-            { name: "monthly_amount", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive" },
-            { name: "start_date", type: "DATE" },
-            { name: "end_date", type: "DATE" }
+            { name: "subscription_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "account_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
+            { name: "product_id", type: "INTEGER", fk: true, role: "fk", keyType: "attribute" },
+            { name: "monthly_amount", type: "DECIMAL(10,2)", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
+            { name: "start_date", type: "DATE", role: "none", keyType: "attribute" },
+            { name: "end_date", type: "DATE", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1585,10 +1585,10 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 300 },
           schema: [
-            { name: "product_id", type: "INTEGER", pk: true, role: "pk" },
-            { name: "name", type: "VARCHAR(100)", unique: true },
-            { name: "base_price", type: "DECIMAL(10,2)" },
-            { name: "is_active", type: "BOOLEAN", defaultValue: "true" }
+            { name: "product_id", type: "INTEGER", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "name", type: "VARCHAR(100)", unique: true, role: "none", keyType: "attribute" },
+            { name: "base_price", type: "DECIMAL(10,2)", role: "none", keyType: "attribute" },
+            { name: "is_active", type: "BOOLEAN", defaultValue: "true", role: "none", keyType: "attribute" }
           ]
         },
 
@@ -1604,12 +1604,12 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 50, y: 50 },
           schema: [
-            { name: "event_id", type: "UUID", pk: true, role: "pk" },
-            { name: "session_id", type: "UUID", fk: true, role: "fk" },
-            { name: "user_id", type: "UUID", fk: true, role: "fk" },
-            { name: "event_name", type: "VARCHAR(100)", nullable: false },
-            { name: "event_timestamp", type: "TIMESTAMP" },
-            { name: "properties", type: "JSONB" }
+            { name: "event_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "session_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
+            { name: "user_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
+            { name: "event_name", type: "VARCHAR(100)", nullable: false, role: "none", keyType: "attribute" },
+            { name: "event_timestamp", type: "TIMESTAMP", role: "none", keyType: "attribute" },
+            { name: "properties", type: "JSONB", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1623,12 +1623,12 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 50 },
           schema: [
-            { name: "session_id", type: "UUID", pk: true, role: "pk" },
-            { name: "user_id", type: "UUID", fk: true, role: "fk" },
-            { name: "device_id", type: "UUID", fk: true, role: "fk" },
-            { name: "start_time", type: "TIMESTAMP" },
-            { name: "end_time", type: "TIMESTAMP" },
-            { name: "duration_seconds", type: "INTEGER", isMeasure: true, measureType: "additive" }
+            { name: "session_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "user_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
+            { name: "device_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
+            { name: "start_time", type: "TIMESTAMP", role: "none", keyType: "attribute" },
+            { name: "end_time", type: "TIMESTAMP", role: "none", keyType: "attribute" },
+            { name: "duration_seconds", type: "INTEGER", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1642,10 +1642,10 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 50, y: 300 },
           schema: [
-            { name: "device_id", type: "UUID", pk: true, role: "pk" },
-            { name: "platform", type: "VARCHAR(50)" },
-            { name: "os_version", type: "VARCHAR(50)" },
-            { name: "model", type: "VARCHAR(100)" }
+            { name: "device_id", type: "UUID", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "platform", type: "VARCHAR(50)", role: "none", keyType: "attribute" },
+            { name: "os_version", type: "VARCHAR(50)", role: "none", keyType: "attribute" },
+            { name: "model", type: "VARCHAR(100)", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1659,10 +1659,10 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 300 },
           schema: [
-            { name: "date_day", type: "DATE", pk: true, role: "pk" },
-            { name: "total_events", type: "BIGINT", isMeasure: true, measureType: "additive" },
-            { name: "active_users", type: "INTEGER", isMeasure: true, measureType: "non-additive" },
-            { name: "total_revenue", type: "DECIMAL(12,2)", isMeasure: true, measureType: "additive" }
+            { name: "date_day", type: "DATE", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "total_events", type: "BIGINT", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
+            { name: "active_users", type: "INTEGER", isMeasure: true, measureType: "non-additive", role: "none", keyType: "attribute" },
+            { name: "total_revenue", type: "DECIMAL(12,2)", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" }
           ]
         },
 
@@ -1679,13 +1679,13 @@ export const TEMPLATES: Template[] = [
           position: { x: 50, y: 50 },
           schema: [
             { name: "ticket_id", type: "BIGINT", pk: true, role: "pk", keyType: "surrogateSequence" },
-            { name: "user_id", type: "UUID", fk: true, role: "fk" },
-            { name: "agent_id", type: "INTEGER", fk: true, role: "fk" },
-            { name: "status", type: "VARCHAR(20)", defaultValue: "'OPEN'" },
-            { name: "priority", type: "VARCHAR(10)", checkExpression: "priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')" },
-            { name: "created_at", type: "TIMESTAMP" },
-            { name: "resolved_at", type: "TIMESTAMP" },
-            { name: "resolution_hours", type: "FLOAT", isMeasure: true, measureType: "additive" }
+            { name: "user_id", type: "UUID", fk: true, role: "fk", keyType: "attribute" },
+            { name: "agent_id", type: "INTEGER", fk: true, role: "fk", keyType: "attribute" },
+            { name: "status", type: "VARCHAR(20)", defaultValue: "'OPEN'", role: "none", keyType: "attribute" },
+            { name: "priority", type: "VARCHAR(10)", checkExpression: "priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')", role: "none", keyType: "attribute" },
+            { name: "created_at", type: "TIMESTAMP", role: "none", keyType: "attribute" },
+            { name: "resolved_at", type: "TIMESTAMP", role: "none", keyType: "attribute" },
+            { name: "resolution_hours", type: "FLOAT", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1699,10 +1699,10 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 50 },
           schema: [
-            { name: "agent_id", type: "INTEGER", pk: true, role: "pk" },
-            { name: "full_name", type: "VARCHAR(100)" },
-            { name: "tier", type: "INTEGER", defaultValue: "1" },
-            { name: "is_active", type: "BOOLEAN", defaultValue: "true" }
+            { name: "agent_id", type: "INTEGER", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "full_name", type: "VARCHAR(100)", role: "none", keyType: "attribute" },
+            { name: "tier", type: "INTEGER", defaultValue: "1", role: "none", keyType: "attribute" },
+            { name: "is_active", type: "BOOLEAN", defaultValue: "true", role: "none", keyType: "attribute" }
           ]
         },
         {
@@ -1717,8 +1717,8 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 50, y: 300 },
           schema: [
-            { name: "ticket_id", type: "BIGINT", fk: true, role: "fk" },
-            { name: "article_id", type: "INTEGER", fk: true, role: "fk" }
+            { name: "ticket_id", type: "BIGINT", fk: true, role: "fk", keyType: "attribute" },
+            { name: "article_id", type: "INTEGER", fk: true, role: "fk", keyType: "attribute" }
           ]
         },
         {
@@ -1732,10 +1732,10 @@ export const TEMPLATES: Template[] = [
           status: "pending",
           position: { x: 350, y: 300 },
           schema: [
-            { name: "article_id", type: "INTEGER", pk: true, role: "pk" },
-            { name: "title", type: "VARCHAR(255)" },
-            { name: "views", type: "INTEGER", isMeasure: true, measureType: "additive" },
-            { name: "last_updated", type: "TIMESTAMP" }
+            { name: "article_id", type: "INTEGER", pk: true, role: "pk", keyType: "surrogateSequence" },
+            { name: "title", type: "VARCHAR(255)", role: "none", keyType: "attribute" },
+            { name: "views", type: "INTEGER", isMeasure: true, measureType: "additive", role: "none", keyType: "attribute" },
+            { name: "last_updated", type: "TIMESTAMP", role: "none", keyType: "attribute" }
           ]
         }
       ],

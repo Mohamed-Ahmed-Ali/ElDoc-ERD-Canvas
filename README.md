@@ -6,6 +6,8 @@
 
 Built for modern developers and AI-native workflows, ElDoc ERD Canvas allows you to design schemas visually, export them to portable Markdown-based specifications, and expose them to AI agents via the Model Context Protocol (MCP).
 
+[Webapp:](https://mohamed-ahmed-ali.github.io/ElDoc-ERD-Canvas/)
+
 ---
 
 ## Architecture & Platform Offerings

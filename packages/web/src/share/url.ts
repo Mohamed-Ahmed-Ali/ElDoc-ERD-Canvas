@@ -41,6 +41,9 @@ function sanitize(g: ModelGraph): ModelGraph {
           ? { definition: n.definition }
           : {}),
         ...(n.grain !== undefined ? { grain: n.grain } : {}),
+        ...(n.parentId !== undefined ? { parentId: n.parentId } : {}),
+        ...(n.width !== undefined ? { width: n.width } : {}),
+        ...(n.height !== undefined ? { height: n.height } : {}),
       }),
     ),
     edges: g.edges.map(

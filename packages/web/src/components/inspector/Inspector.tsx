@@ -220,6 +220,7 @@ export function Inspector({
             <ObjectInspector
               node={selectedNode}
               nodes={nodes}
+              tags={graph.tags}
               onUpdate={(patch) => onUpdateNode(selectedNode.key, patch)}
             />
             <CommentsPanel

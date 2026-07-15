@@ -1,5 +1,5 @@
 [package]
-name = "app"
+name = "eldoc-erd-canvas"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
@@ -26,3 +26,4 @@ tauri-plugin-log = "2"
 # Sidecar launcher. The MCP CLI binary is bundled via `bundle.externalBin`
 # in tauri.conf.json and spawned at runtime by the host process.
 tauri-plugin-shell = "2"
+tauri-plugin-fs = "2.5.1"

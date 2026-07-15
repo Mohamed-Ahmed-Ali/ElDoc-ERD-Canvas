@@ -13,6 +13,7 @@ import {
   CheckSquare,
   Palette,
   BookOpen,
+  LayoutDashboard,
 } from "lucide-react";
 import { LibraryIcon } from "../lib/icons";
 import { useTheme, themeStore, type ThemeName } from "../state/theme";
@@ -43,6 +44,8 @@ export interface TopBarProps {
   canUndo?: boolean;
   onRedo?: () => void;
   canRedo?: boolean;
+  highlightDepth?: "None" | "1 Level" | "2 Levels" | "All";
+  onHighlightDepthChange?: (depth: "None" | "1 Level" | "2 Levels" | "All") => void;
 }
 
 export function TopBar({
@@ -66,9 +69,13 @@ export function TopBar({
   canUndo = false,
   onRedo,
   canRedo = false,
+  highlightDepth = "None",
+  onHighlightDepthChange,
 }: TopBarProps) {
   // export dropdown (OKF markdown / PNG / SVG).
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  // highlight depth dropdown
+  const [highlightMenuOpen, setHighlightMenuOpen] = useState(false);
   // show the Library hint on first ever visit; stays lit until hovered.
   const [showLibraryHint, setShowLibraryHint] = useState(false);
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
@@ -218,6 +225,41 @@ export function TopBar({
       >
         <BookOpen size={15} /> Dictionary
       </button>
+      <div className="w-px h-6 bg-[#d8dee8] mx-1" /> {/* Divider */}
+      {/* Highlight Depth */}
+      <div className="relative">
+        <button
+          onClick={() => setHighlightMenuOpen((o) => !o)}
+          title="Highlight depth when clicking a table"
+          className="text-[13px] font-[550] border border-[#d8dee8] bg-white text-slate-900 rounded-lg px-3 py-[7px] cursor-pointer flex items-center gap-[6px] hover:bg-[#f1f3f7]"
+        >
+          <Target size={15} /> Depth: {highlightDepth} <ChevronDown size={14} className="text-slate-400" />
+        </button>
+        {highlightMenuOpen && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setHighlightMenuOpen(false)} />
+            <div
+              role="menu"
+              className="absolute top-[calc(100%+6px)] left-0 z-50 w-[140px] rounded-lg border border-[#d8dee8] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] py-1"
+            >
+              {(["None", "1 Level", "2 Levels", "All"] as const).map((d) => (
+                <button
+                  key={d}
+                  role="menuitem"
+                  onClick={() => {
+                    onHighlightDepthChange?.(d);
+                    setHighlightMenuOpen(false);
+                  }}
+                  className={`w-full text-left text-[13px] px-3 py-2 cursor-pointer flex items-center gap-[8px] hover:bg-[#f1f3f7] ${highlightDepth === d ? "text-[#1e88e5] font-semibold bg-[#e6f1fb]" : "text-slate-900"}`}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
       {/* Export — dropdown: OKF markdown, PNG image, SVG image */}
       <div className="relative">
         <button

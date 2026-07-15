@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronRight, ChevronDown } from "lucide-react";
-import type { ModelNode, InputSource, SchemaField } from "@mc/okf";
+import type { ModelNode, InputSource, SchemaField, TagEntry } from "@mc/okf";
 import { SchemaEditor } from "./SchemaEditor";
 import { InfoTip } from "./InfoTip";
 import { InputSourceIcon, OutputSchemaIcon } from "../../lib/icons";
@@ -37,10 +37,11 @@ function usDate(iso: string | null | undefined): string {
 interface ObjectInspectorProps {
   node: ModelNode;
   nodes?: ModelNode[];
+  tags?: TagEntry[];
   onUpdate: (patch: Partial<ModelNode>) => void;
 }
 
-export function ObjectInspector({ node, nodes = [], onUpdate }: ObjectInspectorProps) {
+export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: ObjectInspectorProps) {
   if (node.type === "group") {
     return (
       <div className="flex flex-col gap-[15px]">
@@ -179,6 +180,49 @@ export function ObjectInspector({ node, nodes = [], onUpdate }: ObjectInspectorP
           rows={3}
           className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 resize-y min-h-[60px] focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
         />
+      </div>
+
+      {/* Tags */}
+      <div>
+        <label className="flex items-center gap-[5px] text-[11px] font-semibold text-slate-500 uppercase tracking-[0.3px] mb-[6px]">
+          Tags
+          <InfoTip text="Categorize and filter tables using tags." />
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {tags.map((tag) => {
+            const isActive = node.tags?.includes(tag.id);
+            return (
+              <button
+                key={tag.id}
+                onClick={() => {
+                  const newTags = isActive
+                    ? (node.tags || []).filter((t) => t !== tag.id)
+                    : [...(node.tags || []), tag.id];
+                  onUpdate({ tags: newTags });
+                }}
+                className={`flex items-center gap-[6px] px-2.5 py-1 rounded-full text-[12px] font-medium border transition-colors ${
+                  isActive
+                    ? "border-transparent text-white"
+                    : "border-[#d8dee8] text-slate-600 hover:bg-[#f1f3f7]"
+                }`}
+                style={isActive ? { backgroundColor: tag.color } : {}}
+              >
+                {!isActive && (
+                  <div
+                    className="w-2 h-2 rounded-full border border-black/10 shadow-sm"
+                    style={{ backgroundColor: tag.color }}
+                  />
+                )}
+                {tag.name}
+              </button>
+            );
+          })}
+          {tags.length === 0 && (
+            <div className="text-[12px] text-slate-400 italic">
+              No tags defined. Create tags in the Selection Pane.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Grain — visible on mart and bridge, hidden on group */}

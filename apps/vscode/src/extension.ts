@@ -49,6 +49,101 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider("eldoc.sidebarView", sidebarProvider)
   );
+  if (vscode.lm && vscode.lm.registerMcpServerDefinitionProvider) {
+    context.subscriptions.push(
+      vscode.lm.registerMcpServerDefinitionProvider('eldoc.mcpServer', {
+        provideMcpServerDefinitions: async () => {
+          return [
+            {
+              id: 'eldoc',
+              name: 'ElDoc ERD Canvas',
+              command: 'node',
+              args: [context.asAbsolutePath('dist/mcp-server.js')]
+            }
+          ];
+        }
+      })
+    );
+  }
+
+  // --- Auto-Register with Cline (Claude Dev) ---
+  try {
+    const clineSettingsPath = vscode.Uri.joinPath(context.globalStorageUri, '..', 'saoudrizwan.claude-dev', 'settings', 'cline_mcp_settings.json');
+    vscode.workspace.fs.readFile(clineSettingsPath).then(async (data) => {
+      try {
+        const settings = JSON.parse(Buffer.from(data).toString('utf8'));
+        if (!settings.mcpServers) settings.mcpServers = {};
+        const mcpPath = context.asAbsolutePath('dist/mcp-server.js');
+        let needsUpdate = false;
+        if (!settings.mcpServers['eldoc-erd-canvas'] || settings.mcpServers['eldoc-erd-canvas'].args[0] !== mcpPath) {
+            needsUpdate = true;
+        }
+        if (needsUpdate) {
+          settings.mcpServers['eldoc-erd-canvas'] = { command: 'node', args: [mcpPath], disabled: false, autoApprove: [] };
+          await vscode.workspace.fs.writeFile(clineSettingsPath, Buffer.from(JSON.stringify(settings, null, 2), 'utf8'));
+        }
+      } catch (e) {}
+    }, () => {});
+  } catch (e) {}
+
+  // --- Auto-Register with Antigravity ---
+  try {
+    const os = require('os');
+    const antigravityPath = vscode.Uri.file(path.join(os.homedir(), '.gemini', 'config', 'mcp.json'));
+    vscode.workspace.fs.readFile(antigravityPath).then(async (data) => {
+      try {
+        const settings = JSON.parse(Buffer.from(data).toString('utf8'));
+        if (!settings.mcpServers) settings.mcpServers = {};
+        const mcpPath = context.asAbsolutePath('dist/mcp-server.js');
+        let needsUpdate = false;
+        if (!settings.mcpServers['eldoc-erd-canvas'] || settings.mcpServers['eldoc-erd-canvas'].args[0] !== mcpPath) {
+            needsUpdate = true;
+        }
+        if (needsUpdate) {
+          settings.mcpServers['eldoc-erd-canvas'] = { command: 'node', args: [mcpPath] };
+          await vscode.workspace.fs.writeFile(antigravityPath, Buffer.from(JSON.stringify(settings, null, 2), 'utf8'));
+          console.log("Successfully auto-registered ElDoc MCP server with Antigravity.");
+        }
+      } catch (e) {}
+    }, async () => {
+        // File doesn't exist, create it
+        try {
+            const mcpPath = context.asAbsolutePath('dist/mcp-server.js');
+            const settings = { mcpServers: { 'eldoc-erd-canvas': { command: 'node', args: [mcpPath] } } };
+            await vscode.workspace.fs.writeFile(antigravityPath, Buffer.from(JSON.stringify(settings, null, 2), 'utf8'));
+        } catch (e) {}
+    });
+  } catch (e) {}
+
+  // --- Auto-Register with GitHub Copilot ---
+  try {
+    const os = require('os');
+    const copilotPath = vscode.Uri.file(path.join(os.homedir(), '.mcp.json'));
+    vscode.workspace.fs.readFile(copilotPath).then(async (data) => {
+      try {
+        const settings = JSON.parse(Buffer.from(data).toString('utf8'));
+        if (!settings.mcpServers) settings.mcpServers = {};
+        const mcpPath = context.asAbsolutePath('dist/mcp-server.js');
+        let needsUpdate = false;
+        if (!settings.mcpServers['eldoc-erd-canvas'] || settings.mcpServers['eldoc-erd-canvas'].args[0] !== mcpPath) {
+            needsUpdate = true;
+        }
+        if (needsUpdate) {
+          settings.mcpServers['eldoc-erd-canvas'] = { command: 'node', args: [mcpPath] };
+          await vscode.workspace.fs.writeFile(copilotPath, Buffer.from(JSON.stringify(settings, null, 2), 'utf8'));
+          console.log("Successfully auto-registered ElDoc MCP server with GitHub Copilot.");
+        }
+      } catch (e) {}
+    }, async () => {
+        // File doesn't exist, create it
+        try {
+            const mcpPath = context.asAbsolutePath('dist/mcp-server.js');
+            const settings = { mcpServers: { 'eldoc-erd-canvas': { command: 'node', args: [mcpPath] } } };
+            await vscode.workspace.fs.writeFile(copilotPath, Buffer.from(JSON.stringify(settings, null, 2), 'utf8'));
+        } catch (e) {}
+    });
+  } catch (e) {}
+  // ---------------------------------------------
 
   let disposable = vscode.commands.registerCommand("eldoc.openCanvas", () => {
     const panel = vscode.window.createWebviewPanel(
@@ -101,6 +196,23 @@ export function activate(context: vscode.ExtensionContext) {
       undefined,
       context.subscriptions,
     );
+
+    // Watch for external modifications to model.okf (e.g. from the AI manipulating the canvas directly via MCP)
+    const watcher = vscode.workspace.createFileSystemWatcher("**/model.okf");
+    watcher.onDidChange(async (uri) => {
+      try {
+        const fileData = await vscode.workspace.fs.readFile(uri);
+        const graphJson = Buffer.from(fileData).toString("utf8");
+        panel.webview.postMessage({ command: "loadOkfResponse", data: graphJson });
+      } catch (e) {
+        // ignore
+      }
+    });
+    context.subscriptions.push(watcher);
+    // Cleanup the watcher when the panel is closed so we don't leak watchers
+    panel.onDidDispose(() => {
+      watcher.dispose();
+    });
   });
 
   context.subscriptions.push(disposable);
@@ -164,8 +276,8 @@ function wrapIframe(panel: vscode.WebviewPanel, src: string) {
 }
 
 function missingBundleMessage(webviewRoot: vscode.Uri) {
-  return `<!DOCTYPE html>
-  <html lang="en"><head><meta charset="UTF-8"><title>ElDoc</title>
+    return `<!DOCTYPE html>
+  <html lang="en"><head><meta charset="UTF-8"><title>ElDoc ERD Canvas</title>
   <style>body{font:14px/1.5 -apple-system,BlinkMacSystemFont,sans-serif;padding:24px;color:#b91c1c}</style>
   </head><body>
     <h2>Webview bundle is missing</h2>

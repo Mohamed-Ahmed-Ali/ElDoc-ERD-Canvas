@@ -5,27 +5,35 @@ function mapType(type: string, dialect: string): string {
   const t = type.toUpperCase().trim();
   switch (dialect.toLowerCase()) {
     case "bigquery":
-      if (t === "VARCHAR" || t === "TEXT") return "STRING";
-      if (t === "INTEGER" || t === "INT") return "INT64";
+      if (t === "VARCHAR" || t === "TEXT" || t === "UUID") return "STRING";
+      if (t === "INTEGER" || t === "INT" || t === "BIGINT") return "INT64";
       if (t === "BOOLEAN") return "BOOL";
+      if (t === "JSONB") return "JSON";
       return t;
     case "snowflake":
       if (t === "TEXT") return "VARCHAR";
-      if (t === "INTEGER" || t === "INT") return "NUMBER";
+      if (t === "INTEGER" || t === "INT" || t === "BIGINT") return "NUMBER";
+      if (t === "UUID") return "VARCHAR(36)";
+      if (t === "JSONB") return "VARIANT";
       return t;
     case "tsql":
       if (t === "STRING" || t === "TEXT") return "VARCHAR(MAX)";
       if (t === "BOOLEAN") return "BIT";
       if (t === "TIMESTAMP") return "DATETIME2";
+      if (t === "UUID") return "UNIQUEIDENTIFIER";
+      if (t === "JSONB" || t === "JSON") return "NVARCHAR(MAX)";
       return t;
     case "mysql":
       if (t === "STRING") return "VARCHAR(255)";
       if (t === "BOOLEAN") return "TINYINT(1)";
       if (t === "TIMESTAMP") return "DATETIME";
+      if (t === "UUID") return "VARCHAR(36)";
+      if (t === "JSONB") return "JSON";
       return t;
     case "sparksql":
-      if (t === "VARCHAR" || t === "TEXT") return "STRING";
+      if (t === "VARCHAR" || t === "TEXT" || t === "UUID") return "STRING";
       if (t === "INTEGER") return "INT";
+      if (t === "JSONB" || t === "JSON") return "STRING";
       return t;
     case "postgres":
     default:
@@ -34,11 +42,43 @@ function mapType(type: string, dialect: string): string {
   }
 }
 
+function mapDefaultValue(def: string, type: string, dialect: string): string | null {
+  const d = dialect.toLowerCase();
+  const v = def.trim();
+
+  // Boolean mappings
+  if (v === "true" || v === "false") {
+    if (d === "mysql" || d === "tsql") return v === "true" ? "1" : "0";
+    return v;
+  }
+
+  // UUID mappings
+  if (v === "gen_random_uuid()" || v === "uuid()") {
+    if (d === "mysql") return "(UUID())";
+    if (d === "tsql") return "NEWID()";
+    if (d === "snowflake") return "UUID_STRING()";
+    if (d === "bigquery") return "GENERATE_UUID()";
+    if (d === "sparksql") return null; // SparkSQL usually sets defaults through other mechanisms or doesn't support gen_random_uuid
+    return "gen_random_uuid()";
+  }
+
+  // Date mappings
+  if (v === "CURRENT_TIMESTAMP" || v === "now()") {
+    if (d === "tsql") return "CURRENT_TIMESTAMP"; // or GETDATE()
+    return "CURRENT_TIMESTAMP";
+  }
+
+  return def;
+}
+
 export function exportToSql(graph: ModelGraph, dialect: string = "postgres"): string {
   const lines: string[] = [];
 
   // create tables
   for (const n of graph.nodes) {
+    if (n.type === "group") continue;
+    if (n.schema.length === 0) continue;
+
     if (n.description) {
       lines.push(`-- ${n.description.replace(/\n/g, "\n-- ")}`);
     }
@@ -64,13 +104,20 @@ export function exportToSql(graph: ModelGraph, dialect: string = "postgres"): st
         colDef += " NOT NULL";
       }
       if (f.defaultValue) {
-        colDef += ` DEFAULT ${f.defaultValue}`;
+        const mappedDef = mapDefaultValue(f.defaultValue, f.type, dialect);
+        if (mappedDef !== null) {
+          colDef += ` DEFAULT ${mappedDef}`;
+        }
       }
       if (f.unique) {
         colDef += " UNIQUE";
       }
       if (f.checkExpression) {
-        colDef += ` CHECK (${f.checkExpression})`;
+        if (dialect.toLowerCase() !== "sparksql") {
+          colDef += ` CHECK (${f.checkExpression})`;
+        } else {
+          colDef += ` /* CHECK (${f.checkExpression}) */`;
+        }
       }
 
       if (f.keyType === "surrogateHash" && f.hashConfig) {
@@ -111,9 +158,11 @@ export function exportToSql(graph: ModelGraph, dialect: string = "postgres"): st
       if (f.role === "fk" && f.foreignKeyRef?.targetTable) {
         const target = f.foreignKeyRef.targetTable;
         const targetCol = f.foreignKeyRef.targetColumn || f.name;
-        lines.push(
-          `ALTER TABLE ${safeTitle} ADD FOREIGN KEY (${f.name}) REFERENCES ${target} (${targetCol});\n`,
-        );
+        if (dialect.toLowerCase() === "sparksql") {
+          lines.push(`-- ALTER TABLE ${safeTitle} ADD FOREIGN KEY (${f.name}) REFERENCES ${target} (${targetCol});\n`);
+        } else {
+          lines.push(`ALTER TABLE ${safeTitle} ADD FOREIGN KEY (${f.name}) REFERENCES ${target} (${targetCol});\n`);
+        }
       }
     }
   }
@@ -134,22 +183,37 @@ export function exportToSql(graph: ModelGraph, dialect: string = "postgres"): st
   };
 
   for (const e of graph.edges) {
-    const fromName = safeName(e.from);
-    const toName = safeName(e.to);
+    let fromName = safeName(e.from);
+    let toName = safeName(e.to);
 
-    const leftKeys = e.keys.map((k) => k.left).join(", ");
-    const rightKeys = e.keys.map((k) => k.right).join(", ");
+    let leftKeys = e.keys.map((k) => k.left).join(", ");
+    let rightKeys = e.keys.map((k) => k.right).join(", ");
 
-    if (leftKeys && rightKeys) {
-      lines.push(
-        `ALTER TABLE ${fromName} ADD FOREIGN KEY (${leftKeys}) REFERENCES ${toName} (${rightKeys});`,
-      );
+    let fkTable = fromName;
+    let refTable = toName;
+    let fkCols = leftKeys;
+    let refCols = rightKeys;
+
+    if (e.cardinality === "1:N") {
+      fkTable = toName;
+      refTable = fromName;
+      fkCols = rightKeys;
+      refCols = leftKeys;
+    } else if (e.cardinality === "N:1") {
+      fkTable = fromName;
+      refTable = toName;
+      fkCols = leftKeys;
+      refCols = rightKeys;
+    } else if (e.cardinality === "N:N") {
+      continue;
     }
 
-    if (e.bidirectional) {
-      lines.push(
-        `ALTER TABLE ${toName} ADD FOREIGN KEY (${rightKeys}) REFERENCES ${fromName} (${leftKeys});`,
-      );
+    if (fkCols && refCols) {
+      if (dialect.toLowerCase() === "sparksql") {
+        lines.push(`-- ALTER TABLE ${fkTable} ADD FOREIGN KEY (${fkCols}) REFERENCES ${refTable} (${refCols});`);
+      } else {
+        lines.push(`ALTER TABLE ${fkTable} ADD FOREIGN KEY (${fkCols}) REFERENCES ${refTable} (${refCols});`);
+      }
     }
   }
 

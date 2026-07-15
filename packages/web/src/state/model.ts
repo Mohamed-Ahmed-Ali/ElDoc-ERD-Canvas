@@ -5,10 +5,12 @@ import type {
   GlossaryEntry,
   KpiEntry,
   CommentEntry,
+  TagEntry,
 } from "@mc/okf";
 
 function migrateGraph(initial?: Partial<ModelGraph>): ModelGraph {
   const next = { storageId: null, version: 1, nodes: [], edges: [], ...initial } as ModelGraph;
+  if (!next.tags) next.tags = [];
 
   const needsLegacyMigration = !initial?.version || initial.version < 1;
 
@@ -264,6 +266,29 @@ export function createModelStore(initial?: Partial<ModelGraph>) {
     setKpis(entries: KpiEntry[]) {
       saveHistory(false);
       g = { ...g, kpis: entries };
+      emit();
+    },
+    setTags(entries: TagEntry[]) {
+      saveHistory(false);
+      g = { ...g, tags: entries };
+      emit();
+    },
+    setNodeHidden(key: string, isHidden: boolean) {
+      saveHistory(true);
+      g = {
+        ...g,
+        nodes: g.nodes.map((n) => (n.key === key ? { ...n, isHidden } : n)),
+      };
+      lastStateStr = JSON.stringify(g);
+      emit();
+    },
+    setAllNodesHidden(isHidden: boolean) {
+      saveHistory(true);
+      g = {
+        ...g,
+        nodes: g.nodes.map((n) => ({ ...n, isHidden })),
+      };
+      lastStateStr = JSON.stringify(g);
       emit();
     },
     addComment(entry: Omit<CommentEntry, "id" | "createdAt">) {

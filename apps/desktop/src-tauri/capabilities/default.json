@@ -5,6 +5,7 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
+    "fs:default",
     "shell:allow-execute",
     {
       "identifier": "shell:allow-execute",
@@ -15,6 +16,14 @@
           "args": true
         }
       ]
+    },
+    {
+      "identifier": "fs:allow-applocaldata-read",
+      "allow": [{ "path": "$APPLOCALDATA/**" }]
+    },
+    {
+      "identifier": "fs:allow-applocaldata-write",
+      "allow": [{ "path": "$APPLOCALDATA/**" }]
     }
   ]
 }

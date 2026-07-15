@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "ElDoc",
+  "productName": "ElDoc ERD Canvas",
   "version": "0.1.0",
   "identifier": "com.eldoc.desktop",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "ElDoc",
+        "title": "ElDoc ERD Canvas",
         "width": 1400,
         "height": 900,
         "resizable": true,

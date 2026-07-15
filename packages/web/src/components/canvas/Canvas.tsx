@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useSyncExternalStore, useState } from "react";
+import { useCallback, useEffect, useSyncExternalStore, useState, useMemo } from "react";
 import type { FC } from "react";
 import {
   ReactFlow as ReactFlowBase,
@@ -31,13 +31,23 @@ import {
   X,
   Code,
   PanelRightOpen,
+  ListFilter,
 } from "lucide-react";
 
 import { createModelStore } from "../../state/model";
 import { loadPersistedGraph, persistGraph } from "../../state/persist";
-import { loadViewMode, persistViewMode, type ViewMode } from "../../state/viewMode";
+import {
+  loadViewMode,
+  persistViewMode,
+  type ViewMode,
+} from "../../state/viewMode";
 import { useTheme } from "../../state/theme";
-import { type ModelNode, type ModelEdge, type ModelGraph, parseSql } from "@mc/okf";
+import {
+  type ModelNode,
+  type ModelEdge,
+  type ModelGraph,
+  parseSql,
+} from "@mc/okf";
 
 import {
   graphToBundleFiles,
@@ -49,7 +59,19 @@ import {
   graphToDbmlFile,
   downloadDbml,
 } from "../../okf/io";
-import { buildShareUrl, readSharedModel, clearSharedModelFromUrl } from "../../share/url";
+import {
+  buildShareUrl,
+  readSharedModel,
+  clearSharedModelFromUrl,
+} from "../../share/url";
+
+import { isTauri } from "@tauri-apps/api/core";
+import {
+  watch,
+  readTextFile,
+  writeTextFile,
+  BaseDirectory,
+} from "@tauri-apps/plugin-fs";
 
 import { TopBar } from "../TopBar";
 import { ImportDialog } from "../ImportDialog";
@@ -58,6 +80,7 @@ import { TemplateApplyDialog } from "../TemplateApplyDialog";
 import { ClearCanvasDialog } from "../ClearCanvasDialog";
 import { GlossaryDialog } from "../GlossaryDialog";
 import { Dock, type Tool } from "./Dock";
+import { SelectionPanel } from "../SelectionPanel";
 import { MartNode } from "./MartNode";
 import { GroupNode } from "./GroupNode";
 import { RelEdge } from "./RelEdge";
@@ -92,7 +115,11 @@ export const store = createModelStore(persistedGraph);
 const isFirstVisit = persistedGraph === undefined;
 
 // ── helpers to convert between model and RF types ───────────────────────────
-function toRFNode(n: ModelNode, viewMode: ViewMode, keyFields?: string[]): Node {
+function toRFNode(
+  n: ModelNode,
+  viewMode: ViewMode,
+  keyFields?: string[],
+): Node {
   return {
     id: n.key,
     type: n.type === "group" ? "group" : "mart",
@@ -101,11 +128,13 @@ function toRFNode(n: ModelNode, viewMode: ViewMode, keyFields?: string[]): Node 
     extent: n.parentId ? "parent" : undefined,
     width: n.type === "group" ? n.width : undefined,
     height: n.type === "group" ? n.height : undefined,
-    style: n.type === "group" ? { width: n.width, height: n.height } : undefined,
-    data: { ...n, _viewMode: viewMode, _keyFields: keyFields } as unknown as Record<
-      string,
-      unknown
-    >,
+    style:
+      n.type === "group" ? { width: n.width, height: n.height } : undefined,
+    data: {
+      ...n,
+      _viewMode: viewMode,
+      _keyFields: keyFields,
+    } as unknown as Record<string, unknown>,
   };
 }
 
@@ -178,8 +207,11 @@ function runDagreLayout(
   edges.forEach((e) => g.setEdge(e.from, e.to));
   dagre.layout(g);
 
-  const updates = new Map<string, { x: number; y: number; width?: number; height?: number }>();
-  
+  const updates = new Map<
+    string,
+    { x: number; y: number; width?: number; height?: number }
+  >();
+
   nodes.forEach((n) => {
     const pos = g.node(n.key);
     let absX = pos.x - pos.width / 2;
@@ -187,11 +219,11 @@ function runDagreLayout(
 
     if (n.type === "group") {
       // Pad the group node visually
-      updates.set(n.key, { 
-        x: absX, 
-        y: absY, 
-        width: pos.width + 40, 
-        height: pos.height + 60 
+      updates.set(n.key, {
+        x: absX,
+        y: absY,
+        width: pos.width + 40,
+        height: pos.height + 60,
       });
     } else {
       if (n.parentId) {
@@ -199,7 +231,7 @@ function runDagreLayout(
         const parentPos = g.node(n.parentId);
         const parentAbsX = parentPos.x - parentPos.width / 2;
         const parentAbsY = parentPos.y - parentPos.height / 2;
-        
+
         absX = absX - parentAbsX + 20; // 20px left padding
         absY = absY - parentAbsY + 40; // 40px top padding for title
       }
@@ -211,7 +243,8 @@ function runDagreLayout(
 }
 
 // ── Selection types ──────────────────────────────────────────────────────────
-type Selection = { type: "node"; id: string } | { type: "edge"; id: string } | null;
+type Selection =
+  { type: "node"; id: string } | { type: "edge"; id: string } | null;
 
 // ── Inner canvas (needs ReactFlowProvider context) ────────────────────────────
 const nodeTypes = { mart: MartNode, group: GroupNode };
@@ -243,15 +276,48 @@ function CanvasInner() {
   const [showGlossary, setShowGlossary] = useState(false);
   const [inspectorOpen, setInspectorOpen] = useState(true);
 
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; show: boolean } | null>(
-    null,
-  );
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    show: boolean;
+  } | null>(null);
   const [edgeContextMenu, setEdgeContextMenu] = useState<{
     id: string;
     x: number;
     y: number;
   } | null>(null);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+
+  const [showSelectionPane, setShowSelectionPane] = useState(false);
+  const [activeTagFilters, setActiveTagFilters] = useState<string[]>([]);
+  const [highlightDepth, setHighlightDepth] = useState<"None" | "1 Level" | "2 Levels" | "All">("None");
+
+  const activeKeys = useMemo(() => {
+    if (!selection || selection.type !== "node" || highlightDepth === "None") return null;
+    const active = new Set<string>();
+    const queue: { id: string; depth: number }[] = [{ id: selection.id, depth: 0 }];
+    const maxDepth = highlightDepth === "1 Level" ? 1 : highlightDepth === "2 Levels" ? 2 : Infinity;
+    const adj = new Map<string, string[]>();
+    for (const e of graph.edges) {
+      if (!adj.has(e.from)) adj.set(e.from, []);
+      if (!adj.has(e.to)) adj.set(e.to, []);
+      adj.get(e.from)!.push(e.to);
+      adj.get(e.to)!.push(e.from);
+    }
+    while (queue.length > 0) {
+      const { id, depth } = queue.shift()!;
+      if (!active.has(id)) {
+        active.add(id);
+        if (depth < maxDepth) {
+          const neighbors = adj.get(id) || [];
+          for (const n of neighbors) {
+            queue.push({ id: n, depth: depth + 1 });
+          }
+        }
+      }
+    }
+    return active;
+  }, [selection, highlightDepth, graph.edges]);
 
   // react Flow owns the live node/edge arrays so dragging follows the cursor
   // smoothly (RF applies position changes frame-by-frame). The model store stays
@@ -262,11 +328,45 @@ function CanvasInner() {
 
   useEffect(() => {
     const kf = keyFieldsByNode(graph.edges);
-    setRfNodes(graph.nodes.map((n) => toRFNode(n, viewMode, [...(kf.get(n.key) ?? [])])));
-  }, [graph.nodes, graph.edges, viewMode, setRfNodes]);
+    setRfNodes(
+      graph.nodes.map((n) => {
+        const matchesTags = activeTagFilters.length === 0 || (n.tags && n.tags.some(t => activeTagFilters.includes(t)));
+        const physicallyHidden = n.isHidden || !matchesTags;
+        const rfNode = toRFNode(n, viewMode, [...(kf.get(n.key) ?? [])]);
+        
+        const isDimmed = activeKeys !== null && !activeKeys.has(n.key);
+        
+        rfNode.hidden = physicallyHidden;
+        if (!rfNode.style) rfNode.style = {};
+        rfNode.style.opacity = isDimmed ? 0.2 : 1;
+        rfNode.style.transition = "opacity 0.2s ease";
+        
+        return rfNode;
+      }),
+    );
+  }, [graph.nodes, graph.edges, viewMode, setRfNodes, activeTagFilters, activeKeys]);
+  
   useEffect(() => {
-    setRfEdges(buildRfEdges(graph.edges, graph.nodes, viewMode, store.updateEdge));
-  }, [graph.edges, graph.nodes, viewMode, setRfEdges]);
+    const rawEdges = buildRfEdges(graph.edges, graph.nodes, viewMode, store.updateEdge);
+    setRfEdges(
+      rawEdges.map((e) => {
+        const mEdge = graph.edges.find((ge) => e.id.startsWith(ge.id));
+        const sourceNode = graph.nodes.find(n => n.key === e.source);
+        const targetNode = graph.nodes.find(n => n.key === e.target);
+        
+        const sourceHidden = sourceNode?.isHidden || (activeTagFilters.length > 0 && !(sourceNode?.tags?.some(t => activeTagFilters.includes(t))));
+        const targetHidden = targetNode?.isHidden || (activeTagFilters.length > 0 && !(targetNode?.tags?.some(t => activeTagFilters.includes(t))));
+        
+        const isDimmed = activeKeys !== null && (!activeKeys.has(e.source) || !activeKeys.has(e.target));
+        
+        return {
+          ...e,
+          hidden: sourceHidden || targetHidden,
+          style: { ...e.style, opacity: isDimmed ? 0.2 : 1, transition: "opacity 0.2s ease" },
+        };
+      })
+    );
+  }, [graph.edges, graph.nodes, viewMode, setRfEdges, activeTagFilters, activeKeys]);
 
   // mark only the selected relationship as reconnectable so dragging an endpoint
   // moves the line the user picked (not whichever overlapping edge RF would grab),
@@ -277,7 +377,8 @@ function CanvasInner() {
     const selId = selection?.type === "edge" ? selection.id : null;
     setRfEdges((eds) =>
       eds.map((e) => {
-        const modelEdgeId = (e.data as { modelEdgeId?: string } | undefined)?.modelEdgeId;
+        const modelEdgeId = (e.data as { modelEdgeId?: string } | undefined)
+          ?.modelEdgeId;
         const reconnectable = isEdgeReconnectable(modelEdgeId, selId, viewMode);
         const zIndex = modelEdgeId != null && modelEdgeId === selId ? 1000 : 0;
         return e.reconnectable === reconnectable && e.zIndex === zIndex
@@ -301,14 +402,15 @@ function CanvasInner() {
           store.updateNode(c.id, { position: c.position }); // persist final position
         }
         if (c.type === "dimensions" && c.dimensions && c.resizing === false) {
-          store.updateNode(c.id, { width: c.dimensions.width, height: c.dimensions.height });
+          store.updateNode(c.id, {
+            width: c.dimensions.width,
+            height: c.dimensions.height,
+          });
         }
       }
     },
     [onRfNodesChange],
   );
-
-
 
   // ── Connect handler ────────────────────────────────────────────────────────
   // drag an existing edge end onto another port/node to re-route it (for a tidy picture).
@@ -368,7 +470,10 @@ function CanvasInner() {
       if (tool === "add" || tool === "group") {
         const pos = screenToFlowPosition({ x: e.clientX, y: e.clientY });
         const type = tool === "group" ? "group" : "mart";
-        const n = store.addNode({ x: pos.x - NODE_W / 2, y: pos.y - NODE_H / 2 }, type);
+        const n = store.addNode(
+          { x: pos.x - NODE_W / 2, y: pos.y - NODE_H / 2 },
+          type,
+        );
         setSelection({ type: "node", id: n.key });
         setTool("select");
       } else {
@@ -489,7 +594,8 @@ function CanvasInner() {
               const n: ModelNode = JSON.parse(data);
               const position = { x: n.position.x + 20, y: n.position.y + 20 };
               // addNode only accepts 'mart'|'group'; bridge is set afterwards via updateNode.
-              const baseType: "mart" | "group" = n.type === "group" ? "group" : "mart";
+              const baseType: "mart" | "group" =
+                n.type === "group" ? "group" : "mart";
               const newNode = store.addNode(position, baseType);
               store.updateNode(newNode.key, {
                 title: `${n.title} (copy)`,
@@ -522,9 +628,16 @@ function CanvasInner() {
     (e: React.MouseEvent<HTMLDivElement>) => {
       // only fire when clicking the pane (not on a node card or edge)
       const target = e.target as HTMLElement;
-      if (target.closest(".react-flow__node") || target.closest(".react-flow__edge")) return;
+      if (
+        target.closest(".react-flow__node") ||
+        target.closest(".react-flow__edge")
+      )
+        return;
       const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
-      const n = store.addNode({ x: position.x - NODE_W / 2, y: position.y - NODE_H / 2 });
+      const n = store.addNode({
+        x: position.x - NODE_W / 2,
+        y: position.y - NODE_H / 2,
+      });
       setSelection({ type: "node", id: n.key });
       setTool("select");
     },
@@ -572,7 +685,9 @@ function CanvasInner() {
   // if the clipboard API is blocked (insecure context / permissions).
   const handleShare = useCallback(async () => {
     const url = await buildShareUrl(store.get());
-    const isLocal = /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname);
+    const isLocal = /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(
+      location.hostname,
+    );
     const msg = isLocal
       ? "Link copied — note: a localhost link only opens on this machine. Deploy to share it."
       : "Link copied — anyone with it can open this model.";
@@ -680,7 +795,10 @@ function CanvasInner() {
         const positions = runDagreLayout(g.nodes, g.edges, viewMode);
         store.set({
           ...g,
-          nodes: g.nodes.map((n) => ({ ...n, position: positions.get(n.key) ?? n.position })),
+          nodes: g.nodes.map((n) => ({
+            ...n,
+            position: positions.get(n.key) ?? n.position,
+          })),
           storageId: null,
         });
         setShowSqlEditor(false);
@@ -703,7 +821,8 @@ function CanvasInner() {
     <div
       className={`flex flex-col h-screen overflow-hidden theme-${activeTheme}`}
       style={{
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif",
       }}
       onKeyDown={handleKeyDown}
       tabIndex={0}
@@ -732,21 +851,32 @@ function CanvasInner() {
         onOpenSqlEditor={() => setShowSqlEditor(true)}
         onValidate={() => setShowLinter(true)}
         onDictionary={() => setShowGlossary(true)}
-        dictionaryDisabled={graph.nodes.length === 0}
+        highlightDepth={highlightDepth}
+        onHighlightDepthChange={setHighlightDepth}
       />
-      {shareToast && <ShareToast message={shareToast} onClose={() => setShareToast(null)} />}
+      {shareToast && (
+        <ShareToast message={shareToast} onClose={() => setShareToast(null)} />
+      )}
       {showImport && (
-        <ImportDialog onConfirm={handleImportConfirm} onClose={() => setShowImport(false)} />
+        <ImportDialog
+          onConfirm={handleImportConfirm}
+          onClose={() => setShowImport(false)}
+        />
       )}
       {showClear && (
         <ClearCanvasDialog
-          counts={{ marts: graph.nodes.length, relationships: graph.edges.length }}
+          counts={{
+            marts: graph.nodes.length,
+            relationships: graph.edges.length,
+          }}
           onDelete={clearCanvas}
           onExportAndDelete={handleExportAndClear}
           onClose={() => setShowClear(false)}
         />
       )}
-      {showLinter && <LinterDialog graph={graph} onClose={() => setShowLinter(false)} />}
+      {showLinter && (
+        <LinterDialog graph={graph} onClose={() => setShowLinter(false)} />
+      )}
       {showGlossary && (
         <GlossaryDialog
           graph={graph}
@@ -756,7 +886,10 @@ function CanvasInner() {
         />
       )}
       {showLibrary && (
-        <LibraryDialog onUse={handleUseTemplate} onClose={() => setShowLibrary(false)} />
+        <LibraryDialog
+          onUse={handleUseTemplate}
+          onClose={() => setShowLibrary(false)}
+        />
       )}
       {pendingTemplate && (
         <TemplateApplyDialog
@@ -767,7 +900,10 @@ function CanvasInner() {
         />
       )}
 
-      <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} />
+      <CommandPalette
+        isOpen={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+      />
 
       <div className="flex flex-1 min-h-0 relative">
         {/* Left tool dock */}
@@ -788,8 +924,8 @@ function CanvasInner() {
         {/* React Flow canvas */}
         <div
           className={`flex-1 relative ${canvasClass} theme-${activeTheme}`}
+          onContextMenu={onPaneContextMenu}
           onDoubleClick={handleWrapperDoubleClick}
-          style={{ backgroundColor: "var(--canvas-bg)" }}
         >
           <ReactFlow
             nodes={rfNodes}
@@ -859,12 +995,22 @@ function CanvasInner() {
           {/* Floating Right Side Toolbar (Code & Inspector toggles) */}
           <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-[2px]">
             <button
+              onClick={() => setShowSelectionPane(!showSelectionPane)}
+              title="Toggle Selection Pane"
+              className="group flex h-[46px] w-[32px] items-center justify-center rounded-l-xl border border-r-0 border-[#d8dee8] bg-white text-slate-500 shadow-[-3px_0_12px_rgba(15,23,42,0.07)] cursor-pointer transition-colors hover:bg-[#f1f3f7] hover:text-[#1e88e5]"
+            >
+              <ListFilter size={18} />
+              <span className="pointer-events-none absolute right-[calc(100%+8px)] top-[14px] whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[12px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 shadow-[0_6px_18px_rgba(15,23,42,0.28)]">
+                Toggle Selection Pane
+              </span>
+            </button>
+            <button
               onClick={() => setShowSqlEditor(!showSqlEditor)}
               title="Toggle SQL Editor"
               className="group flex h-[46px] w-[32px] items-center justify-center rounded-l-xl border border-r-0 border-[#d8dee8] bg-white text-slate-500 shadow-[-3px_0_12px_rgba(15,23,42,0.07)] cursor-pointer transition-colors hover:bg-[#f1f3f7] hover:text-[#1e88e5]"
             >
               <Code size={18} />
-              <span className="pointer-events-none absolute right-[calc(100%+8px)] top-[14px] whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[12px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 shadow-[0_6px_18px_rgba(15,23,42,0.28)]">
+              <span className="pointer-events-none absolute right-[calc(100%+8px)] top-[62px] whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[12px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 shadow-[0_6px_18px_rgba(15,23,42,0.28)]">
                 Toggle SQL Editor
               </span>
             </button>
@@ -875,7 +1021,7 @@ function CanvasInner() {
                 className="group flex h-[46px] w-[32px] items-center justify-center rounded-l-xl border border-r-0 border-[#d8dee8] bg-white text-slate-500 shadow-[-3px_0_12px_rgba(15,23,42,0.07)] cursor-pointer transition-colors hover:bg-[#f1f3f7] hover:text-[#1e88e5]"
               >
                 <PanelRightOpen size={18} />
-                <span className="pointer-events-none absolute right-[calc(100%+8px)] top-[62px] whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[12px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 shadow-[0_6px_18px_rgba(15,23,42,0.28)]">
+                <span className="pointer-events-none absolute right-[calc(100%+8px)] top-[110px] whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[12px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 shadow-[0_6px_18px_rgba(15,23,42,0.28)]">
                   Open inspector
                 </span>
               </button>
@@ -893,8 +1039,14 @@ function CanvasInner() {
             <button
               className="w-full text-left px-4 py-2 text-[13px] text-slate-700 hover:bg-[#f1f5fb] hover:text-[#1e88e5] transition-colors flex items-center gap-2"
               onClick={() => {
-                const position = screenToFlowPosition({ x: contextMenu.x, y: contextMenu.y });
-                const n = store.addNode({ x: position.x - NODE_W / 2, y: position.y - NODE_H / 2 });
+                const position = screenToFlowPosition({
+                  x: contextMenu.x,
+                  y: contextMenu.y,
+                });
+                const n = store.addNode({
+                  x: position.x - NODE_W / 2,
+                  y: position.y - NODE_H / 2,
+                });
                 setSelection({ type: "node", id: n.key });
                 setContextMenu(null);
               }}
@@ -904,7 +1056,10 @@ function CanvasInner() {
             <button
               className="w-full text-left px-4 py-2 text-[13px] text-slate-700 hover:bg-[#f1f5fb] hover:text-[#1e88e5] transition-colors flex items-center gap-2"
               onClick={() => {
-                const position = screenToFlowPosition({ x: contextMenu.x, y: contextMenu.y });
+                const position = screenToFlowPosition({
+                  x: contextMenu.x,
+                  y: contextMenu.y,
+                });
                 const n = store.addNode(
                   { x: position.x - 200 / 2, y: position.y - 150 / 2 },
                   "group",
@@ -991,11 +1146,24 @@ function CanvasInner() {
             <button
               className="w-full text-left px-4 py-2 text-[13px] text-slate-700 hover:bg-[#f1f5fb] hover:text-[#1e88e5] transition-colors"
               onClick={() => {
-                const colors = ["#94a3b8", "#f87171", "#fbbf24", "#4ade80", "#60a5fa", "#a78bfa"];
-                const edge = store.get().edges.find((e) => e.id === edgeContextMenu.id);
+                const colors = [
+                  "#94a3b8",
+                  "#f87171",
+                  "#fbbf24",
+                  "#4ade80",
+                  "#60a5fa",
+                  "#a78bfa",
+                ];
+                const edge = store
+                  .get()
+                  .edges.find((e) => e.id === edgeContextMenu.id);
                 if (edge) {
-                  const nextIdx = (colors.indexOf(edge.color || "#94a3b8") + 1) % colors.length;
-                  store.updateEdge(edgeContextMenu.id, { color: colors[nextIdx] });
+                  const nextIdx =
+                    (colors.indexOf(edge.color || "#94a3b8") + 1) %
+                    colors.length;
+                  store.updateEdge(edgeContextMenu.id, {
+                    color: colors[nextIdx],
+                  });
                 }
                 setEdgeContextMenu(null);
               }}
@@ -1006,6 +1174,12 @@ function CanvasInner() {
         )}
 
         {/* Right side panels */}
+        <SelectionPanel
+          open={showSelectionPane}
+          onClose={() => setShowSelectionPane(false)}
+          activeTagFilters={activeTagFilters}
+          onTagFiltersChange={setActiveTagFilters}
+        />
         <SqlEditorPanel
           initialSql={graphToSqlFile(graph)}
           onApply={handleApplySql}
@@ -1034,7 +1208,13 @@ function CanvasInner() {
 }
 
 // ── Share confirmation toast (auto-dismisses) ─────────────────────────────────
-function ShareToast({ message, onClose }: { message: string; onClose: () => void }) {
+function ShareToast({
+  message,
+  onClose,
+}: {
+  message: string;
+  onClose: () => void;
+}) {
   useEffect(() => {
     const t = setTimeout(onClose, 3500);
     return () => clearTimeout(t);

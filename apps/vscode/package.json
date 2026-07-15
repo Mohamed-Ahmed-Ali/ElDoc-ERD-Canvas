@@ -1,5 +1,5 @@
 {
-  "name": "eldoc-erd-canvas",
+  "name": "eldoc-erd-modeler",
   "version": "0.0.1",
   "displayName": "ElDoc ERD Canvas",
   "description": "Design data models and use AI agents to generate SQL instantly.",
@@ -11,10 +11,15 @@
   },
   "icon": "icon.png",
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.96.0"
   },
-  "categories": ["Other"],
-  "activationEvents": ["onCommand:eldoc.openCanvas"],
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:eldoc.openCanvas"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {
@@ -41,24 +46,31 @@
         "title": "ElDoc: Open Canvas",
         "icon": "$(layout-sidebar-right)"
       }
+    ],
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "eldoc.mcpServer",
+        "label": "ElDoc MCP Server"
+      }
     ]
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
-    "compile": "tsup src/extension.ts --format cjs --external vscode",
-    "watch": "tsup src/extension.ts --format cjs --external vscode --watch",
+    "compile": "tsup src/extension.ts src/mcp-server.ts --format cjs --external vscode",
+    "watch": "tsup src/extension.ts src/mcp-server.ts --format cjs --external vscode --watch",
     "package": "pnpm run build:webview && pnpm run compile",
     "build:webview": "pnpm --filter @mc/web build && rimraf dist/webview && cpr ../../packages/web/dist dist/webview",
     "dev:webview": "cross-env ELDOC_WEBVIEW_DEV_URL=http://localhost:5173 pnpm run compile && pnpm run watch"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@types/vscode": "^1.85.0",
+    "@types/vscode": "~1.96.0",
     "cpr": "3.0.1",
     "cross-env": "7.0.3",
     "rimraf": "5.0.5",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",
-    "@mc/mcp-core": "workspace:*"
+    "@mc/mcp-core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.0.1"
   }
 }

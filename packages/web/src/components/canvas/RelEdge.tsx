@@ -101,7 +101,7 @@ function RelEdgeInner(props: EdgeProps) {
   const [localWaypoints, setLocalWaypoints] = useState<{ x: number; y: number }[] | null>(null);
   const [lastClick, setLastClick] = useState<{ time: number; idx: number } | null>(null);
 
-  const { id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, selected } =
+  const { id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, selected, style } =
     props;
 
   const edgeData = data as unknown as RelEdgeData | undefined;
@@ -258,11 +258,8 @@ function RelEdgeInner(props: EdgeProps) {
 
   // ── Center label ─────────────────────────────────────────────────────────
 
-  const label =
+  const columnsText =
     keys.length > 0 ? keys.map((k) => `${k.left || "?"} = ${k.right || "?"}`).join(", ") : "";
-
-  // In compact mode, also show cardinality in the center label since we suppress markers.
-  const compactCard = isCompact && cardinality ? cardinality : "";
 
   // Direction arrow for non-animated edges that don't already have markers
   let midArrow = "";
@@ -280,7 +277,7 @@ function RelEdgeInner(props: EdgeProps) {
     }
   }
 
-  const showLabel = !!(label || midArrow || compactCard);
+  const showLabel = !!(columnsText || midArrow || cardinality);
 
   const labelBg = isTurbo ? "#1A192B" : isDark ? "#1e293b" : "#ffffff";
   const labelBorder = selected
@@ -367,7 +364,7 @@ function RelEdgeInner(props: EdgeProps) {
       <BaseEdge
         id={id}
         path={edgePath}
-        style={{ stroke: strokeColor, strokeWidth, strokeDasharray }}
+        style={{ stroke: strokeColor, strokeWidth, strokeDasharray, opacity: style?.opacity, transition: style?.transition }}
         className={shouldFlow ? "react-flow__edge-path" : ""}
         markerStart={markerStartId ? `url(#${markerStartId})` : undefined}
         markerEnd={markerEndId ? `url(#${markerEndId})` : undefined}
@@ -380,34 +377,39 @@ function RelEdgeInner(props: EdgeProps) {
               position: "absolute",
               // Perpendicular offset keeps the pill off the stroke
               transform: `translate(-50%, -50%) translate(${labelX + perpX}px,${labelY + perpY}px)`,
-              pointerEvents: "all",
+              pointerEvents: "none", // Fix: Let clicks pass through to the SVG edge hit-area
               background: labelBg,
               border: `1px solid ${labelBorder}`,
-              borderRadius: 5,
-              padding: "2px 8px",
-              fontSize: 11,
-              fontWeight: 500,
-              letterSpacing: "0.01em",
-              color: labelColor,
-              zIndex: 10,
+              borderRadius: 4,
+              padding: "1px 6px",
+              zIndex: 1001,
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              gap: 5,
+              gap: 0,
+              color: labelColor,
               boxShadow: selected
-                ? "0 0 0 3px rgba(30,136,229,0.15), 0 2px 6px rgba(0,0,0,0.10)"
-                : "0 1px 3px rgba(0,0,0,0.08)",
+                ? "0 0 0 2px rgba(30,136,229,0.15), 0 1px 4px rgba(0,0,0,0.08)"
+                : "0 1px 2px rgba(0,0,0,0.05)",
               whiteSpace: "nowrap",
-              cursor: "pointer",
+              opacity: style?.opacity,
+              transition: style?.transition,
             }}
             className="nodrag nopan"
           >
-            {midArrow && (
-              <span style={{ fontSize: 10, color: arrowColor }}>{midArrow}</span>
+            {cardinality && (
+              <span style={{ fontSize: 9.5, fontWeight: 600, color: markerColor }}>
+                {cardinality === "1:N" ? "One to Many (1:N)" : cardinality === "N:1" ? "Many to One (N:1)" : cardinality === "N:N" ? "Many to Many (N:N)" : cardinality === "1:1" ? "One to One (1:1)" : cardinality}
+              </span>
             )}
-            {compactCard && (
-              <span style={{ fontSize: 10, fontWeight: 600, color: markerColor }}>{compactCard}</span>
+            {midArrow && !cardinality && (
+              <span style={{ fontSize: 9, color: arrowColor }}>{midArrow}</span>
             )}
-            {label && <span>{label}</span>}
+            {columnsText && (
+              <span style={{ fontSize: 9, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", opacity: 0.7 }}>
+                {columnsText}
+              </span>
+            )}
           </div>
         </EdgeLabelRenderer>
       )}
