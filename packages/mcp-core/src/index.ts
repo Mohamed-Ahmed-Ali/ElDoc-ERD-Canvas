@@ -124,8 +124,24 @@ export function createEldocServer() {
                 type: "string",
                 description: "Absolute path to model.okf",
               },
-              tableName: { type: "string" },
+              type: {
+                type: "string",
+                description: "Object type. Optional: mart, bridge, domain, lookup. Default: mart",
+              },
+              namespace: { type: "string", description: "Optional namespace (e.g. crm)" },
+              tableName: { type: "string", description: "The physical table name or title" },
+              title: { type: "string", description: "Optional display title (defaults to tableName)" },
               description: { type: "string" },
+              definition: { type: "string", description: "Optional markdown definition of the table" },
+              tags: {
+                type: "array",
+                items: { type: "string" },
+                description: "Optional list of tags",
+              },
+              inputSource: {
+                type: "string",
+                description: "Optional: SQL, CONNECTOR, VIEW, TABLE. Default: SQL",
+              },
               materialization: {
                 type: "string",
                 description: "Optional: table, view, ephemeral, materialized_view",
@@ -157,9 +173,23 @@ export function createEldocServer() {
               tableName: { type: "string" },
               columnName: { type: "string" },
               columnType: { type: "string" },
+              description: { type: "string", description: "Optional column description" },
+              alias: { type: "string", description: "Optional column alias" },
               role: {
                 type: "string",
                 description: "Optional: pk, fk, or none",
+              },
+              keyType: {
+                type: "string",
+                description: "Optional: attribute, surrogateSequence, surrogateUUID, natural",
+              },
+              isComposite: {
+                type: "boolean",
+                description: "Optional: true if part of a composite key",
+              },
+              pii: {
+                type: "boolean",
+                description: "Optional: true if contains PII",
               },
               lineageType: {
                 type: "string",
@@ -184,6 +214,14 @@ export function createEldocServer() {
               dataQualityRules: {
                 type: "string",
                 description: "Optional data quality rules string",
+              },
+              checkExpression: {
+                type: "string",
+                description: "Optional SQL check constraint expression (e.g. amount > 0)",
+              },
+              unique: {
+                type: "boolean",
+                description: "Optional: true if column has a unique constraint",
               },
             },
             required: ["filePath", "tableName", "columnName", "columnType"],
@@ -299,7 +337,11 @@ export function createEldocServer() {
             if (f.dataClassification) desc += ` [Classification: ${f.dataClassification}]`;
             if (f.maskingPolicy) desc += ` [Masking: ${f.maskingPolicy}]`;
             if (f.dataQualityRules) desc += ` [Quality Rules: ${f.dataQualityRules}]`;
-            if (f.description) desc += ` - ${f.description}`;
+            if (f.alias) desc += ` [Alias: ${f.alias}]`;
+            if (f.keyType) desc += ` [KeyType: ${f.keyType}]`;
+            if (f.isComposite) desc += " [Composite]";
+            if (f.checkExpression) desc += ` [Check: ${f.checkExpression}]`;
+            if (f.unique) desc += " [Unique]";
             return desc;
           })
           .join("\n");
@@ -367,9 +409,13 @@ export function createEldocServer() {
     } else if (request.params.name === "mutate_add_table") {
       const filePath = String(request.params.arguments?.filePath);
       const tableName = String(request.params.arguments?.tableName);
-      const description = request.params.arguments?.description
-        ? String(request.params.arguments?.description)
-        : undefined;
+      const title = request.params.arguments?.title ? String(request.params.arguments?.title) : tableName;
+      const description = request.params.arguments?.description ? String(request.params.arguments?.description) : undefined;
+      const type = request.params.arguments?.type ? String(request.params.arguments?.type) : "mart";
+      const namespace = request.params.arguments?.namespace ? String(request.params.arguments?.namespace) : undefined;
+      const definition = request.params.arguments?.definition ? String(request.params.arguments?.definition) : undefined;
+      const inputSource = request.params.arguments?.inputSource ? String(request.params.arguments?.inputSource) : "SQL";
+      const tags = Array.isArray(request.params.arguments?.tags) ? request.params.arguments?.tags : undefined;
 
       try {
         const raw = fs.readFileSync(filePath, "utf8");
@@ -384,28 +430,22 @@ export function createEldocServer() {
         );
         const key = `n${counter + 1}`;
 
-        const materialization = request.params.arguments?.materialization
-          ? String(request.params.arguments?.materialization)
-          : undefined;
-        const dataTier = request.params.arguments?.dataTier
-          ? String(request.params.arguments?.dataTier)
-          : undefined;
-        const updateFrequency = request.params.arguments?.updateFrequency
-          ? String(request.params.arguments?.updateFrequency)
-          : undefined;
-        const partitioning = request.params.arguments?.partitioning
-          ? String(request.params.arguments?.partitioning)
-          : undefined;
-        const grain = request.params.arguments?.grain
-          ? String(request.params.arguments?.grain)
-          : undefined;
+        const materialization = request.params.arguments?.materialization ? String(request.params.arguments?.materialization) : undefined;
+        const dataTier = request.params.arguments?.dataTier ? String(request.params.arguments?.dataTier) : undefined;
+        const updateFrequency = request.params.arguments?.updateFrequency ? String(request.params.arguments?.updateFrequency) : undefined;
+        const partitioning = request.params.arguments?.partitioning ? String(request.params.arguments?.partitioning) : undefined;
+        const grain = request.params.arguments?.grain ? String(request.params.arguments?.grain) : undefined;
 
         graph.nodes.push({
           key,
-          type: "mart",
-          title: tableName,
-          description,
-          inputSource: "SQL",
+          type,
+          title,
+          ...(tableName && { tableName }),
+          ...(description && { description }),
+          inputSource,
+          ...(namespace && { namespace }),
+          ...(definition && { definition }),
+          ...(tags && { tags }),
           schema: [],
           position: { x: Math.random() * 500, y: Math.random() * 500 },
           status: "pending",
@@ -418,7 +458,7 @@ export function createEldocServer() {
 
         fs.writeFileSync(filePath, JSON.stringify(graph, null, 2));
         return {
-          content: [{ type: "text", text: `Table ${tableName} added to ${filePath}.` }],
+          content: [{ type: "text", text: `Table ${title} added to ${filePath}.` }],
         };
       } catch (e: any) {
         return { isError: true, content: [{ type: "text", text: e.message }] };
@@ -429,12 +469,15 @@ export function createEldocServer() {
       const columnName = String(request.params.arguments?.columnName);
       const columnType = String(request.params.arguments?.columnType);
       const role = request.params.arguments?.role ? String(request.params.arguments?.role) : "none";
-      const lineageType = request.params.arguments?.lineageType
-        ? String(request.params.arguments?.lineageType)
-        : undefined;
-      const lineageLogic = request.params.arguments?.lineageLogic
-        ? String(request.params.arguments?.lineageLogic)
-        : undefined;
+      const keyType = request.params.arguments?.keyType ? String(request.params.arguments?.keyType) : (role === "pk" ? "surrogateSequence" : "attribute");
+      const isComposite = request.params.arguments?.isComposite ? Boolean(request.params.arguments?.isComposite) : false;
+      const pii = request.params.arguments?.pii ? Boolean(request.params.arguments?.pii) : false;
+      const alias = request.params.arguments?.alias ? String(request.params.arguments?.alias) : undefined;
+      const description = request.params.arguments?.description ? String(request.params.arguments?.description) : undefined;
+      const checkExpression = request.params.arguments?.checkExpression ? String(request.params.arguments?.checkExpression) : undefined;
+      const unique = request.params.arguments?.unique ? Boolean(request.params.arguments?.unique) : false;
+      const lineageType = request.params.arguments?.lineageType ? String(request.params.arguments?.lineageType) : undefined;
+      const lineageLogic = request.params.arguments?.lineageLogic ? String(request.params.arguments?.lineageLogic) : undefined;
 
       try {
         const raw = fs.readFileSync(filePath, "utf8");
@@ -448,21 +491,18 @@ export function createEldocServer() {
           name: columnName,
           type: columnType,
           role,
-          keyType: role === "pk" ? "surrogateSequence" : "attribute",
-          isComposite: false,
+          keyType,
+          isComposite,
+          ...(pii && { pii }),
+          ...(alias && { alias }),
+          ...(description && { description }),
+          ...(checkExpression && { checkExpression }),
+          ...(unique && { unique }),
         };
-        const scdType = request.params.arguments?.scdType
-          ? String(request.params.arguments?.scdType)
-          : undefined;
-        const dataClassification = request.params.arguments?.dataClassification
-          ? String(request.params.arguments?.dataClassification)
-          : undefined;
-        const maskingPolicy = request.params.arguments?.maskingPolicy
-          ? String(request.params.arguments?.maskingPolicy)
-          : undefined;
-        const dataQualityRules = request.params.arguments?.dataQualityRules
-          ? String(request.params.arguments?.dataQualityRules)
-          : undefined;
+        const scdType = request.params.arguments?.scdType ? String(request.params.arguments?.scdType) : undefined;
+        const dataClassification = request.params.arguments?.dataClassification ? String(request.params.arguments?.dataClassification) : undefined;
+        const maskingPolicy = request.params.arguments?.maskingPolicy ? String(request.params.arguments?.maskingPolicy) : undefined;
+        const dataQualityRules = request.params.arguments?.dataQualityRules ? String(request.params.arguments?.dataQualityRules) : undefined;
 
         if (lineageType) newField.lineageType = lineageType;
         if (lineageLogic) newField.lineageLogic = lineageLogic;
