@@ -204,7 +204,7 @@ export function SelectionPanel({
                   type="color"
                   value={newTagColor}
                   onChange={(e) => setNewTagColor(e.target.value)}
-                  className="w-[28px] h-[28px] rounded cursor-pointer p-0 border-0 flex-shrink-0"
+                  className="w-8 h-8 rounded border border-[#d8dee8] cursor-pointer overflow-hidden"
                 />
                 <input
                   type="text"

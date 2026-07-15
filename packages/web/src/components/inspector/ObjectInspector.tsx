@@ -64,7 +64,7 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
             type="color"
             value={node.color || "#e2e8f0"}
             onChange={(e) => onUpdate({ color: e.target.value })}
-            className="w-full h-[40px] cursor-pointer border border-[#d8dee8] rounded-lg"
+            className="w-full h-[40px] cursor-pointer border border-[#d8dee8] rounded-lg overflow-hidden"
           />
         </div>
       </div>
