@@ -76,7 +76,7 @@ import { erdAwareNodeSize } from "./layoutSize";
 // cast to FC to avoid generic component JSX typing issues with @types/react 18.3
 const ReactFlow = ReactFlowBase as unknown as FC<ReactFlowProps>;
 
-import { store, isFirstVisit } from "../../state/store";
+import { isFirstVisit, store } from "../../state/store";
 
 // a truly first-ever visit has no persisted model and no shared link. Captured at
 // module load — before the persist effect writes an (empty) graph — so it stays

@@ -25,8 +25,8 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
   const docs = Object.entries(files)
     .filter(([p]) => p.endsWith(".md") && !p.endsWith("index.md"))
     .filter(([, text]) => isMartDoc(text));
-  
-  const indexDoc = files[Object.keys(files).find(p => p.endsWith("index.md")) || ""];
+
+  const indexDoc = files[Object.keys(files).find((p) => p.endsWith("index.md")) || ""];
   let graphTags: any[] | undefined = undefined;
   if (indexDoc) {
     const { data } = parseFrontmatter(indexDoc);
@@ -51,9 +51,11 @@ export function parseBundle(files: Record<string, string>): ModelGraph {
       inferSource(data.tags) ||
       sourceFromType(data.type) ||
       "SQL") as InputSource;
-        
+
     const parsedTags = Array.isArray(data.tags)
-      ? data.tags.filter((t: any) => typeof t === "string" && t !== "eldoc" && t !== inputSource.toLowerCase())
+      ? data.tags.filter(
+          (t: any) => typeof t === "string" && t !== "eldoc" && t !== inputSource.toLowerCase(),
+        )
       : [];
 
     nodes.push({
@@ -222,7 +224,7 @@ function sourceFromType(type: unknown): InputSource | undefined {
   return undefined;
 }
 
-function parseOverview(body: string): { 
+function parseOverview(body: string): {
   definitionType?: string;
   grain?: string;
   materialization?: string;
@@ -230,7 +232,7 @@ function parseOverview(body: string): {
   updateFrequency?: string;
   dataTier?: string;
 } {
-  const out: { 
+  const out: {
     definitionType?: string;
     grain?: string;
     materialization?: string;

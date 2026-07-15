@@ -12,8 +12,8 @@ import {
   X,
 } from "lucide-react";
 import { memo, useRef, useState } from "react";
-import { store } from "../../state/store";
 import { DataMartIcon } from "../../lib/icons";
+import { store } from "../../state/store";
 import type { ViewMode } from "../../state/viewMode";
 import { VIEW_CONFIG, toBusinessType } from "../../state/viewMode";
 import { ERD_COLLAPSED_ROWS } from "./layoutSize";

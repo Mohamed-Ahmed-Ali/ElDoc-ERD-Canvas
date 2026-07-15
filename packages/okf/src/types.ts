@@ -44,7 +44,7 @@ export interface SchemaField {
     targetTable: string;
     targetColumn: string;
   };
-  
+
   // column lineage semantics
   lineageType?: LineageType;
   lineageLogic?: string;

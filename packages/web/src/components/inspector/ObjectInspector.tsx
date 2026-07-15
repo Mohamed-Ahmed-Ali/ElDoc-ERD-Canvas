@@ -71,7 +71,7 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
     );
   }
 
-    const [defOpen, setDefOpen] = useState(false);
+  const [defOpen, setDefOpen] = useState(false);
   // input source / definition / output schema live under a collapsed "Advanced"
   // section so the title and description are visible first.
   const [advOpen, setAdvOpen] = useState(false);
@@ -249,8 +249,6 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
         </div>
       </div>
 
-
-
       {/* Advanced — input source, definition and output schema. Collapsed by
           default to keep the panel light; expand to edit the table's plumbing. */}
       <div className="border border-[#d8dee8] rounded-lg overflow-hidden">
@@ -362,7 +360,9 @@ export function ObjectInspector({ node, nodes = [], tags = [], onUpdate }: Objec
               </label>
               <select
                 value={node.updateFrequency ?? ""}
-                onChange={(e) => onUpdate({ updateFrequency: (e.target.value as any) || undefined })}
+                onChange={(e) =>
+                  onUpdate({ updateFrequency: (e.target.value as any) || undefined })
+                }
                 className="w-full text-[13px] px-[10px] py-2 border border-[#d8dee8] rounded-lg text-slate-900 focus:outline-none focus:border-[#1e88e5] focus:ring-2 focus:ring-[#e6f1fb]"
               >
                 <option value="">Unspecified</option>

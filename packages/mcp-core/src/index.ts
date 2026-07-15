@@ -113,9 +113,18 @@ export function createEldocServer() {
               },
               tableName: { type: "string" },
               description: { type: "string" },
-              materialization: { type: "string", description: "Optional: table, view, ephemeral, materialized_view" },
-              dataTier: { type: "string", description: "Optional: bronze, silver, gold, raw, staged, curated" },
-              updateFrequency: { type: "string", description: "Optional: real-time, hourly, daily, weekly, monthly, manual" },
+              materialization: {
+                type: "string",
+                description: "Optional: table, view, ephemeral, materialized_view",
+              },
+              dataTier: {
+                type: "string",
+                description: "Optional: bronze, silver, gold, raw, staged, curated",
+              },
+              updateFrequency: {
+                type: "string",
+                description: "Optional: real-time, hourly, daily, weekly, monthly, manual",
+              },
               partitioning: { type: "string", description: "Optional partitioning string" },
               grain: { type: "string", description: "Optional grain string" },
             },
@@ -362,11 +371,21 @@ export function createEldocServer() {
         );
         const key = `n${counter + 1}`;
 
-        const materialization = request.params.arguments?.materialization ? String(request.params.arguments?.materialization) : undefined;
-        const dataTier = request.params.arguments?.dataTier ? String(request.params.arguments?.dataTier) : undefined;
-        const updateFrequency = request.params.arguments?.updateFrequency ? String(request.params.arguments?.updateFrequency) : undefined;
-        const partitioning = request.params.arguments?.partitioning ? String(request.params.arguments?.partitioning) : undefined;
-        const grain = request.params.arguments?.grain ? String(request.params.arguments?.grain) : undefined;
+        const materialization = request.params.arguments?.materialization
+          ? String(request.params.arguments?.materialization)
+          : undefined;
+        const dataTier = request.params.arguments?.dataTier
+          ? String(request.params.arguments?.dataTier)
+          : undefined;
+        const updateFrequency = request.params.arguments?.updateFrequency
+          ? String(request.params.arguments?.updateFrequency)
+          : undefined;
+        const partitioning = request.params.arguments?.partitioning
+          ? String(request.params.arguments?.partitioning)
+          : undefined;
+        const grain = request.params.arguments?.grain
+          ? String(request.params.arguments?.grain)
+          : undefined;
 
         graph.nodes.push({
           key,
@@ -397,8 +416,12 @@ export function createEldocServer() {
       const columnName = String(request.params.arguments?.columnName);
       const columnType = String(request.params.arguments?.columnType);
       const role = request.params.arguments?.role ? String(request.params.arguments?.role) : "none";
-      const lineageType = request.params.arguments?.lineageType ? String(request.params.arguments?.lineageType) : undefined;
-      const lineageLogic = request.params.arguments?.lineageLogic ? String(request.params.arguments?.lineageLogic) : undefined;
+      const lineageType = request.params.arguments?.lineageType
+        ? String(request.params.arguments?.lineageType)
+        : undefined;
+      const lineageLogic = request.params.arguments?.lineageLogic
+        ? String(request.params.arguments?.lineageLogic)
+        : undefined;
 
       try {
         const raw = fs.readFileSync(filePath, "utf8");
@@ -415,10 +438,18 @@ export function createEldocServer() {
           keyType: role === "pk" ? "surrogateSequence" : "attribute",
           isComposite: false,
         };
-        const scdType = request.params.arguments?.scdType ? String(request.params.arguments?.scdType) : undefined;
-        const dataClassification = request.params.arguments?.dataClassification ? String(request.params.arguments?.dataClassification) : undefined;
-        const maskingPolicy = request.params.arguments?.maskingPolicy ? String(request.params.arguments?.maskingPolicy) : undefined;
-        const dataQualityRules = request.params.arguments?.dataQualityRules ? String(request.params.arguments?.dataQualityRules) : undefined;
+        const scdType = request.params.arguments?.scdType
+          ? String(request.params.arguments?.scdType)
+          : undefined;
+        const dataClassification = request.params.arguments?.dataClassification
+          ? String(request.params.arguments?.dataClassification)
+          : undefined;
+        const maskingPolicy = request.params.arguments?.maskingPolicy
+          ? String(request.params.arguments?.maskingPolicy)
+          : undefined;
+        const dataQualityRules = request.params.arguments?.dataQualityRules
+          ? String(request.params.arguments?.dataQualityRules)
+          : undefined;
 
         if (lineageType) newField.lineageType = lineageType;
         if (lineageLogic) newField.lineageLogic = lineageLogic;

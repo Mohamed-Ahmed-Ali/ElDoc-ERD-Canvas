@@ -69,7 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
   const mcpPath = context.asAbsolutePath("dist/mcp-server.js");
 
   // Helper to register MCP server across various agent configuration files
-  async function registerMcpConfig(configPath: vscode.Uri, serverName: string = "eldoc-erd-canvas") {
+  async function registerMcpConfig(configPath: vscode.Uri, serverName = "eldoc-erd-canvas") {
     try {
       let settings: any = {};
       try {
@@ -128,7 +128,7 @@ export function activate(context: vscode.ExtensionContext) {
       "..",
       `${target.publisher}.${target.name}`,
       "settings",
-      target.file
+      target.file,
     );
     registerMcpConfig(configPath);
   }
@@ -139,10 +139,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Antigravity
   registerMcpConfig(vscode.Uri.file(path.join(homedir, ".gemini", "config", "mcp.json")));
-  
+
   // GitHub Copilot
   registerMcpConfig(vscode.Uri.file(path.join(homedir, ".mcp.json")));
-  
+
   // Claude Code CLI
   registerMcpConfig(vscode.Uri.file(path.join(homedir, ".claude.json")));
   registerMcpConfig(vscode.Uri.file(path.join(homedir, ".config", "claude", "mcp.json")));

@@ -1,4 +1,4 @@
-import type { MeasureType, SchemaField, LineageType } from "@mc/okf";
+import type { LineageType, MeasureType, SchemaField } from "@mc/okf";
 import { GripVertical, Settings } from "lucide-react";
 import { useState } from "react";
 import { InfoTip } from "./InfoTip";
@@ -439,7 +439,9 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
                     <div className="grid grid-cols-2 gap-2 mt-1">
                       <select
                         value={field.scdType ?? ""}
-                        onChange={(e) => updateField(i, { scdType: (e.target.value as any) || undefined })}
+                        onChange={(e) =>
+                          updateField(i, { scdType: (e.target.value as any) || undefined })
+                        }
                         className={inputCls}
                         title="Slowly Changing Dimension (SCD) Tracking"
                       >
@@ -450,7 +452,11 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
                       </select>
                       <select
                         value={field.dataClassification ?? ""}
-                        onChange={(e) => updateField(i, { dataClassification: (e.target.value as any) || undefined })}
+                        onChange={(e) =>
+                          updateField(i, {
+                            dataClassification: (e.target.value as any) || undefined,
+                          })
+                        }
                         className={inputCls}
                         title="Data Classification"
                       >
@@ -464,7 +470,9 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
                         type="text"
                         placeholder="Masking Policy (e.g. SHA256)"
                         value={field.maskingPolicy ?? ""}
-                        onChange={(e) => updateField(i, { maskingPolicy: e.target.value || undefined })}
+                        onChange={(e) =>
+                          updateField(i, { maskingPolicy: e.target.value || undefined })
+                        }
                         className={inputCls}
                         title="Data Masking Policy"
                       />
@@ -472,7 +480,9 @@ export function SchemaEditor({ nodeType, schema, onChange }: SchemaEditorProps) 
                         type="text"
                         placeholder="Quality Rules (e.g. >= 0)"
                         value={field.dataQualityRules ?? ""}
-                        onChange={(e) => updateField(i, { dataQualityRules: e.target.value || undefined })}
+                        onChange={(e) =>
+                          updateField(i, { dataQualityRules: e.target.value || undefined })
+                        }
                         className={inputCls}
                         title="Data Quality Rules (Expectations)"
                       />

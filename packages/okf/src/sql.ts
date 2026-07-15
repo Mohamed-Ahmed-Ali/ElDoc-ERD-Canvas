@@ -82,7 +82,7 @@ export function exportToSql(graph: ModelGraph, dialect = "postgres"): string {
     if (n.description) nodeNotes.push(n.description.replace(/\n/g, "\n-- "));
     if (n.tags && n.tags.length > 0) nodeNotes.push(`Tags: ${n.tags.join(", ")}`);
     if (n.color) nodeNotes.push(`Color: ${n.color}`);
-    
+
     if (nodeNotes.length > 0) {
       lines.push(`-- ${nodeNotes.join("\n-- ")}`);
     }

@@ -10,10 +10,10 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ["react", "react-dom", "@xyflow/react", "lucide-react"],
-          dagre: ["@dagrejs/dagre"]
-        }
-      }
-    }
+          dagre: ["@dagrejs/dagre"],
+        },
+      },
+    },
   },
   server: {
     port: 5173,
