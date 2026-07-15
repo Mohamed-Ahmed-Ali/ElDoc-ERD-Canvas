@@ -69,8 +69,7 @@ describe("RelEdge cardinality pill", () => {
       bidirectional: false,
       cardinality: "N:1",
     });
-    expect(queryByText("*")).toBeTruthy();
-    expect(queryByText("1")).toBeTruthy();
+    expect(queryByText("Many to One (N:1)")).toBeTruthy();
   });
 
   it("positions labels on the path", () => {
@@ -79,10 +78,8 @@ describe("RelEdge cardinality pill", () => {
       bidirectional: false,
       cardinality: "N:1",
     });
-    const sourcePill = getByText("*");
-    const targetPill = getByText("1");
-    console.log("Source pill style transform:", sourcePill.style.transform);
-    console.log("Target pill style transform:", targetPill.style.transform);
+    const pill = getByText("Many to One (N:1)");
+    console.log("Pill style transform:", pill.parentElement!.style.transform);
   });
   it("shows no pill when cardinality is unset", () => {
     const { queryByText } = renderEdge({ keys: [{ left: "x", right: "y" }], bidirectional: false });

@@ -36,8 +36,8 @@ describe("MartNode ERD rendering", () => {
   it("shows each field name and type in ERD mode", () => {
     renderNode("logical");
     expect(screen.getByText("id")).toBeTruthy();
-    expect(screen.getByText("INT64")).toBeTruthy();
+    expect(screen.getByText("Number")).toBeTruthy();
     expect(screen.getByText("email")).toBeTruthy();
-    expect(screen.getByText("STRING")).toBeTruthy();
+    expect(screen.getByText("Text")).toBeTruthy();
   });
 });

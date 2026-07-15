@@ -33,6 +33,6 @@ describe("Inspector", () => {
         onClose={noop}
       />,
     );
-    expect(screen.getByText(/Details/i)).toBeTruthy();
+    expect(screen.getByText(/Object type/i)).toBeTruthy();
   });
 });

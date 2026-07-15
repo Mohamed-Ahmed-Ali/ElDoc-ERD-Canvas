@@ -116,7 +116,7 @@ export function isEdgeReconnectable(
   selectedEdgeId: string | null,
   viewMode: ViewMode,
 ): boolean {
-  return modelEdgeId != null && modelEdgeId === selectedEdgeId;
+  return viewMode !== "logical" && modelEdgeId != null && modelEdgeId === selectedEdgeId;
 }
 
 export function buildRfEdges(

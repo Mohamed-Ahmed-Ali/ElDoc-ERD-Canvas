@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 
 const parseFile = "packages/okf/src/parse.ts";
 let p = fs.readFileSync(parseFile, "utf8");

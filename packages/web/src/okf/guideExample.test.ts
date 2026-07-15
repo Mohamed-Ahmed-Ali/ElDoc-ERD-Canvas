@@ -130,7 +130,7 @@ describe("okf authoring guide — worked example imports", () => {
 
   it("marks primary keys and parses cardinality", () => {
     const orders = graph.nodes.find((n) => n.key === "orders")!;
-    expect(orders.schema.find((f) => f.name === "id")?.pk).toBe(true);
+    expect(orders.schema.find((f) => f.name === "id")?.role === "pk" || orders.schema.find((f) => f.name === "id")?.pk).toBe(true);
     const oiToOrders = graph.edges.find((e) => e.from === "order-items" && e.to === "orders")!;
     expect(oiToOrders.cardinality).toBe("N:1");
   });

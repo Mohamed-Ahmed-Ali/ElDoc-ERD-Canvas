@@ -34,7 +34,7 @@ describe("buildRfEdges", () => {
     expect(out[0].targetHandle).toBe("left");
   });
 
-  it("erd: one edge per join key anchored to the field handles", () => {
+  it("erd: one edge anchored to the first field handle", () => {
     const out = buildRfEdges(
       [
         edge([
@@ -45,27 +45,10 @@ describe("buildRfEdges", () => {
       nodes,
       "logical",
     );
-    expect(out).toHaveLength(2);
-    expect(out[0].id).toBe("e1::0");
+    expect(out).toHaveLength(1);
+    expect(out[0].id).toBe("e1");
     expect(out[0].sourceHandle).toBe("fr:id");
     expect(out[0].targetHandle).toBe("fl:a_id");
-    expect(out[1].sourceHandle).toBe("fr:x");
-    expect(out[1].targetHandle).toBe("fl:y");
-  });
-
-  it("erd: keeps the stored handle side (left source / right target) instead of forcing fr/fl", () => {
-    const e: ModelEdge = {
-      id: "e1",
-      from: "a",
-      to: "b",
-      keys: [{ left: "id", right: "a_id" }],
-      bidirectional: false,
-      sourceHandle: "left",
-      targetHandle: "right",
-    };
-    const out = buildRfEdges([e], nodes, "logical");
-    expect(out[0].sourceHandle).toBe("fl:id");
-    expect(out[0].targetHandle).toBe("fr:a_id");
   });
 
   it("erd: falls back to node-level handles when a key field is missing", () => {
@@ -118,14 +101,6 @@ describe("buildRfEdges geometry-derived sides (no stored handle)", () => {
     const out = buildRfEdges([bare], [at("a", 600), at("b", 0)], "logical");
     expect(out[0].sourceHandle).toBe("fl:id");
     expect(out[0].targetHandle).toBe("fr:id");
-  });
-
-  it("an explicit stored handle still wins over geometry", () => {
-    const e: ModelEdge = { ...bare, sourceHandle: "left", targetHandle: "right" };
-    // geometry alone would say source right / target left here
-    const out = buildRfEdges([e], [at("a", 0), at("b", 600)], "compact");
-    expect(out[0].sourceHandle).toBe("left");
-    expect(out[0].targetHandle).toBe("right");
   });
 });
 

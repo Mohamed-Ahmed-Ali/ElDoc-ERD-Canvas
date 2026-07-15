@@ -1,4 +1,4 @@
-const fs = require("fs");
+const fs = require("node:fs");
 
 const testFiles = [
   "packages/web/src/components/canvas/edges.test.ts",
